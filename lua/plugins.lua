@@ -95,7 +95,7 @@ return {
           grep_open_files = true,
           prompt_title = 'Live Grep in Open Files',
         }
-      end, { desc = 'open files' })
+      end, { desc = 'files that are open' })
 
       -- Shortcut for searching your Neovim configuration files
       vim.keymap.set('n', '<leader>/c', function()
@@ -477,11 +477,9 @@ return {
           -- show_hidden_count = true,
           hide_gitignored = false,
           hide_by_name = {
-            -- 		'.git',
-            '.DS_Store',
             'thumbs.db',
           },
-          never_show = {},
+          never_show = { '.DS_Store' },
         },
       },
     },
@@ -640,12 +638,12 @@ return {
 
           local bufnr = vim.api.nvim_get_current_buf()
           local opts = { buffer = bufnr, remap = false }
-          vim.keymap.set('n', '<leader>gp', function()
+          vim.keymap.set('n', '<leader>gP', function()
             vim.cmd.Git 'push'
           end, opts)
 
           -- rebase always
-          vim.keymap.set('n', '<leader>gP', function()
+          vim.keymap.set('n', '<leader>gp', function()
             vim.cmd.Git { 'pull', '--rebase' }
           end, opts)
 
