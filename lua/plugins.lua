@@ -12,7 +12,6 @@ return {
         ['<leader>/'] = { name = 'search in', _ = 'which_key_ignore' },
         ['<leader>x'] = { name = 'error / warning', _ = 'which_key_ignore' },
         ['<leader>r'] = { name = 'run / rename', _ = 'which_key_ignore' },
-        ['<leader>g'] = { name = 'git', _ = 'which_key_ignore' },
         ['<leader>q'] = { name = 'quit', _ = 'which_key_ignore' },
       }
     end,
@@ -78,6 +77,7 @@ return {
       vim.keymap.set('n', '<leader>/w', builtin.grep_string, { desc = 'current word' })
       vim.keymap.set('n', '<leader>//', builtin.live_grep, { desc = 'live grep' })
       vim.keymap.set('n', '<leader>xd', builtin.diagnostics, { desc = 'search diagnostics' })
+      vim.keymap.set('n', '<leader>/!', builtin.planets, { desc = 'search pluto / moon' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '//', function()
@@ -508,7 +508,7 @@ return {
         desc = 'Flash Treesitter',
       },
       {
-        'r',
+        '<leader>/r',
         mode = 'o',
         function()
           require('flash').remote()
@@ -516,7 +516,7 @@ return {
         desc = 'Remote Flash',
       },
       {
-        'R',
+        '<leader>/R',
         mode = { 'o', 'x' },
         function()
           require('flash').treesitter_search()
@@ -621,40 +621,37 @@ return {
   },
 
   {
-    'tpope/vim-fugitive',
+    'akinsho/toggleterm.nvim',
+    version = '*',
+
     config = function()
-      vim.keymap.set('n', '<leader>gg', vim.cmd.Git, { desc = 'git status' })
+      local Terminal = require('toggleterm.terminal').Terminal
 
-      local gg = vim.api.nvim_create_augroup('gg', {})
+      local lazygit = Terminal:new { cmd = 'lazygit', hidden = true, direction = 'float' }
+      local python_down = Terminal:new { cmd = 'python3 %', hidden = true, direction = 'horizontal' }
+      -- local python_side = Terminal:new { cmd = 'python3 %', hidden = true, direction = 'vertical' }
 
-      local autocmd = vim.api.nvim_create_autocmd
-      autocmd('BufWinEnter', {
-        group = gg,
-        pattern = '*',
-        callback = function()
-          if vim.bo.ft ~= 'fugitive' then
-            return
-          end
+      function Toggle_lazygit()
+        lazygit:toggle()
+      end
 
-          local bufnr = vim.api.nvim_get_current_buf()
-          local opts = { buffer = bufnr, remap = false }
-          vim.keymap.set('n', '<leader>gP', function()
-            vim.cmd.Git 'push'
-          end, opts)
+      function DownPythonToggle()
+        python_down:open()
+      end
 
-          -- rebase always
-          vim.keymap.set('n', '<leader>gp', function()
-            vim.cmd.Git { 'pull', '--rebase' }
-          end, opts)
+      -- function SidePythonToggle()
+      --   python_side:toggle()
+      -- end
 
-          -- NOTE: It allows me to easily set the branch i am pushing and any tracking
-          -- needed if i did not set the branch up correctly
-          vim.keymap.set('n', '<leader>gt', ':Git push -u origin ', opts)
-        end,
-      })
+      vim.api.nvim_set_keymap('n', '<leader>g', '<cmd>lua Toggle_lazygit()<CR>', { desc = 'lazygit', noremap = true, silent = true })
 
-      vim.keymap.set('n', '<leader>gp', '<cmd>diffget //2<CR>')
-      vim.keymap.set('n', '<leader>gn', '<cmd>diffget //3<CR>')
+      vim.api.nvim_set_keymap('n', '<leader>rx', '<cmd>lua DownPythonToggle()<CR>', { desc = 'Run python file down', noremap = true })
+
+      -- vim.api.nvim_set_keymap('n', '<leader>rs', '<cmd>lua SidePythonToggle()<CR>', { desc = 'Run python file side', noremap = true, silent = true })
+
+      vim.keymap.set('n', '<C-/>', function()
+        require('toggleterm').toggle()
+      end, { desc = 'terminal' })
     end,
   },
 
@@ -689,4 +686,5 @@ return {
       }
     end,
   },
+  { 'eandrju/cellular-automaton.nvim' },
 }
