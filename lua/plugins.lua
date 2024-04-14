@@ -487,50 +487,14 @@ return {
 
   {
     'folke/flash.nvim',
-    opts = {
-      labels = 'tnseriaodhcplfuwyxgmvkbjzq',
-    },
+    event = 'VeryLazy',
+    -- stylua: ignore
+    opts = { labels = 'tnseriaodhcplfuwyxgmvkbjzq', },
+    -- stylua: ignore
     keys = {
-      {
-        's',
-        mode = { 'n', 'x', 'o' },
-        function()
-          require('flash').jump()
-        end,
-        desc = 'Flash',
-      },
-      {
-        'S',
-        mode = { 'n', 'o', 'x' },
-        function()
-          require('flash').treesitter()
-        end,
-        desc = 'Flash Treesitter',
-      },
-      {
-        '<leader>/r',
-        mode = 'o',
-        function()
-          require('flash').remote()
-        end,
-        desc = 'Remote Flash',
-      },
-      {
-        '<leader>/R',
-        mode = { 'o', 'x' },
-        function()
-          require('flash').treesitter_search()
-        end,
-        desc = 'Treesitter Search',
-      },
-      {
-        '<c-s>',
-        mode = { 'c' },
-        function()
-          require('flash').toggle()
-        end,
-        desc = 'Toggle Flash Search',
-      },
+      { 's', mode = { 'n', 'x', 'o' }, function() require('flash').jump() end, desc = 'Flash', },
+      { 'S', mode = { 'n', 'o', 'x' }, function() require('flash').treesitter() end, desc = 'Flash Treesitter', },
+      { '<c-s>', mode = { 'c' }, function() require('flash').toggle() end, desc = 'Toggle Flash Search', },
     },
   },
 
@@ -542,8 +506,6 @@ return {
       vim.cmd.colorscheme 'catppuccin-frappe'
     end,
   },
-
-  { 'tpope/vim-sleuth' }, -- Detect tabstop and shiftwidth automatically
 
   {
     'lukas-reineke/indent-blankline.nvim', -- Add indentation guides even on blank lines
@@ -625,33 +587,35 @@ return {
     version = '*',
 
     config = function()
-      local Terminal = require('toggleterm.terminal').Terminal
+      require('toggleterm').setup {
+        open_mapping = [[<C-/>]],
+      }
 
+      function _G.set_terminal_keymaps()
+        local opts = { buffer = 0 }
+        vim.keymap.set('t', '<esc>', [[<C-\><C-n>]], opts)
+        vim.keymap.set('t', '<C-h>', [[<Cmd>wincmd h<CR>]], opts)
+        vim.keymap.set('t', '<C-k>', [[<Cmd>wincmd j<CR>]], opts)
+        vim.keymap.set('t', '<C-j>', [[<Cmd>wincmd k<CR>]], opts)
+        vim.keymap.set('t', '<C-l>', [[<Cmd>wincmd l<CR>]], opts)
+      end
+
+      -- if you only want these mappings for toggle term use term://*toggleterm#* instead
+      vim.cmd 'autocmd! TermOpen term://* lua set_terminal_keymaps()'
+
+      -- lazygit terminal custom
+      local Terminal = require('toggleterm.terminal').Terminal
       local lazygit = Terminal:new { cmd = 'lazygit', hidden = true, direction = 'float' }
-      local python_down = Terminal:new { cmd = 'python3 %', hidden = true, direction = 'horizontal' }
-      -- local python_side = Terminal:new { cmd = 'python3 %', hidden = true, direction = 'vertical' }
 
       function Toggle_lazygit()
         lazygit:toggle()
       end
 
-      function DownPythonToggle()
-        python_down:open()
-      end
-
-      -- function SidePythonToggle()
-      --   python_side:toggle()
-      -- end
-
       vim.api.nvim_set_keymap('n', '<leader>g', '<cmd>lua Toggle_lazygit()<CR>', { desc = 'lazygit', noremap = true, silent = true })
 
-      vim.api.nvim_set_keymap('n', '<leader>rx', '<cmd>lua DownPythonToggle()<CR>', { desc = 'Run python file down', noremap = true })
-
-      -- vim.api.nvim_set_keymap('n', '<leader>rs', '<cmd>lua SidePythonToggle()<CR>', { desc = 'Run python file side', noremap = true, silent = true })
-
-      vim.keymap.set('n', '<C-/>', function()
-        require('toggleterm').toggle()
-      end, { desc = 'terminal' })
+      vim.keymap.set('n', '<leader>rr', '<cmd>TermExec cmd="python3 %"<cr>', { desc = 'run python file down' })
+      vim.keymap.set('n', '<leader>rs', '<cmd>TermExec cmd="python3 %" direction=vertical size=vim.o.columns*0.5<cr>', { desc = 'run python file on side ->' })
+      vim.keymap.set('n', '<leader>ri', '<cmd>TermExec cmd="python3 -m pip install ."<cr>', { desc = 'run python pip install .' })
     end,
   },
 
