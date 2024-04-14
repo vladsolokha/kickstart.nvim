@@ -1,3 +1,5 @@
+-- [[ Use options, keymaps, and autocommands in one file ]]
+-- modify as in a typical .vimrc file
 require 'options-keymaps-autocmd'
 
 -- [[ Install `lazy.nvim` plugin manager ]]
@@ -13,6 +15,9 @@ vim.opt.rtp:prepend(lazypath)
 -- All managed by lazy plugin manager
 -- :Lazy
 require('lazy').setup({
+  -- modify plugins here
+  -- also contains some keymaps and options
+  -- i.e.: telescope, fuzzy-find, which-key, toggleterm, lsp, and more
   { import = 'plugins' },
 }, {
   ui = {
