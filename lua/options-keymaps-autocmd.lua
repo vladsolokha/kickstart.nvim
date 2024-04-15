@@ -125,11 +125,12 @@ vim.keymap.set('n', 'N', 'Nzz')
 vim.keymap.set('n', '<C-u>', '<C-u>zz')
 vim.keymap.set('n', '<C-d>', '<C-d>zz')
 
+vim.keymap.set('n', '<leader>p', 'diw"0P', { desc = 'stamp word' })
 vim.keymap.set('n', 'J', 'mzJ`z')
-vim.keymap.set('x', '<leader>p', [["_dP]], { desc = 'stamp word' }) -- put word without yanking replaced
+vim.keymap.set('x', 'p', [["_dP]], { desc = 'stamp word' }) -- put word without yanking replaced
 vim.keymap.set('n', 'Y', 'Yg$')
-vim.keymap.set({ 'n', 'v' }, '<leader>d', [["_d]]) -- delete into void
-vim.keymap.set('n', '<leader>s', [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = 'replace current word' })
+vim.keymap.set({ 'n', 'v' }, '<leader>D', [["_d]], { desc = 'delete into void' }) -- delete into void
+vim.keymap.set('n', '<leader>S', [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = 'replace current word' })
 
 -- vim.keymap.set('n', '<leader>rr', ':split|terminal python3 %<cr>', { desc = 'Run python file down' })
 -- vim.keymap.set('n', '<leader>rs', ':vsplit|terminal python3 %<cr>', { desc = 'Run python file side ->' })
