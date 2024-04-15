@@ -331,9 +331,6 @@ return {
       {
         'L3MON4D3/LuaSnip',
         build = (function()
-          -- Build Step is needed for regex support in snippets.
-          -- This step is not supported in many windows environments.
-          -- Remove the below condition to re-enable on windows.
           if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
             return
           end
@@ -343,12 +340,14 @@ return {
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          {
+            'rafamadriz/friendly-snippets',
+            config = function()
+              require('luasnip.loaders.from_vscode').lazy_load()
+              --- will exclude all javascript snippets
+              --     exclude = { "javascript" },
+            end,
+          },
         },
       },
       'saadparwaiz1/cmp_luasnip',
@@ -384,8 +383,8 @@ return {
           ['<C-p>'] = cmp.mapping.select_prev_item(),
 
           -- Scroll the documentation window [b]ack / [f]orward
-          ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-          ['<C-f>'] = cmp.mapping.scroll_docs(4),
+          ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+          ['<C-u>'] = cmp.mapping.scroll_docs(4),
 
           -- Accept ([y]es) the completion.
           --  This will auto-import if your LSP supports it.
@@ -393,16 +392,8 @@ return {
           ['<C-y>'] = cmp.mapping.confirm { select = true },
 
           -- Manually trigger a completion from nvim-cmp.
-          --  Generally you don't need this, because nvim-cmp will display
-          --  completions whenever it has completion options available.
           ['<C-Space>'] = cmp.mapping.complete {},
 
-          -- Think of <c-l> as moving to the right of your snippet expansion.
-          --  So if you have a snippet that's like:
-          --  function $name($args)
-          --    $body
-          --  end
-          --
           -- <c-l> will move you to the right of each of the expansion locations.
           -- <c-h> is similar, except moving you backwards.
           ['<C-l>'] = cmp.mapping(function()
@@ -437,9 +428,6 @@ return {
       auto_install = true,
       highlight = {
         enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
         additional_vim_regex_highlighting = { 'ruby' },
       },
       indent = { enable = true, disable = { 'ruby' } },
@@ -449,13 +437,7 @@ return {
 
       ---@diagnostic disable-next-line: missing-fields
       require('nvim-treesitter.configs').setup(opts)
-
-      -- There are additional nvim-treesitter modules that you can use to interact
-      -- with nvim-treesitter. You should go explore a few and see what interests you:
-      --
-      --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-      --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-      --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+      require 'treesitter-context'
     end,
   },
 
@@ -507,26 +489,9 @@ return {
     end,
   },
 
-  {
-    'lukas-reineke/indent-blankline.nvim', -- Add indentation guides even on blank lines
-    -- See `:help ibl`
-    main = 'ibl',
-    opts = {},
-  },
-
-  {
+  { -- comments using gc, comment out lines of code
     'numToStr/Comment.nvim',
     opts = {},
-
-    --  This is equivalent to: require('Comment').setup({})
-    -- Use `opts = {}` to force a plugin to be loaded.
-    -- "gc" to comment visual regions/lines
-
-    -- Here is a more advanced example where we pass configuration
-    -- options to `gitsigns.nvim`. This is equivalent to the following Lua:
-    --    require('gitsigns').setup({ ... })
-    -- See `:help gitsigns` to understand what the configuration keys do
-    --
   },
 
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
@@ -540,46 +505,6 @@ return {
         changedelete = { text = '~' },
       },
     },
-  },
-
-  {
-    'nvimdev/dashboard-nvim',
-    event = 'VimEnter',
-    config = function()
-      require('dashboard').setup {
-        -- config
-        theme = 'hyper',
-        config = {
-          week_header = {
-            enable = true,
-          },
-          shortcut = {
-            { desc = '󰊳 Update', group = '@property', action = 'Lazy update', key = 'u' },
-            {
-              icon = ' ',
-              icon_hl = '@variable',
-              desc = 'Files',
-              group = 'Label',
-              action = 'Telescope find_files',
-              key = 'f',
-            },
-            {
-              desc = ' Apps',
-              group = 'DiagnosticHint',
-              action = 'Telescope app',
-              key = 'a',
-            },
-            {
-              desc = ' dotfiles',
-              group = 'Number',
-              action = 'Telescope dotfiles',
-              key = 'd',
-            },
-          },
-        },
-      }
-    end,
-    dependencies = { { 'nvim-tree/nvim-web-devicons' } },
   },
 
   {
@@ -648,10 +573,24 @@ return {
           suffix_next = '', -- Suffix to search with "next" method
         },
       }
+
+      -- start screen mini with sessions
+      require('mini.starter').setup {}
+      -- session manager, save session before quitting
+      require('mini.sessions').setup {}
     end,
   },
 
   { 'eandrju/cellular-automaton.nvim' },
+
+  {
+    'shellRaining/hlchunk.nvim',
+    -- event = { 'UIEnter' },
+    config = function()
+      ---@diagnostic disable-next-line: missing-fields
+      require('hlchunk').setup { blank = { enable = false } }
+    end,
+  },
 
   {
     'nvim-lualine/lualine.nvim',
