@@ -73,7 +73,7 @@ vim.opt.scrolloff = 10
 vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
-vim.keymap.set('n', '<C-s>', '<cmd>:w<cr>')
+vim.keymap.set('n', '<C-s>', '<Esc><cmd>w<cr>')
 
 vim.keymap.set('n', '<leader>d', '<cmd>bd<cr>', { desc = 'close buffer' })
 vim.keymap.set('n', '<leader>qq', '<cmd>qa<cr>', { desc = 'close nvim' })
