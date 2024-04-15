@@ -106,10 +106,13 @@ vim.keymap.set('n', '<leader>e', ':Neotree toggle filesystem reveal right<CR>', 
 
 vim.keymap.set('n', '<leader>wd', '<C-w>q', { desc = 'Quit window' })
 
-vim.keymap.set('n', '<A-Down>', '<cmd>m .+1<cr>==', { desc = 'Move down' })
-vim.keymap.set('n', '<A-Up>', '<cmd>m .-2<cr>==', { desc = 'Move up' })
-vim.keymap.set({ 'v', 'x' }, '<A-Down>', [[<cmd>m '>+1<CR>gv=gv]], { desc = 'Move down' })
-vim.keymap.set({ 'v', 'x' }, '<A-Up>', [[<cmd>m '<-2<CR>gv=gv]], { desc = 'Move up' })
+-- move lines up or down, Alt-Up/Down
+vim.keymap.set('n', '<A-Down>', '<cmd>m .+1<cr>==')
+vim.keymap.set('n', '<A-Up>', '<cmd>m .-2<cr>==')
+vim.keymap.set('i', '<A-Down>', '<Esc><cmd>m .+1<cr>==gi')
+vim.keymap.set('i', '<A-Up>', '<Esc><cmd>m .-2<cr>==gi')
+vim.keymap.set('v', '<A-Down>', ":m '>+1<CR>gv=gv")
+vim.keymap.set('v', '<A-Up>', ":m '<-2<CR>gv=gv")
 
 vim.keymap.set('n', '<C-Tab>', '<cmd>bnext<CR>', { desc = 'Next buffer' })
 vim.keymap.set('n', '<C-S-Tab>', '<cmd>bprev<CR>', { desc = 'Prev buffer' })
