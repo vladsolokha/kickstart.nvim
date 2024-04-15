@@ -99,15 +99,20 @@ vim.keymap.set('n', '<leader>ws', '<cmd>vsplit|bnext<cr>', { desc = 'side split 
 vim.keymap.set('n', '<leader>wv', '<cmd>sbn<cr>', { desc = 'down split' })
 vim.keymap.set('n', '<leader>wr', '<C-w>r', { desc = 'swap / rotate' })
 
+vim.keymap.set('n', '<leader>ww', '15<C-w>>', { desc = 'increase width' })
+vim.keymap.set('n', '<leader>wh', '15<C-w>+', { desc = 'increase height' })
+
 vim.keymap.set('n', '<leader>e', ':Neotree toggle filesystem reveal right<CR>', { desc = 'Explorer' })
 
 vim.keymap.set('n', '<leader>wd', '<C-w>q', { desc = 'Quit window' })
 
-vim.keymap.set({ 'n', 'v', 'x' }, '<A-Down>', '<cmd>m .+1<cr>==', { desc = 'Move down' })
-vim.keymap.set({ 'n', 'v', 'x' }, '<A-Up>', '<cmd>m .-2<cr>==', { desc = 'Move up' })
+vim.keymap.set('n', '<A-Down>', '<cmd>m .+1<cr>==', { desc = 'Move down' })
+vim.keymap.set('n', '<A-Up>', '<cmd>m .-2<cr>==', { desc = 'Move up' })
+vim.keymap.set({ 'v', 'x' }, '<A-Down>', [[<cmd>m '>+1<CR>gv=gv]], { desc = 'Move down' })
+vim.keymap.set({ 'v', 'x' }, '<A-Up>', [[<cmd>m '<-2<CR>gv=gv]], { desc = 'Move up' })
 
-vim.keymap.set({ 'n' }, '<C-Tab>', '<cmd>bnext<CR>', { desc = 'Next buffer' })
-vim.keymap.set({ 'n' }, '<C-S-Tab>', '<cmd>bprev<CR>', { desc = 'Prev buffer' })
+vim.keymap.set('n', '<C-Tab>', '<cmd>bnext<CR>', { desc = 'Next buffer' })
+vim.keymap.set('n', '<C-S-Tab>', '<cmd>bprev<CR>', { desc = 'Prev buffer' })
 
 vim.keymap.set('n', '<Tab>', '>>')
 vim.keymap.set('n', '<S-Tab>', '<<')
@@ -121,10 +126,10 @@ vim.keymap.set('n', '<C-u>', '<C-u>zz')
 vim.keymap.set('n', '<C-d>', '<C-d>zz')
 
 vim.keymap.set('n', 'J', 'mzJ`z')
-vim.keymap.set('x', '<leader>p', [["_dP]], { desc = 'stamp word' })
-
-vim.keymap.set({ 'n', 'v' }, '<leader>y', [["+y]], { desc = 'yank to system clipboard' })
-vim.keymap.set('n', '<leader>Y', [["+Y]], { desc = 'big yank to system clipboard' })
+vim.keymap.set('x', '<leader>p', [["_dP]], { desc = 'stamp word' }) -- put word without yanking replaced
+vim.keymap.set('n', 'Y', 'Yg$')
+vim.keymap.set({ 'n', 'v' }, '<leader>d', [["_d]]) -- delete into void
+vim.keymap.set('n', '<leader>s', [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = 'replace current word' })
 
 -- vim.keymap.set('n', '<leader>rr', ':split|terminal python3 %<cr>', { desc = 'Run python file down' })
 -- vim.keymap.set('n', '<leader>rs', ':vsplit|terminal python3 %<cr>', { desc = 'Run python file side ->' })
