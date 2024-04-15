@@ -106,8 +106,8 @@ vim.keymap.set('n', '<leader>wd', '<C-w>q', { desc = 'Quit window' })
 vim.keymap.set({ 'n', 'v', 'x' }, '<A-Down>', '<cmd>m .+1<cr>==', { desc = 'Move down' })
 vim.keymap.set({ 'n', 'v', 'x' }, '<A-Up>', '<cmd>m .-2<cr>==', { desc = 'Move up' })
 
-vim.keymap.set({ 'n' }, '<C-Tab>', '<cmd>bnext<cr>', { desc = 'Next buffer' })
-vim.keymap.set({ 'n' }, '<C-S-Tab>', '<cmd>bprevious<cr>', { desc = 'Prev buffer' })
+vim.keymap.set({ 'n' }, '<C-Tab>', '<cmd>bnext<CR>', { desc = 'Next buffer' })
+vim.keymap.set({ 'n' }, '<C-S-Tab>', '<cmd>bprev<CR>', { desc = 'Prev buffer' })
 
 vim.keymap.set('n', '<Tab>', '>>')
 vim.keymap.set('n', '<S-Tab>', '<<')
