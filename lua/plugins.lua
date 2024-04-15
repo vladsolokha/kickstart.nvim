@@ -74,9 +74,8 @@ return {
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader><leader>', builtin.find_files, { desc = 'find files' })
-      vim.keymap.set('n', '<leader>b', builtin.buffers, { desc = 'all open buffers' })
+      vim.keymap.set('n', '<leader>/b', builtin.buffers, { desc = 'all open buffers' })
       vim.keymap.set('n', '<leader>/w', builtin.grep_string, { desc = 'current word' })
-      vim.keymap.set('n', '<leader>//', builtin.live_grep, { desc = 'live grep' })
       vim.keymap.set('n', '<leader>xd', builtin.diagnostics, { desc = 'search diagnostics' })
       vim.keymap.set('n', '<leader>/!', builtin.planets, { desc = 'search pluto / moon' })
 
@@ -91,7 +90,7 @@ return {
 
       -- It's also possible to pass additional configuration options.
       --  See `:help telescope.builtin.live_grep()` for information about particular keys
-      vim.keymap.set('n', '<leader>/f', function()
+      vim.keymap.set('n', '<leader>//', function()
         builtin.live_grep {
           grep_open_files = true,
           prompt_title = 'Live Grep in Open Files',
@@ -602,11 +601,25 @@ return {
           suffix_next = '', -- Suffix to search with "next" method
         },
       }
+    end,
+  },
 
-      -- start screen mini with sessions
-      require('mini.starter').setup {}
-      -- session manager, save session before quitting
-      require('mini.sessions').setup {}
+  {
+    'mbbill/undotree',
+
+    config = function()
+      vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle)
+    end,
+  },
+
+  {
+    'rmagatti/auto-session',
+    config = function()
+      require('auto-session').setup {
+        log_level = 'error',
+        auto_session_suppress_dirs = { '~/', '~/Downloads', '/' },
+      }
+      vim.o.sessionoptions = 'blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions'
     end,
   },
 
@@ -631,7 +644,7 @@ return {
           lualine_a = { 'mode' },
           lualine_b = { 'branch', 'diff', { 'diagnostics', sections = { 'error', 'warn' } } },
           lualine_c = { { 'filename', path = 1 } },
-          lualine_x = { 'filetype' },
+          lualine_x = { { require('auto-session.lib').current_session_name }, 'filetype' },
           lualine_y = { 'progress' },
           lualine_z = { 'location' },
         },
