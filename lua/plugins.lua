@@ -1,4 +1,5 @@
 return {
+
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
@@ -437,7 +438,16 @@ return {
 
       ---@diagnostic disable-next-line: missing-fields
       require('nvim-treesitter.configs').setup(opts)
-      require 'treesitter-context'
+    end,
+  },
+
+  { -- context of functions and other long statements on treesitter
+    'nvim-treesitter/nvim-treesitter-context',
+    config = function()
+      require('treesitter-context').setup {}
+      vim.keymap.set('n', '[c', function()
+        require('treesitter-context').go_to_context(vim.v.count1)
+      end, { silent = true })
     end,
   },
 
@@ -518,7 +528,7 @@ return {
 
       function _G.set_terminal_keymaps()
         local opts = { buffer = 0 }
-        vim.keymap.set('t', '<esc>', [[<C-\><C-n>]], opts)
+        vim.keymap.set('t', '<esc><esc>', [[<C-\><C-n>]], opts)
         vim.keymap.set('t', '<C-h>', [[<Cmd>wincmd h<CR>]], opts)
         vim.keymap.set('t', '<C-k>', [[<Cmd>wincmd j<CR>]], opts)
         vim.keymap.set('t', '<C-j>', [[<Cmd>wincmd k<CR>]], opts)
@@ -526,11 +536,28 @@ return {
       end
 
       -- if you only want these mappings for toggle term use term://*toggleterm#* instead
-      vim.cmd 'autocmd! TermOpen term://* lua set_terminal_keymaps()'
+      vim.cmd 'autocmd! TermOpen term://*toggleterm#* lua set_terminal_keymaps()'
 
       -- lazygit terminal custom
       local Terminal = require('toggleterm.terminal').Terminal
-      local lazygit = Terminal:new { cmd = 'lazygit', hidden = true, direction = 'float' }
+      local lazygit = Terminal:new {
+        cmd = 'lazygit',
+        dir = 'git_dir',
+        hidden = true,
+        direction = 'float',
+        float_opts = {
+          boarder = 'double',
+        },
+        -- function to run on opening the terminal
+        on_open = function(term)
+          vim.cmd 'startinsert!'
+          vim.api.nvim_buf_set_keymap(term.bufnr, 'n', 'q', '<cmd>close<CR>', { noremap = true, silent = true })
+        end,
+        -- -- function to run on closing the terminal
+        -- on_close = function(term)
+        --   vim.cmd 'startinsert!'
+        -- end,
+      }
 
       function Toggle_lazygit()
         lazygit:toggle()
