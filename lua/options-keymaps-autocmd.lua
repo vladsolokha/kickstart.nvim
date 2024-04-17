@@ -117,8 +117,6 @@ vim.keymap.set('v', '<A-Up>', ":m '<-2<CR>gv=gv")
 vim.keymap.set('n', '<C-Tab>', '<cmd>bnext<CR>', { desc = 'Next buffer' })
 vim.keymap.set('n', '<C-S-Tab>', '<cmd>bprev<CR>', { desc = 'Prev buffer' })
 
-vim.keymap.set('n', '<Tab>', '>>')
-vim.keymap.set('n', '<S-Tab>', '<<')
 vim.keymap.set('v', '<Tab>', '>gv')
 vim.keymap.set('v', '<S-Tab>', '<gv')
 
@@ -128,9 +126,13 @@ vim.keymap.set('n', 'N', 'Nzz')
 vim.keymap.set('n', '<C-u>', '<C-u>zz')
 vim.keymap.set('n', '<C-d>', '<C-d>zz')
 
+vim.keymap.set({ 'i' }, 'kj', '<esc>', { desc = 'old normal' })
+
+vim.keymap.set({ 'v' }, 'y', 'ygv<esc>', { desc = 'restore cursor position after yank' })
+vim.keymap.set({ 'n' }, '<cr>', 'i<cr><esc>l', { desc = 'split line down at cursor' })
 vim.keymap.set('n', '<leader>p', 'diw"0P', { desc = 'stamp word' })
 vim.keymap.set('n', 'J', 'mzJ`z')
-vim.keymap.set('x', 'p', [["_dP]], { desc = 'stamp word' }) -- put word without yanking replaced
+vim.keymap.set({ 'x', 'v' }, 'p', [["_dP]], { desc = 'stamp word' }) -- put word without yanking replaced
 vim.keymap.set('n', 'Y', 'Yg$')
 vim.keymap.set({ 'n', 'v' }, '<leader>D', [["_d]], { desc = 'delete into void' }) -- delete into void
 vim.keymap.set('n', '<leader>S', [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = 'rename all these words' })
