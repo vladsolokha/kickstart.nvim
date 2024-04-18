@@ -11,8 +11,8 @@ return {
 				["<leader>c"] = { name = "code", _ = "which_key_ignore" },
 				["<leader>w"] = { name = "window", _ = "which_key_ignore" },
 				["<leader>/"] = { name = "search in", _ = "which_key_ignore" },
-				["<leader>x"] = { name = "error / warning", _ = "which_key_ignore" },
-				["<leader>r"] = { name = "run / rename", _ = "which_key_ignore" },
+				["<leader>x"] = { name = "error warning", _ = "which_key_ignore" },
+				["<leader>r"] = { name = "run or rename", _ = "which_key_ignore" },
 				["<leader>q"] = { name = "quit", _ = "which_key_ignore" },
 			})
 		end,
@@ -41,7 +41,19 @@ return {
 				-- You can put your default mappings / updates / etc. in here
 				--  All the info you're looking for is in `:help telescope.setup()`
 				-- defaults = { mappings = { i = { ['<c-enter>'] = 'to_fuzzy_refine' }, }, },
-				-- pickers = {}
+				pickers = {
+					git_files = { theme = "ivy" },
+					oldfiles = { theme = "ivy" },
+					buffers = { theme = "ivy" },
+					colorscheme = { theme = "ivy" },
+					marks = { theme = "ivy" },
+					lsp_document_symbols = { theme = "cursor" },
+					lsp_dynamic_workspace_symbols = { theme = "cursor" },
+				},
+				defaults = {
+					-- layout_strategy = "vertical",
+					layout_config = { height = 0.5 },
+				},
 				extensions = {
 					["ui-select"] = {
 						require("telescope.themes").get_dropdown(),
@@ -54,25 +66,36 @@ return {
 			pcall(require("telescope").load_extension, "ui-select")
 
 			-- [[ Telescope keymaps ]]
-			-- See `:help telescope.builtin`
+			-- help telescope.builtin
 			local builtin = require("telescope.builtin")
-			vim.keymap.set("n", "<leader><leader>", builtin.git_files, { desc = "git files" })
-			vim.keymap.set("n", "<leader>/f", builtin.find_files, { desc = "find files all" })
-			vim.keymap.set("n", "<leader>/b", builtin.buffers, { desc = "all open buffers" })
-			vim.keymap.set("n", "<leader>/r", builtin.oldfiles, { desc = "recent files" })
-			vim.keymap.set("n", "//", builtin.grep_string, { desc = "current word" })
-			vim.keymap.set("n", "<leader>//", builtin.live_grep, { desc = "live grep all" })
-			vim.keymap.set("n", "<leader>/!", builtin.planets, { desc = "search pluto / moon" })
-			vim.keymap.set("n", "<leader>/c", function()
-				builtin.find_files({ cwd = vim.fn.stdpath("config") })
-			end, { desc = "config files" })
+			-- These should be big floating with preview windows
+			vim.keymap.set("n", "<leader>f", function()
+				builtin.find_files({ hidden = true })
+			end, { desc = "files" })
 
-			-- vim.keymap.set('n', '//', function()
-			--   builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-			--     winblend = 10,
-			--     previewer = false,
-			--   })
-			-- end, { desc = 'fuzzy search this buffer' })
+			vim.keymap.set("n", "<leader>//", function()
+				builtin.live_grep({ max_results = 50 })
+			end, { desc = "grep all" })
+
+			vim.keymap.set("n", "<leader>/!", builtin.planets, { desc = "search pluto / moon" })
+
+			-- These should be small windows on bottom of buffer, no preview
+			-- vim.keymap.set("n", "//", builtin.grep_string, { desc = "current word" })
+			vim.keymap.set("n", "<leader><leader>", builtin.git_files, { desc = "git files" })
+			vim.keymap.set("n", "<leader>o", builtin.oldfiles, { desc = "old files" })
+			vim.keymap.set("n", "<leader>b", builtin.buffers, { desc = "buffers" })
+			vim.keymap.set("n", "<leader>/t", builtin.colorscheme, { desc = "theme colors" })
+			vim.keymap.set("n", "<leader>/m", builtin.marks, { desc = "theme colors" })
+			vim.keymap.set("n", "<leader>/c", function()
+				require("telescope.builtin").find_files(
+					require("telescope.themes").get_ivy({ cwd = vim.fn.stdpath("config"), previewer = false })
+				)
+			end, { desc = "config files" })
+			vim.keymap.set("n", "//", function()
+				builtin.grep_string(require("telescope.themes").get_ivy({
+					winblend = 5,
+				}))
+			end, { desc = "fuzzy" })
 
 			-- vim.keymap.set('n', '<leader>//', function()
 			--   builtin.live_grep {
@@ -178,12 +201,14 @@ return {
 			local servers = {
 				-- clangd = {},
 				-- gopls = {},
-				pyright = {},
+				-- pyright = {},
+				-- python-lsp-server = {},
+				-- ruff = {},
 				-- rust_analyzer = {},
 				-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
 				-- Some languages (like typescript) have entire language plugins that can be useful:
 				--    https://github.com/pmizio/typescript-tools.nvim
-				tsserver = {},
+				-- tsserver = {},
 				--
 
 				lua_ls = {
@@ -257,7 +282,7 @@ return {
 			formatters_by_ft = {
 				lua = { "stylua" },
 				-- Conform can also run multiple formatters sequentially
-				python = { "isort", "black" },
+				python = { "autoflake", "ruff" },
 				--
 				-- You can use a sub-list to tell conform to run *until* a formatter
 				-- is found.
@@ -394,49 +419,63 @@ return {
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
-			"MunifTanjim/nui.nvim",
+			"muniftanjim/nui.nvim",
 		},
-		opts = {
-			window = {
-				position = "right",
-			},
-			filesystem = {
-				filtered_items = {
-					visible = true,
-					-- show_hidden_count = true,
-					hide_gitignored = false,
-					hide_by_name = {
-						"thumbs.db",
+		configure = function()
+			require("neo-tree").setup({
+				close_if_last_window = true,
+				source_selector = {
+					sources = {
+						source = "filesystem",
+						display_name = " 󰉓 Files ",
 					},
-					never_show = { ".DS_Store" },
 				},
-			},
-		},
+				window = {
+					width = "fit-content",
+				},
+				filesystem = {
+					filtered_items = {
+						hide_dotfiles = false,
+						hide_gitignored = false,
+						never_show = { ".DS_Store" },
+					},
+				},
+				-- I don't need git or buffer windows
+				-- already have in telescope fuzzy find and lazygit
+				git_status = { "" },
+				buffers = { "" },
+			})
+		end,
+		vim.keymap.set(
+			"n",
+			"<leader>e",
+			":Neotree toggle reveal position=right<CR>",
+			{ silent = true, desc = "explorer" }
+		),
 	},
 
 	{
 		"folke/flash.nvim",
 		event = "VeryLazy",
-        -- stylua: ignore
-        opts = {
-        },
+		--@type Flash.Config
+		opts = {},
 		config = function()
 			require("flash").setup({
 				labels = "tnseriaodhcplfuwyxgmvkbjzq",
+				-- disable f,F,T,t,;,, modes, no highlights
 				modes = {
 					char = {
 						enabled = false,
 					},
 				},
 			})
-			require("flash").treesitter()
 		end,
-    -- stylua: ignore
-    keys = {
-      { 's', mode = { 'n', 'x', 'o' }, function() require('flash').jump() end, desc = 'Flash', },
-      { 'S', mode = { 'n', 'o', 'x' }, function() require('flash').treesitter() end, desc = 'Flash Treesitter', },
-      { '<c-s>', mode = { 'c' }, function() require('flash').toggle() end, desc = 'Toggle Flash Search', },
-    },
+        -- stylua: ignore
+        keys = {
+          { 's', mode = { 'n', 'x', 'o' }, function() require('flash').jump() end, desc = 'flash' },
+          { 'S', mode = { 'n', 'o', 'x' }, function() require('flash').treesitter() end, desc = 'flash treesitter' },
+          { '<c-s>', mode = { 'c' }, function() require('flash').toggle() end, desc = 'toggle flash search' },
+        },
 	},
 
 	{
@@ -599,35 +638,19 @@ return {
 		config = function()
 			require("lualine").get_config()
 			require("lualine").setup({
+				options = { section_separators = "" },
 				sections = {
-					lualine_a = { "mode" },
+					lualine_a = {},
 					lualine_b = { "branch", "diff", { "diagnostics", sections = { "error", "warn" } } },
 					lualine_c = { { "filename", path = 1 } },
-					lualine_x = { { require("auto-session.lib").current_session_name }, "filetype" },
+					lualine_x = { "searchcount" },
 					lualine_y = { "progress" },
-					lualine_z = { "location" },
+					lualine_z = {},
 				},
 				inactive_sections = {
 					lualine_a = {},
 					lualine_b = {},
 					lualine_c = { "filename" },
-					lualine_x = { "location" },
-					lualine_y = {},
-					lualine_z = {},
-				},
-				tabline = {
-					lualine_a = {
-						{
-							"buffers",
-							symbols = {
-								modified = " ●", -- Text to show when the buffer is modified
-								alternate_file = "", -- Text to show to identify the alternate file
-								directory = "", -- Text to show when the buffer is a directory
-							},
-						},
-					},
-					lualine_b = {},
-					lualine_c = {},
 					lualine_x = {},
 					lualine_y = {},
 					lualine_z = {},
