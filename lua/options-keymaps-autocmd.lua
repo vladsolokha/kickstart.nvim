@@ -81,10 +81,12 @@ vim.keymap.set("n", "<leader>L", "<cmd>Lazy<cr>", { desc = "lazy" })
 vim.keymap.set("n", "<leader>M", "<cmd>Mason<cr>", { desc = "mason" })
 
 -- Diagnostic keymaps
-vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "previous diagnostic message" })
-vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next diagnostic message" })
-vim.keymap.set("n", "<leader>xe", vim.diagnostic.open_float, { desc = "error messages" })
-vim.keymap.set("n", "<leader>xq", vim.diagnostic.setloclist, { desc = "quickfix diagnostic list" })
+vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "previous message" })
+vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next message" })
+vim.keymap.set("n", "<leader>xe", vim.diagnostic.open_float, { desc = "errors float" })
+vim.keymap.set("n", "<leader>xq", vim.diagnostic.setloclist, { desc = "quickfix list" })
+vim.keymap.set("n", "<leader>xh", vim.diagnostic.hide, { desc = "hide" })
+vim.keymap.set("n", "<leader>xs", vim.diagnostic.show, { desc = "show" })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "exit terminal mode" })
