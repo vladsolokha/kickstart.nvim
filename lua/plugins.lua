@@ -524,7 +524,7 @@ return {
 						return vim.o.columns * 0.4
 					end
 				end,
-				float_opts = { border = "shadow", winblend = 10 },
+				float_opts = { border = "", winblend = 10 },
 			})
 
 			function _G.set_terminal_keymaps()
