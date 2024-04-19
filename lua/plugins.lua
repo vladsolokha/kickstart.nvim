@@ -1,10 +1,16 @@
 return {
-
-	{ -- Useful plugin to show you pending keybinds.
+	{ -- forget which key does what, visual help for next key press
 		"folke/which-key.nvim",
 		event = "VimEnter", -- Sets the loading event to 'VimEnter'
 		config = function() -- This is the function that runs, AFTER loading
-			require("which-key").setup()
+			require("which-key").setup({
+				presets = { operators = false, motions = false, text_objects = false },
+				key_labels = { ["<space>"] = "space", ["<cr>"] = "return", ["<tab>"] = "tab" },
+				window = { margin = { 0, 0, 0, 0 }, padding = { 1, 0, 1, 0 }, winblend = 10 },
+				spelling = { suggestions = 5 },
+				layout = { height = { min = 3, max = 15 }, width = { min = 20, max = 50 }, spacing = 1 },
+				show_help = false,
+			})
 
 			-- Document existing key chains
 			require("which-key").register({
@@ -47,12 +53,15 @@ return {
 					buffers = { theme = "ivy" },
 					colorscheme = { theme = "ivy" },
 					marks = { theme = "ivy" },
-					lsp_document_symbols = { theme = "cursor" },
-					lsp_dynamic_workspace_symbols = { theme = "cursor" },
+					-- lsp_document_symbols = { theme = "cursor" },
+					-- lsp_dynamic_workspace_symbols = { theme = "cursor" },
 				},
 				defaults = {
-					-- layout_strategy = "vertical",
-					layout_config = { height = 0.5 },
+					layout_strategy = "flex",
+					layout_config = {
+						horizontal = { height = 0.5 },
+						vertical = { height = 0.5 },
+					},
 				},
 				extensions = {
 					["ui-select"] = {
@@ -68,6 +77,8 @@ return {
 			-- [[ Telescope keymaps ]]
 			-- help telescope.builtin
 			local builtin = require("telescope.builtin")
+			local height = { layout_config = { height = 10 } }
+			local themes = require("telescope.themes")
 			-- These should be big floating with preview windows
 			vim.keymap.set("n", "<leader>f", function()
 				builtin.find_files({ hidden = true })
@@ -81,21 +92,49 @@ return {
 
 			-- These should be small windows on bottom of buffer, no preview
 			-- vim.keymap.set("n", "//", builtin.grep_string, { desc = "current word" })
-			vim.keymap.set("n", "<leader><leader>", builtin.git_files, { desc = "git files" })
-			vim.keymap.set("n", "<leader>o", builtin.oldfiles, { desc = "old files" })
-			vim.keymap.set("n", "<leader>b", builtin.buffers, { desc = "buffers" })
-			vim.keymap.set("n", "<leader>/t", builtin.colorscheme, { desc = "theme colors" })
-			vim.keymap.set("n", "<leader>/m", builtin.marks, { desc = "theme colors" })
+			vim.keymap.set("n", "<leader><leader>", function()
+				builtin.git_files(require("telescope.themes").get_ivy({
+					winblend = 5,
+					layout_config = { height = 10 },
+				}))
+			end, { desc = "git files" })
+			vim.keymap.set("n", "<leader>o", function()
+				builtin.oldfiles(require("telescope.themes").get_ivy({
+					winblend = 5,
+					layout_config = { height = 10 },
+				}))
+			end, { desc = "old files" })
+			vim.keymap.set("n", "<leader>b", function()
+				builtin.buffers(require("telescope.themes").get_ivy({
+					winblend = 5,
+					layout_config = { height = 10 },
+				}))
+			end, { desc = "buffers" })
+			vim.keymap.set("n", "<leader>/t", function()
+				builtin.colorscheme(require("telescope.themes").get_ivy({
+					winblend = 5,
+					layout_config = { height = 10 },
+				}))
+			end, { desc = "theme colors" })
+			vim.keymap.set("n", "<leader>/m", function()
+				builtin.marks(require("telescope.themes").get_ivy({
+					winblend = 5,
+					layout_config = { height = 10 },
+				}))
+			end, { desc = "marks" })
 			vim.keymap.set("n", "<leader>/c", function()
-				require("telescope.builtin").find_files(
-					require("telescope.themes").get_ivy({ cwd = vim.fn.stdpath("config"), previewer = false })
-				)
+				builtin.find_files(require("telescope.themes").get_ivy({
+					cwd = vim.fn.stdpath("config"),
+					winblend = 5,
+					layout_config = { height = 10 },
+				}))
 			end, { desc = "config files" })
 			vim.keymap.set("n", "//", function()
 				builtin.grep_string(require("telescope.themes").get_ivy({
 					winblend = 5,
+					layout_config = { height = 10 },
 				}))
-			end, { desc = "fuzzy" })
+			end, { desc = "word search" })
 
 			-- vim.keymap.set('n', '<leader>//', function()
 			--   builtin.live_grep {
@@ -254,7 +293,7 @@ return {
 		end,
 	},
 
-	{ -- Autoformat
+	{ -- autoformat
 		"stevearc/conform.nvim",
 		lazy = false,
 		keys = {
@@ -413,7 +452,7 @@ return {
 		end,
 	},
 
-	{
+	{ -- tree like explorer, make and remove files, directories, visual file tree
 		"nvim-neo-tree/neo-tree.nvim",
 		branch = "v3.x",
 		dependencies = {
@@ -454,7 +493,7 @@ return {
 		),
 	},
 
-	{
+	{ -- leap around a page, hop, use s or S to highlight blocks of code quickly
 		"folke/flash.nvim",
 		event = "VeryLazy",
 		--@type Flash.Config
@@ -464,9 +503,8 @@ return {
 				labels = "tnseriaodhcplfuwyxgmvkbjzq",
 				-- disable f,F,T,t,;,, modes, no highlights
 				modes = {
-					char = {
-						enabled = false,
-					},
+					search = { enabled = false },
+					char = { enabled = false },
 				},
 			})
 		end,
@@ -478,8 +516,8 @@ return {
         },
 	},
 
-	{
-		"catppuccin/nvim", -- colorscheme
+	{ -- colorscheme
+		"catppuccin/nvim",
 		name = "catppuccin",
 		priority = 1000,
 		init = function()
@@ -487,7 +525,9 @@ return {
 		end,
 	},
 
-	{ -- comments using gc, comment out lines of code
+	{ -- comment out lines of code
+		-- gc is to comment out lines
+		-- gb is to comment out blocks of code
 		"numToStr/Comment.nvim",
 		opts = {},
 	},
@@ -505,7 +545,7 @@ return {
 		},
 	},
 
-	{
+	{ -- terminal, toggle, lazygit, run python code, multiple terminals with <num><C-/>
 		"akinsho/toggleterm.nvim",
 		version = "*",
 
@@ -576,8 +616,7 @@ return {
 		end,
 	},
 
-	{
-		--  Check out: https://github.com/echasnovski/mini.nvim
+	{ --  Check out: https://github.com/echasnovski/mini.nvim
 		"echasnovski/mini.nvim",
 		config = function()
 			-- Better Around/Inside textobjects
@@ -602,15 +641,14 @@ return {
 		end,
 	},
 
-	{
+	{ -- undo and redo visually
 		"mbbill/undotree",
-
 		config = function()
 			vim.keymap.set("n", "<leader>u", vim.cmd.UndotreeToggle, { desc = "undotree" })
 		end,
 	},
 
-	{
+	{ -- save restore autosession
 		"rmagatti/auto-session",
 		config = function()
 			require("auto-session").setup({
@@ -618,14 +656,18 @@ return {
 				auto_session_suppress_dirs = { "~/", "~/Downloads", "/" },
 			})
 			vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+
+			local keymap = vim.keymap
+			keymap.set("n", "<leader>wp", "<cmd>SessionRestore<cr>", { desc = "restore session" })
+			keymap.set("n", "<leader>wy", "<cmd>SessionSave<cr>", { desc = "save session" })
 		end,
 	},
 
 	{ "eandrju/cellular-automaton.nvim" },
 
-	{
+	{ -- lines down the code window, show indents, and blocks of code
 		"shellRaining/hlchunk.nvim",
-		-- event = { 'UIEnter' },
+		event = "UIEnter",
 		config = function()
 			---@diagnostic disable-next-line: missing-fields
 			require("hlchunk").setup({ blank = { enable = false } })
