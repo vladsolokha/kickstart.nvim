@@ -86,15 +86,10 @@ return {
 				builtin.grep_string()
 			end, { desc = "word search" })
 
-			-- git files
-			vim.keymap.set("n", "<leader><leader>", function()
-				builtin.git_files()
-			end, { desc = "git files" })
-
 			-- old files recently opened
-			vim.keymap.set("n", "<leader>o", function()
+			vim.keymap.set("n", "<leader><leader>", function()
 				builtin.oldfiles({ hidden = true })
-			end, { desc = "old files" })
+			end, { desc = "recent files" })
 
 			-- buffers currently open now
 			vim.keymap.set("n", "<leader>b", function()
