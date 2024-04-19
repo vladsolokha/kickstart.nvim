@@ -8,7 +8,7 @@ return {
 				key_labels = { ["<space>"] = "space", ["<cr>"] = "return", ["<tab>"] = "tab" },
 				window = { margin = { 0, 0, 0, 0 }, padding = { 1, 0, 1, 0 }, winblend = 10 },
 				spelling = { suggestions = 5 },
-				layout = { height = { min = 3, max = 15 }, width = { min = 20, max = 50 }, spacing = 1 },
+				layout = { height = { min = 3, max = 25 }, width = { min = 20, max = 50 }, spacing = 1 },
 				show_help = false,
 			})
 
@@ -47,17 +47,10 @@ return {
 				-- You can put your default mappings / updates / etc. in here
 				--  All the info you're looking for is in `:help telescope.setup()`
 				-- defaults = { mappings = { i = { ['<c-enter>'] = 'to_fuzzy_refine' }, }, },
-				pickers = {
-					git_files = { theme = "ivy" },
-					oldfiles = { theme = "ivy" },
-					buffers = { theme = "ivy" },
-					colorscheme = { theme = "ivy" },
-					marks = { theme = "ivy" },
-					-- lsp_document_symbols = { theme = "cursor" },
-					-- lsp_dynamic_workspace_symbols = { theme = "cursor" },
-				},
+				pickers = {},
 				defaults = {
 					layout_strategy = "flex",
+					winblend = 10,
 					layout_config = {
 						horizontal = { height = 0.5 },
 						vertical = { height = 0.5 },
@@ -77,71 +70,54 @@ return {
 			-- [[ Telescope keymaps ]]
 			-- help telescope.builtin
 			local builtin = require("telescope.builtin")
-			local height = { layout_config = { height = 10 } }
-			local themes = require("telescope.themes")
-			-- These should be big floating with preview windows
+
+			-- find files like vs code ctrl-p
 			vim.keymap.set("n", "<leader>f", function()
 				builtin.find_files({ hidden = true })
 			end, { desc = "files" })
 
+			-- grep all, search fuzzy any word
 			vim.keymap.set("n", "<leader>//", function()
 				builtin.live_grep({ max_results = 50 })
 			end, { desc = "grep all" })
 
-			vim.keymap.set("n", "<leader>/!", builtin.planets, { desc = "search pluto / moon" })
+			-- word search current word under cursor
+			vim.keymap.set("n", "//", function()
+				builtin.grep_string()
+			end, { desc = "word search" })
 
-			-- These should be small windows on bottom of buffer, no preview
-			-- vim.keymap.set("n", "//", builtin.grep_string, { desc = "current word" })
+			-- git files
 			vim.keymap.set("n", "<leader><leader>", function()
-				builtin.git_files(require("telescope.themes").get_ivy({
-					winblend = 5,
-					layout_config = { height = 10 },
-				}))
+				builtin.git_files()
 			end, { desc = "git files" })
+
+			-- old files recently opened
 			vim.keymap.set("n", "<leader>o", function()
-				builtin.oldfiles(require("telescope.themes").get_ivy({
-					winblend = 5,
-					layout_config = { height = 10 },
-				}))
+				builtin.oldfiles({ hidden = true })
 			end, { desc = "old files" })
+
+			-- buffers currently open now
 			vim.keymap.set("n", "<leader>b", function()
 				builtin.buffers(require("telescope.themes").get_ivy({
-					winblend = 5,
-					layout_config = { height = 10 },
+					layout_config = { height = 15 },
 				}))
 			end, { desc = "buffers" })
+
+			-- switch colors scheme theme change colors
 			vim.keymap.set("n", "<leader>/t", function()
-				builtin.colorscheme(require("telescope.themes").get_ivy({
-					winblend = 5,
-					layout_config = { height = 10 },
-				}))
+				builtin.colorscheme(require("telescope.themes").get_dropdown({}))
 			end, { desc = "theme colors" })
-			vim.keymap.set("n", "<leader>/m", function()
-				builtin.marks(require("telescope.themes").get_ivy({
-					winblend = 5,
-					layout_config = { height = 10 },
-				}))
-			end, { desc = "marks" })
+
+			-- config files
 			vim.keymap.set("n", "<leader>/c", function()
 				builtin.find_files(require("telescope.themes").get_ivy({
 					cwd = vim.fn.stdpath("config"),
-					winblend = 5,
 					layout_config = { height = 10 },
 				}))
 			end, { desc = "config files" })
-			vim.keymap.set("n", "//", function()
-				builtin.grep_string(require("telescope.themes").get_ivy({
-					winblend = 5,
-					layout_config = { height = 10 },
-				}))
-			end, { desc = "word search" })
 
-			-- vim.keymap.set('n', '<leader>//', function()
-			--   builtin.live_grep {
-			--     grep_open_files = true,
-			--     prompt_title = 'Live Grep in Open Files',
-			--   }
-			-- end, { desc = 'files that are open' })
+			-- !
+			vim.keymap.set("n", "<leader>/!", builtin.planets, { desc = "search pluto / moon" })
 		end,
 	},
 

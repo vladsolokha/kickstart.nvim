@@ -81,8 +81,8 @@ vim.keymap.set("n", "<leader>L", "<cmd>Lazy<cr>", { desc = "lazy" })
 vim.keymap.set("n", "<leader>M", "<cmd>Mason<cr>", { desc = "mason" })
 
 -- Diagnostic keymaps
-vim.keymap.set("n", "<leader>[d", vim.diagnostic.goto_prev, { desc = "previous diagnostic message" })
-vim.keymap.set("n", "<leader>]d", vim.diagnostic.goto_next, { desc = "next diagnostic message" })
+vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "previous diagnostic message" })
+vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next diagnostic message" })
 vim.keymap.set("n", "<leader>xe", vim.diagnostic.open_float, { desc = "error messages" })
 vim.keymap.set("n", "<leader>xq", vim.diagnostic.setloclist, { desc = "quickfix diagnostic list" })
 
