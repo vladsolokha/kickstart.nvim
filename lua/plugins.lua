@@ -50,6 +50,7 @@ return {
 				pickers = { colorscheme = { enable_preview = true } },
 				defaults = {
 					layout_strategy = "flex",
+					path_display = { truncate = 3 },
 					winblend = 10,
 					layout_config = {
 						horizontal = { height = 0.6 },
@@ -88,7 +89,7 @@ return {
 
 			-- old files recently opened
 			vim.keymap.set("n", "<leader><leader>", function()
-				builtin.oldfiles({ hidden = true })
+				builtin.oldfiles({ hidden = true, prompt_title = "recent files" })
 			end, { desc = "recent files" })
 
 			-- buffers currently open now
@@ -653,11 +654,11 @@ return {
 			require("lualine").setup({
 				options = { section_separators = "" },
 				sections = {
-					lualine_a = {},
+					lualine_a = { "progress", "searchcount" },
 					lualine_b = { "branch", "diff", { "diagnostics", sections = { "error", "warn" } } },
 					lualine_c = { { "filename", path = 1 } },
-					lualine_x = { "searchcount" },
-					lualine_y = { "progress" },
+					lualine_x = {},
+					lualine_y = {},
 					lualine_z = {},
 				},
 				inactive_sections = {
