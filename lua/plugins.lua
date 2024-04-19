@@ -135,12 +135,8 @@ return {
 		},
 		config = function()
 			-- LSP provides Neovim with features like:
-			--  - Go to definition
-			--  - Find references
-			--  - Autocompletion
-			--  - Symbol Search
-			--  - and more!
-			-- and elegantly composed help section, `:help lsp-vs-treesitter`
+			--  - Go to definition - Find references - Autocompletion - Symbol Search
+			-- help lsp-vs-treesitter
 
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
@@ -216,12 +212,10 @@ return {
 				-- python-lsp-server = {},
 				-- ruff = {},
 				-- rust_analyzer = {},
-				-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-				-- Some languages (like typescript) have entire language plugins that can be useful:
-				--    https://github.com/pmizio/typescript-tools.nvim
-				-- tsserver = {},
-				--
 
+				-- help lspconfig-all
+				-- github.com/pmizio/typescript-tools.nvim
+				-- tsserver = {},
 				lua_ls = {
 					-- cmd = {...},
 					-- filetypes = { ...},
@@ -237,7 +231,6 @@ return {
 					},
 				},
 			}
-
 			-- Ensure the servers and tools above are installed
 			-- To check the current status of installed tools and/or
 			-- manually install other tools, you can run
