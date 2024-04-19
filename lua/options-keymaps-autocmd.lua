@@ -149,7 +149,7 @@ vim.keymap.set("v", [[']], [[:s/\%V\%V\(\w\+\)/'\1'/g<CR>gv]])
 -- vim.keymap.set('n', '<leader>rr', ':split|terminal python3 %<cr>', { desc = 'Run python file down' })
 -- vim.keymap.set('n', '<leader>rs', ':vsplit|terminal python3 %<cr>', { desc = 'Run python file side ->' })
 
-vim.keymap.set("n", "<leader>!", "<cmd>CellularAutomaton make_it_rain<CR>", { desc = "make it rain!" })
+vim.keymap.set("n", "<leader>c!", "<cmd>CellularAutomaton make_it_rain<CR>", { desc = "make it rain!" })
 
 -- [[Auto Commands]] - event functions - autocommands
 vim.api.nvim_create_autocmd("TextYankPost", {
