@@ -47,7 +47,7 @@ return {
 				-- You can put your default mappings / updates / etc. in here
 				--  All the info you're looking for is in `:help telescope.setup()`
 				-- defaults = { mappings = { i = { ['<c-enter>'] = 'to_fuzzy_refine' }, }, },
-				pickers = {},
+				pickers = { colorscheme = { enable_preview = true } },
 				defaults = {
 					layout_strategy = "flex",
 					winblend = 10,
@@ -105,7 +105,7 @@ return {
 
 			-- switch colors scheme theme change colors
 			vim.keymap.set("n", "<leader>/t", function()
-				builtin.colorscheme(require("telescope.themes").get_dropdown({}))
+				builtin.colorscheme()
 			end, { desc = "theme colors" })
 
 			-- config files
