@@ -524,6 +524,14 @@ return {
 		config = function()
 			require("toggleterm").setup({
 				open_mapping = [[<C-/>]],
+				size = function(term)
+					if term.direction == "horizontal" then
+						return 20
+					elseif term.direction == "vertical" then
+						return vim.o.columns * 0.4
+					end
+				end,
+				float_opts = { border = "shadow", winblend = 10 },
 			})
 
 			function _G.set_terminal_keymaps()
@@ -545,9 +553,6 @@ return {
 				dir = "git_dir",
 				hidden = true,
 				direction = "float",
-				float_opts = {
-					boarder = "double",
-				},
 				-- function to run on opening the terminal
 				on_open = function(term)
 					vim.cmd("startinsert!")
@@ -565,6 +570,7 @@ return {
 				lazygit:toggle()
 			end
 
+			-- lazygit terminal keymap
 			vim.api.nvim_set_keymap(
 				"n",
 				"<leader>g",
@@ -572,19 +578,25 @@ return {
 				{ desc = "lazygit", noremap = true, silent = true }
 			)
 
+			-- run python down
 			vim.keymap.set("n", "<leader>rr", '<cmd>TermExec cmd="python3 %"<cr>', { desc = "run python file down" })
+
+			-- run python side
 			vim.keymap.set(
 				"n",
 				"<leader>rs",
-				'<cmd>TermExec cmd="python3 %" direction=vertical size=vim.o.columns*0.5<cr>',
+				'<cmd>TermExec cmd="python3 %" direction=vertical<cr>',
 				{ desc = "run python file on side ->" }
 			)
+			-- run python install modules from cwd
 			vim.keymap.set(
 				"n",
 				"<leader>ri",
 				'<cmd>TermExec cmd="python3 -m pip install ."<cr>',
 				{ desc = "run python pip install ." }
 			)
+
+			vim.keymap.set("n", "<leader>t", "<cmd>ToggleTerm direction=vertical<cr>", { desc = "terminal vertical" })
 		end,
 	},
 
@@ -655,7 +667,7 @@ return {
 				options = { section_separators = "" },
 				sections = {
 					lualine_a = { "progress", "searchcount" },
-					lualine_b = { "branch", "diff", { "diagnostics", sections = { "error", "warn" } } },
+					lualine_b = { "diff", { "diagnostics", sections = { "error", "warn" } } },
 					lualine_c = { { "filename", path = 1 } },
 					lualine_x = {},
 					lualine_y = {},
