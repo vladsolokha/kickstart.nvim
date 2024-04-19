@@ -658,8 +658,8 @@ return {
 			vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
 			local keymap = vim.keymap
-			keymap.set("n", "<leader>wp", "<cmd>SessionRestore<cr>", { desc = "restore session" })
-			keymap.set("n", "<leader>wy", "<cmd>SessionSave<cr>", { desc = "save session" })
+			keymap.set("n", "<leader>qr", "<cmd>SessionRestore<cr>", { desc = "restore session" })
+			keymap.set("n", "<leader>qs", "<cmd>SessionSave<cr>", { desc = "save session" })
 		end,
 	},
 
