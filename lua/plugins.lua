@@ -52,8 +52,8 @@ return {
 					layout_strategy = "flex",
 					winblend = 10,
 					layout_config = {
-						horizontal = { height = 0.5 },
-						vertical = { height = 0.5 },
+						horizontal = { height = 0.6 },
+						vertical = { height = 0.6 },
 					},
 				},
 				extensions = {
