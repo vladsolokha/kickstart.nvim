@@ -2,12 +2,16 @@ return {
 	{ -- forget which key does what, visual help for next key press
 		"folke/which-key.nvim",
 		event = "VimEnter", -- Sets the loading event to 'VimEnter'
+		init = function()
+			vim.o.timeout = true
+			vim.o.timeoutlen = 500
+		end,
 		config = function() -- This is the function that runs, AFTER loading
 			require("which-key").setup({
 				presets = { operators = false, motions = false, text_objects = false },
 				key_labels = { ["<space>"] = "space", ["<cr>"] = "return", ["<tab>"] = "tab" },
 				window = { margin = { 0, 0, 0, 0 }, padding = { 1, 0, 1, 0 }, winblend = 10 },
-				spelling = { suggestions = 5 },
+				spelling = { suggestions = 10 },
 				layout = { height = { min = 3, max = 25 }, width = { min = 20, max = 50 }, spacing = 1 },
 				show_help = false,
 			})
@@ -18,7 +22,7 @@ return {
 				["<leader>w"] = { name = "window", _ = "which_key_ignore" },
 				["<leader>/"] = { name = "search in", _ = "which_key_ignore" },
 				["<leader>x"] = { name = "error warning", _ = "which_key_ignore" },
-				["<leader>r"] = { name = "run or rename", _ = "which_key_ignore" },
+				["<leader>r"] = { name = "run", _ = "which_key_ignore" },
 				["<leader>q"] = { name = "quit", _ = "which_key_ignore" },
 			})
 		end,
@@ -162,7 +166,7 @@ return {
 					map("<leader>/p", require("telescope.builtin").lsp_dynamic_workspace_symbols, "project symbols")
 
 					--  Most Language Servers support renaming across files, etc.
-					map("<leader>rn", vim.lsp.buf.rename, "rename this var")
+					map("<leader>cn", vim.lsp.buf.rename, "rename this var")
 
 					-- Execute a code action, usually your cursor needs to be on top of an error
 					-- or a suggestion from your LSP for this to activate.
