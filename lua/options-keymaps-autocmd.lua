@@ -8,8 +8,6 @@ vim.opt.number = true
 
 vim.opt.mouse = "a"
 
--- Don't show the mode, since it's already in the status line
-vim.opt.showmode = false
 -- supress search [#/#] in status line,already in lualine
 vim.opt.shm = "S"
 
@@ -77,7 +75,6 @@ vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 
 vim.keymap.set({ "n", "i", "v", "x" }, "<C-s>", "<Esc><cmd>w<cr>")
 
-vim.keymap.set("n", "<leader>d", "<cmd>bd<cr>", { desc = "close buffer" })
 vim.keymap.set("n", "<leader>qq", "<cmd>qa<cr>", { desc = "close nvim" })
 vim.keymap.set("n", "<leader>L", "<cmd>Lazy<cr>", { desc = "lazy" })
 vim.keymap.set("n", "<leader>M", "<cmd>Mason<cr>", { desc = "mason" })
@@ -150,12 +147,10 @@ vim.keymap.set(
 vim.keymap.set("v", [["]], [[:s/\%V\%V\(\w\+\)/"\1"/g<CR>gv]])
 vim.keymap.set("v", [[']], [[:s/\%V\%V\(\w\+\)/'\1'/g<CR>gv]])
 
--- vim.keymap.set('n', '<leader>rr', ':split|terminal python3 %<cr>', { desc = 'Run python file down' })
--- vim.keymap.set('n', '<leader>rs', ':vsplit|terminal python3 %<cr>', { desc = 'Run python file side ->' })
-
 vim.keymap.set("n", "<leader>c!", "<cmd>CellularAutomaton make_it_rain<CR>", { desc = "make it rain!" })
 
 -- [[Auto Commands]] - event functions - autocommands
+-- functions that run on some event
 vim.api.nvim_create_autocmd("TextYankPost", {
 	desc = "Highlight when yanking (copying) text",
 	group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),

@@ -10,8 +10,8 @@ return {
 			require("which-key").setup({
 				presets = { operators = false, motions = false, text_objects = false },
 				key_labels = { ["<space>"] = "space", ["<cr>"] = "return", ["<tab>"] = "tab" },
-				window = { margin = { 0, 0, 0, 0 }, padding = { 1, 0, 1, 0 }, winblend = 10 },
-				spelling = { suggestions = 10 },
+				window = { margin = { 0, 0, 0, 0 }, padding = { 2, 0, 2, 0 }, winblend = 10 },
+				spelling = { suggestions = 5 },
 				layout = { height = { min = 3, max = 25 }, width = { min = 20, max = 50 }, spacing = 1 },
 				show_help = false,
 			})
@@ -21,8 +21,8 @@ return {
 				["<leader>c"] = { name = "code", _ = "which_key_ignore" },
 				["<leader>w"] = { name = "window", _ = "which_key_ignore" },
 				["<leader>/"] = { name = "search in", _ = "which_key_ignore" },
-				["<leader>x"] = { name = "error warning", _ = "which_key_ignore" },
-				["<leader>r"] = { name = "run", _ = "which_key_ignore" },
+				["<leader>x"] = { name = "errors", _ = "which_key_ignore" },
+				["<leader>r"] = { name = "run or rename", _ = "which_key_ignore" },
 				["<leader>q"] = { name = "quit", _ = "which_key_ignore" },
 			})
 		end,
@@ -421,7 +421,7 @@ return {
 		end,
 	},
 
-	{ -- tree like explorer, make and remove files, directories, visual file tree
+	--[[ { -- tree like explorer, make and remove files, directories, visual file tree
 		"nvim-neo-tree/neo-tree.nvim",
 		branch = "v3.x",
 		dependencies = {
@@ -460,7 +460,7 @@ return {
 			":Neotree toggle reveal position=right<CR>",
 			{ silent = true, desc = "explorer" }
 		),
-	},
+	}, ]]
 
 	{ -- leap around a page, hop, use s or S to highlight blocks of code quickly
 		"folke/flash.nvim",
@@ -601,7 +601,6 @@ return {
 		"echasnovski/mini.nvim",
 		config = function()
 			-- Better Around/Inside textobjects
-			-- Examples:
 			--  - va)  - [V]isually select [A]round [)]paren
 			--  - yinq - [Y]ank [I]nside [N]ext [']quote
 			--  - ci'  - [C]hange [I]nside [']quote
@@ -619,6 +618,28 @@ return {
 					replace = "gsr", -- Replace surrounding
 				},
 			})
+
+			-- delete buffer, buffer remove
+			require("mini.bufremove").setup()
+			vim.keymap.set("n", "<leader>d", ":lua MiniBufremove.delete()<cr>", { desc = "buffer delete" })
+
+			-- files mini files explorer tree
+			require("mini.files").setup({
+				mappings = {
+					go_in = "<Right>",
+					go_in_plus = "<S-Right>",
+					go_out = "<Left>",
+					go_out_plus = "<S-Left>",
+				},
+			})
+
+			function Minifile_toggle()
+				if not MiniFiles.close() then
+					MiniFiles.open()
+				end
+			end
+
+			vim.keymap.set("n", "<leader>e", ":lua Minifile_toggle()<cr>", { desc = "explorer" })
 		end,
 	},
 
@@ -644,8 +665,6 @@ return {
 		end,
 	},
 
-	{ "eandrju/cellular-automaton.nvim" },
-
 	{ -- lines down the code window, show indents, and blocks of code
 		"shellRaining/hlchunk.nvim",
 		event = "UIEnter",
@@ -654,6 +673,10 @@ return {
 			require("hlchunk").setup({ blank = { enable = false } })
 		end,
 	},
+
+	{ "eandrju/cellular-automaton.nvim" },
+
+	{ "tommcdo/vim-exchange" },
 
 	{
 		"nvim-lualine/lualine.nvim",
