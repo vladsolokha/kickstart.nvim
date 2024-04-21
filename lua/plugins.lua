@@ -22,7 +22,7 @@ return {
 				["<leader>w"] = { name = "window", _ = "which_key_ignore" },
 				["<leader>/"] = { name = "search in", _ = "which_key_ignore" },
 				["<leader>x"] = { name = "errors", _ = "which_key_ignore" },
-				["<leader>r"] = { name = "run or rename", _ = "which_key_ignore" },
+				["<leader>r"] = { name = "run code", _ = "which_key_ignore" },
 				["<leader>q"] = { name = "quit", _ = "which_key_ignore" },
 			})
 		end,
