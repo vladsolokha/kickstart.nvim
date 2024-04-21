@@ -421,47 +421,6 @@ return {
 		end,
 	},
 
-	--[[ { -- tree like explorer, make and remove files, directories, visual file tree
-		"nvim-neo-tree/neo-tree.nvim",
-		branch = "v3.x",
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			"nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
-			"muniftanjim/nui.nvim",
-		},
-		configure = function()
-			require("neo-tree").setup({
-				close_if_last_window = true,
-				source_selector = {
-					sources = {
-						source = "filesystem",
-						display_name = " 󰉓 Files ",
-					},
-				},
-				window = {
-					width = "fit-content",
-				},
-				filesystem = {
-					filtered_items = {
-						hide_dotfiles = false,
-						hide_gitignored = false,
-						never_show = { ".DS_Store" },
-					},
-				},
-				-- I don't need git or buffer windows
-				-- already have in telescope fuzzy find and lazygit
-				git_status = { "" },
-				buffers = { "" },
-			})
-		end,
-		vim.keymap.set(
-			"n",
-			"<leader>e",
-			":Neotree toggle reveal position=right<CR>",
-			{ silent = true, desc = "explorer" }
-		),
-	}, ]]
-
 	{ -- leap around a page, hop, use s or S to highlight blocks of code quickly
 		"folke/flash.nvim",
 		event = "VeryLazy",
