@@ -1,4 +1,22 @@
 return {
+	-- colorscheme
+	{ "catppuccin/nvim", event = "VeryLazy" },
+	{ "morhetz/gruvbox", event = "VeryLazy" },
+	{ "folke/tokyonight.nvim", event = "VeryLazy" },
+	{ "sainnhe/gruvbox-material", event = "VeryLazy" },
+	{
+		"neanias/everforest-nvim",
+		version = false,
+		lazy = false,
+		priority = 1000, -- make sure to load this before all the other start plugins
+		-- Optional; default configuration will be used if setup isn't called.
+		config = function()
+			require("everforest").setup({
+				vim.cmd([[colorscheme everforest]]),
+			})
+		end,
+	},
+
 	{ -- forget which key does what, visual help for next key press
 		"folke/which-key.nvim",
 		event = "VimEnter", -- Sets the loading event to 'VimEnter'
@@ -10,7 +28,11 @@ return {
 			require("which-key").setup({
 				presets = { operators = false, motions = false, text_objects = false },
 				key_labels = { ["<space>"] = "space", ["<cr>"] = "return", ["<tab>"] = "tab" },
-				window = { margin = { 0, 0, 0, 0 }, padding = { 2, 0, 2, 0 }, winblend = 10 },
+				window = {
+					margin = { 0, 0, 0, 0 },
+					padding = { 2, 0, 2, 0 },
+					winblend = 10,
+				},
 				spelling = { suggestions = 5 },
 				layout = { height = { min = 3, max = 25 }, width = { min = 20, max = 50 }, spacing = 1 },
 				show_help = false,
@@ -25,6 +47,31 @@ return {
 				["<leader>r"] = { name = "run code", _ = "which_key_ignore" },
 				["<leader>q"] = { name = "quit", _ = "which_key_ignore" },
 			})
+		end,
+	},
+
+	{ -- cycle through buffers list
+		"ghillb/cybu.nvim",
+		-- branch = "main", -- timely updates
+		branch = "v1.x", -- won't receive breaking changes
+		requires = { "nvim-tree/nvim-web-devicons", "nvim-lua/plenary.nvim" }, -- optional for icon support
+		config = function()
+			require("cybu").setup({
+				position = { anchor = "bottomright" },
+				display_time = 2500,
+				behavior = { -- set behavior for different modes
+					mode = {
+						default = {
+							view = "paging", -- paging, rolling
+						},
+						auto = {
+							view = "paging", -- paging, rolling
+						},
+					},
+				},
+			})
+			vim.keymap.set({ "n" }, "<c-s-tab>", ":CybuPrev<cr>", { desc = "prev buffer cycle" })
+			vim.keymap.set({ "n" }, "<c-tab>", ":CybuNext<cr>", { desc = "next buffer cycle" })
 		end,
 	},
 
@@ -77,7 +124,7 @@ return {
 			local builtin = require("telescope.builtin")
 
 			-- find files like vs code ctrl-p
-			vim.keymap.set("n", "<leader>f", function()
+			vim.keymap.set("n", "<leader><leader>", function()
 				builtin.find_files({ hidden = true })
 			end, { desc = "files" })
 
@@ -89,19 +136,12 @@ return {
 			-- word search current word under cursor
 			vim.keymap.set("n", "//", function()
 				builtin.grep_string()
-			end, { desc = "word search" })
+			end, { desc = "word search this current word" })
 
 			-- old files recently opened
-			vim.keymap.set("n", "<leader><leader>", function()
+			vim.keymap.set("n", "<leader>o", function()
 				builtin.oldfiles({ hidden = true, prompt_title = "recent files" })
 			end, { desc = "recent files" })
-
-			-- buffers currently open now
-			vim.keymap.set("n", "<leader>b", function()
-				builtin.buffers(require("telescope.themes").get_ivy({
-					layout_config = { height = 15 },
-				}))
-			end, { desc = "buffers" })
 
 			-- switch colors scheme theme change colors
 			vim.keymap.set("n", "<leader>/t", function()
@@ -110,8 +150,9 @@ return {
 
 			-- config files
 			vim.keymap.set("n", "<leader>/c", function()
-				builtin.find_files(require("telescope.themes").get_ivy({
+				builtin.find_files(require("telescope.themes").get_dropdown({
 					cwd = vim.fn.stdpath("config"),
+					previewer = false,
 					layout_config = { height = 10 },
 				}))
 			end, { desc = "config files" })
@@ -444,15 +485,6 @@ return {
         },
 	},
 
-	{ -- colorscheme
-		"catppuccin/nvim",
-		name = "catppuccin",
-		priority = 1000,
-		init = function()
-			vim.cmd.colorscheme("catppuccin-frappe")
-		end,
-	},
-
 	{ -- comment out lines of code
 		-- gc is to comment out lines
 		-- gb is to comment out blocks of code
@@ -462,15 +494,23 @@ return {
 
 	{ -- Adds git related signs to the gutter, as well as utilities for managing changes
 		"lewis6991/gitsigns.nvim",
-		opts = {
-			signs = {
-				add = { text = "+" },
-				change = { text = "~" },
-				delete = { text = "_" },
-				topdelete = { text = "‾" },
-				changedelete = { text = "~" },
-			},
-		},
+		config = function()
+			require("gitsigns").setup({
+				signs = {
+					add = { text = "+" },
+					change = { text = "~" },
+					delete = { text = "_" },
+					topdelete = { text = "‾" },
+					changedelete = { text = "~" },
+				},
+			})
+			vim.keymap.set(
+				"n",
+				"<leader>cb",
+				require("gitsigns").toggle_current_line_blame,
+				{ desc = "blame git line" }
+			)
+		end,
 	},
 
 	{ -- terminal, toggle, lazygit, run python code, multiple terminals with <num><C-/>
@@ -487,7 +527,10 @@ return {
 						return vim.o.columns * 0.4
 					end
 				end,
-				float_opts = { border = "", winblend = 10 },
+				float_opts = {
+					border = "",
+					winblend = 10,
+				},
 			})
 
 			function _G.set_terminal_keymaps()
@@ -599,6 +642,8 @@ return {
 			end
 
 			vim.keymap.set("n", "<leader>e", ":lua Minifile_toggle()<cr>", { desc = "explorer" })
+
+			require("mini.hipatterns").setup()
 		end,
 	},
 
@@ -636,6 +681,9 @@ return {
 	{ "eandrju/cellular-automaton.nvim" },
 
 	{ "tommcdo/vim-exchange" },
+
+	-- dim inactive portions of your code
+	{ "folke/twilight.nvim", opts = { dimming = { alpha = 0.35 } } },
 
 	{
 		"nvim-lualine/lualine.nvim",
