@@ -643,7 +643,12 @@ return {
 
 			vim.keymap.set("n", "<leader>e", ":lua Minifile_toggle()<cr>", { desc = "explorer" })
 
-			require("mini.hipatterns").setup()
+			require("mini.hipatterns").setup({
+				highlighters = {
+					-- Highlight hex color strings (`#rrggbb`) using that color
+					hex_color = require("mini.hipatterns").gen_highlighter.hex_color(),
+				},
+			})
 		end,
 	},
 
