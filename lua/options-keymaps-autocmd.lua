@@ -73,6 +73,8 @@ vim.opt.scrolloff = 10
 vim.opt.hlsearch = true
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 
+vim.keymap.set("n", "<c-i>", "<c-i>") -- keep c-i separate from tab keys
+
 vim.keymap.set({ "n", "i", "v", "x" }, "<C-s>", "<Esc><cmd>w<cr>")
 
 vim.keymap.set("n", "<leader>qq", "<cmd>qa<cr>", { desc = "close nvim" })
@@ -115,8 +117,8 @@ vim.keymap.set("i", "<A-Up>", "<Esc><cmd>m .-2<cr>==gi")
 vim.keymap.set("v", "<A-Down>", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "<A-Up>", ":m '<-2<CR>gv=gv")
 
-vim.keymap.set("n", "<C-Tab>", "<cmd>bnext<CR>", { desc = "Next buffer" })
-vim.keymap.set("n", "<C-S-Tab>", "<cmd>bprev<CR>", { desc = "Prev buffer" })
+-- vim.keymap.set("n", "<C-Tab>", "<cmd>bnext<CR>", { desc = "Next buffer" })
+-- vim.keymap.set("n", "<C-S-Tab>", "<cmd>bprev<CR>", { desc = "Prev buffer" })
 
 vim.keymap.set("v", "<Tab>", ">gv")
 vim.keymap.set("v", "<S-Tab>", "<gv")
@@ -149,6 +151,8 @@ vim.keymap.set("v", [[']], [[:s/\%V\%V\(\w\+\)/'\1'/g<CR>gv]])
 
 vim.keymap.set("n", "<leader>c!", "<cmd>CellularAutomaton make_it_rain<CR>", { desc = "make it rain!" })
 
+vim.keymap.set("n", "<leader>cz", "<cmd>Twilight<cr>", { desc = "twilight dim code" })
+
 -- [[Auto Commands]] - event functions - autocommands
 -- functions that run on some event
 vim.api.nvim_create_autocmd("TextYankPost", {
@@ -156,5 +160,24 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
 	callback = function()
 		vim.highlight.on_yank()
+	end,
+})
+
+vim.api.nvim_create_autocmd({ "BufEnter", "FocusGained", "InsertLeave", "CmdlineLeave", "WinEnter" }, {
+	pattern = "*",
+	callback = function()
+		if vim.o.nu and vim.api.nvim_get_mode().mode ~= "i" then
+			vim.opt.relativenumber = true
+		end
+	end,
+})
+
+vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost", "InsertEnter", "CmdlineEnter", "WinLeave" }, {
+	pattern = "*",
+	callback = function()
+		if vim.o.nu then
+			vim.opt.relativenumber = false
+			vim.cmd("redraw")
+		end
 	end,
 })
