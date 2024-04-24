@@ -686,6 +686,7 @@ return {
 			local keymap = vim.keymap
 			keymap.set("n", "<leader>qr", "<cmd>SessionRestore<cr>", { desc = "restore session" })
 			keymap.set("n", "<leader>qs", "<cmd>SessionSave<cr>", { desc = "save session" })
+			keymap.set("n", "<leader>qd", "<cmd>SessionDelete<cr>", { desc = "delete session" })
 		end,
 	},
 
