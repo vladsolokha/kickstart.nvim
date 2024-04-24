@@ -542,7 +542,7 @@ return {
 				end,
 				float_opts = {
 					border = "",
-					winblend = 10,
+					winblend = 5,
 				},
 			})
 
