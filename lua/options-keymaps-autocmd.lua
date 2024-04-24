@@ -105,9 +105,7 @@ vim.keymap.set("n", "<leader>wr", "<C-w>r", { desc = "swap / rotate" })
 vim.keymap.set("n", "<leader>ww", "15<C-w>>", { desc = "increase width" })
 vim.keymap.set("n", "<leader>wh", "15<C-w>+", { desc = "increase height" })
 
-vim.keymap.set("n", "<leader>e", ":Neotree toggle filesystem reveal right<CR>", { desc = "Explorer" })
-
-vim.keymap.set("n", "<leader>wd", "<C-w>q", { desc = "Quit window" })
+vim.keymap.set("n", "<leader>wd", "<C-w>q", { desc = "delete window" })
 
 -- move lines up or down, Alt-Up/Down
 vim.keymap.set("n", "<A-Down>", "<cmd>m .+1<cr>==")
