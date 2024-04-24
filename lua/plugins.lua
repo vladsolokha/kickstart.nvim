@@ -303,7 +303,7 @@ return {
 		end,
 	},
 
-	{ -- autoformat
+	{ -- autoformat, make doc look like standard code, removing white spaces and extra stuff
 		"stevearc/conform.nvim",
 		lazy = false,
 		keys = {
@@ -340,7 +340,7 @@ return {
 		},
 	},
 
-	{ -- Autocompletion
+	{ -- Autocompletion, when typing, helps with words, code completion
 		"hrsh7th/nvim-cmp",
 		event = "InsertEnter",
 		dependencies = {
@@ -462,6 +462,26 @@ return {
 		end,
 	},
 
+	{ -- colored brackets and parentheses and more
+		"p00f/nvim-ts-rainbow",
+		config = function()
+			---@diagnostic disable-next-line: missing-fields
+			require("nvim-treesitter.configs").setup({
+				rainbow = {
+					enable = true,
+					-- list of languages you want to disable the plugin for
+					-- disable = { "jsx", "cpp" }
+					-- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
+					extended_mode = true,
+					-- Do not enable for files with more than n lines, int
+					max_file_lines = 1000,
+					-- colors = {}, -- table of hex strings
+					-- termcolors = {} -- table of colour name strings
+				},
+			})
+		end,
+	},
+
 	{ -- leap around a page, hop, use s or S to highlight blocks of code quickly
 		"folke/flash.nvim",
 		event = "VeryLazy",
@@ -483,13 +503,6 @@ return {
           { 'S', mode = { 'n', 'o', 'x' }, function() require('flash').treesitter() end, desc = 'flash treesitter' },
           { '<c-s>', mode = { 'c' }, function() require('flash').toggle() end, desc = 'toggle flash search' },
         },
-	},
-
-	{ -- comment out lines of code
-		-- gc is to comment out lines
-		-- gb is to comment out blocks of code
-		"numToStr/Comment.nvim",
-		opts = {},
 	},
 
 	{ -- Adds git related signs to the gutter, as well as utilities for managing changes
@@ -649,6 +662,8 @@ return {
 					hex_color = require("mini.hipatterns").gen_highlighter.hex_color(),
 				},
 			})
+
+			require("mini.comment").setup({})
 		end,
 	},
 
