@@ -135,12 +135,11 @@ vim.keymap.set("n", "<leader>p", 'diw"0P', { desc = "stamp word" })
 vim.keymap.set("n", "J", "mzJ`z")
 vim.keymap.set({ "x", "v" }, "p", [["_dP]], { desc = "stamp word" }) -- put word without yanking replaced
 vim.keymap.set("n", "Y", "Yg$")
-vim.keymap.set({ "n", "v" }, "<leader>D", [["_d]], { desc = "delete into void" }) -- delete into void
 vim.keymap.set(
 	"n",
 	"<leader>S",
 	[[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
-	{ desc = "rename all these words" }
+	{ desc = "rename all of current word" }
 )
 
 -- in highlight, add ' or " around highlight
@@ -148,8 +147,6 @@ vim.keymap.set("v", [["]], [[:s/\%V\%V\(\w\+\)/"\1"/g<CR>gv]])
 vim.keymap.set("v", [[']], [[:s/\%V\%V\(\w\+\)/'\1'/g<CR>gv]])
 
 vim.keymap.set("n", "<leader>c!", "<cmd>CellularAutomaton make_it_rain<CR>", { desc = "make it rain!" })
-
-vim.keymap.set("n", "<leader>cz", "<cmd>Twilight<cr>", { desc = "twilight dim code" })
 
 -- [[Auto Commands]] - event functions - autocommands
 -- functions that run on some event
