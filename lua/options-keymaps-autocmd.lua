@@ -6,10 +6,8 @@ vim.g.have_nerd_font = true
 vim.opt.number = true
 -- vim.opt.relativenumber = true
 
-vim.opt.mouse = "a"
 
--- supress search [#/#] in status line,already in lualine
-vim.opt.shm = "S"
+vim.opt.mouse = "a"
 
 -- Sync clipboard between OS and Neovim.
 vim.opt.clipboard = "unnamedplus"
@@ -115,9 +113,6 @@ vim.keymap.set("i", "<A-Up>", "<Esc><cmd>m .-2<cr>==gi")
 vim.keymap.set("v", "<A-Down>", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "<A-Up>", ":m '<-2<CR>gv=gv")
 
--- vim.keymap.set("n", "<C-Tab>", "<cmd>bnext<CR>", { desc = "Next buffer" })
--- vim.keymap.set("n", "<C-S-Tab>", "<cmd>bprev<CR>", { desc = "Prev buffer" })
-
 vim.keymap.set("v", "<Tab>", ">gv")
 vim.keymap.set("v", "<S-Tab>", "<gv")
 
@@ -136,10 +131,10 @@ vim.keymap.set("n", "J", "mzJ`z")
 vim.keymap.set({ "x", "v" }, "p", [["_dP]], { desc = "stamp word" }) -- put word without yanking replaced
 vim.keymap.set("n", "Y", "Yg$")
 vim.keymap.set(
-	"n",
-	"<leader>S",
-	[[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
-	{ desc = "rename all of current word" }
+    "n",
+    "<leader>S",
+    [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
+    { desc = "rename all of current word" }
 )
 
 -- in highlight, add ' or " around highlight
@@ -151,28 +146,37 @@ vim.keymap.set("n", "<leader>c!", "<cmd>CellularAutomaton make_it_rain<CR>", { d
 -- [[Auto Commands]] - event functions - autocommands
 -- functions that run on some event
 vim.api.nvim_create_autocmd("TextYankPost", {
-	desc = "Highlight when yanking (copying) text",
-	group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
-	callback = function()
-		vim.highlight.on_yank()
-	end,
+    desc = "Highlight when yanking (copying) text",
+    group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
+    callback = function()
+        vim.highlight.on_yank()
+    end,
 })
 
 vim.api.nvim_create_autocmd({ "BufEnter", "FocusGained", "InsertLeave", "CmdlineLeave", "WinEnter" }, {
-	pattern = "*",
-	callback = function()
-		if vim.o.nu and vim.api.nvim_get_mode().mode ~= "i" then
-			vim.opt.relativenumber = true
-		end
-	end,
+    pattern = "*",
+    callback = function()
+        if vim.o.nu and vim.api.nvim_get_mode().mode ~= "i" then
+            vim.opt.relativenumber = true
+        end
+    end,
 })
 
 vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost", "InsertEnter", "CmdlineEnter", "WinLeave" }, {
-	pattern = "*",
-	callback = function()
-		if vim.o.nu then
-			vim.opt.relativenumber = false
-			vim.cmd("redraw")
-		end
-	end,
+    pattern = "*",
+    callback = function()
+        if vim.o.nu then
+            vim.opt.relativenumber = false
+            vim.cmd("redraw")
+        end
+    end,
+})
+--
+-- start vim with telescope open find_files
+vim.api.nvim_create_autocmd("VimEnter", {
+    callback = function()
+        if vim.fn.argv(0) == "" then
+            require("telescope.builtin").find_files()
+        end
+    end,
 })
