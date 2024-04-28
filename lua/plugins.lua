@@ -692,22 +692,6 @@ return {
         end,
     },
 
-    -- { -- save restore autosession
-    --     "rmagatti/auto-session",
-    --     config = function()
-    --         require("auto-session").setup({
-    --             log_level = "error",
-    --             auto_session_suppress_dirs = { "~/", "~/Downloads", "/" },
-    --         })
-    --         vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
-    --
-    --         local keymap = vim.keymap
-    --         keymap.set("n", "<leader>qr", "<cmd>SessionRestore<cr>", { desc = "restore session" })
-    --         keymap.set("n", "<leader>qs", "<cmd>SessionSave<cr>", { desc = "save session" })
-    --         keymap.set("n", "<leader>qd", "<cmd>SessionDelete<cr>", { desc = "delete session" })
-    --     end,
-    -- },
-
     { -- lines down the code window, show indents, and blocks of code
         "shellRaining/hlchunk.nvim",
         event = "UIEnter",
