@@ -1,28 +1,46 @@
+-- [[ plugins in order ]]
+-- color, theme, ui, how it looks
+--      colorscheme: tokyonight, gruvbox-material, everforest
+--      which_key
+--      nvim-treesitter
+--      nvim-treesitter-context
+--      gitsigns
+--      hlchunk (pretty indents)
+--      cybu (cycle buffers): web-dev-icons, plenary
+--      lualine
+--
+-- code, format, lsp, stuff that affects code
+--      telescope: plenary, web-dev-icons, telescope-ui-select, telescope-fzf-native, ripgrep (ext. install)
+--      nvim-lspconfig: mason, mason-lspconfig, mason-tool-installer, fidget, neodev, telescope, cmp_nvim_lsp
+--      conform (auto format code)
+--      toggleterm: lazygit (ext. install)
+--      mini: (ai, surround, bufremove, files, hipatterns, comment)
+--      nvim-cmp: LuaSnip, friendly-snippets, cmp_luasnip, cmp-nvim-lsp, cmp-path, cmp-cmdline, cmp-buffer
+--      undotree (undo like git)
+--      flash (s or S for search on screen)
+--      vim-exchange
+
 return {
     -- colorscheme
-    { "catppuccin/nvim",          event = "VeryLazy" },
-    { "morhetz/gruvbox",          event = "VeryLazy" },
-    { "folke/tokyonight.nvim",    event = "VeryLazy" },
-    { "sainnhe/gruvbox-material", event = "VeryLazy" },
     {
-        "neanias/everforest-nvim",
-        version = false,
+        "folke/tokyonight.nvim",
         lazy = false,
-        priority = 1000, -- make sure to load this before all the other start plugins
-        -- Optional; default configuration will be used if setup isn't called.
+        priority = 1000,
         config = function()
-            require("everforest").setup({
-                vim.cmd([[colorscheme everforest]]),
+            require("tokyonight").setup({
+                vim.cmd([[colorscheme tokyonight-storm]]),
             })
         end,
     },
+    { "sainnhe/gruvbox-material", event = "VeryLazy" },
+    { "neanias/everforest-nvim",  event = "VeryLazy", },
 
     {                       -- forget which key does what, visual help for next key press
         "folke/which-key.nvim",
         event = "VimEnter", -- Sets the loading event to 'VimEnter'
         init = function()
             vim.o.timeout = true
-            vim.o.timeoutlen = 500
+            vim.o.timeoutlen = 1000
         end,
         config = function() -- This is the function that runs, AFTER loading
             require("which-key").setup({
@@ -30,11 +48,11 @@ return {
                 key_labels = { ["<space>"] = "space", ["<cr>"] = "return", ["<tab>"] = "tab" },
                 window = {
                     margin = { 0, 0, 0, 0 },
-                    padding = { 2, 0, 2, 0 },
-                    winblend = 10,
+                    padding = { 0, 0, 0, 0 },
+                    winblend = 5,
                 },
-                spelling = { suggestions = 5 },
-                layout = { height = { min = 3, max = 25 }, width = { min = 20, max = 50 }, spacing = 1 },
+                spelling = { enabled = false },
+                layout = { height = { min = 5, max = 15 }, width = { min = 25, max = 50 }, spacing = 2 },
                 show_help = false,
             })
 
@@ -53,8 +71,8 @@ return {
     { -- cycle through buffers list
         "ghillb/cybu.nvim",
         -- branch = "main", -- timely updates
-        branch = "v1.x",                                                       -- won't receive breaking changes
-        requires = { "nvim-tree/nvim-web-devicons", "nvim-lua/plenary.nvim" }, -- optional for icon support
+        branch = "v1.x",
+        dependencies = { "nvim-tree/nvim-web-devicons", "nvim-lua/plenary.nvim" },
         config = function()
             require("cybu").setup({
                 position = { anchor = "bottomright" },
@@ -81,6 +99,11 @@ return {
         branch = "0.1.x",
         dependencies = {
             "nvim-lua/plenary.nvim",
+            {
+                "nvim-tree/nvim-web-devicons",
+                enabled = vim.g.have_nerd_font
+            },
+            { "nvim-telescope/telescope-ui-select.nvim" },
             { -- If encountering errors, see telescope-fzf-native README for installation instructions
                 "nvim-telescope/telescope-fzf-native.nvim",
                 build = "make",
@@ -88,8 +111,6 @@ return {
                     return vim.fn.executable("make") == 1
                 end,
             },
-            { "nvim-telescope/telescope-ui-select.nvim" },
-            { "nvim-tree/nvim-web-devicons",            enabled = vim.g.have_nerd_font },
         },
         config = function()
             -- [[ Configure Telescope ]]
@@ -169,11 +190,6 @@ return {
             "williamboman/mason.nvim",
             "williamboman/mason-lspconfig.nvim",
             "WhoIsSethDaniel/mason-tool-installer.nvim",
-
-            -- Useful status updates for LSP.
-            -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-            { "j-hui/fidget.nvim", opts = {} },
-
             -- `neodev` configures Lua LSP for your Neovim config, runtime and plugins
             -- used for completion, annotations and signatures of Neovim apis
             { "folke/neodev.nvim", opts = {} },
@@ -216,11 +232,8 @@ return {
 
                     map("gD", vim.lsp.buf.declaration, "header declaration")
 
-                    -- The following two autocommands are used to highlight references of the
-                    -- word under your cursor when your cursor rests there for a little while.
-                    --    See `:help CursorHold` for information about when this is executed
-                    --
-                    -- When you move your cursor, the highlights will be cleared (the second autocommand).
+                    -- highlight references of the word under your cursor while resting
+                    -- help CursorHold
                     local client = vim.lsp.get_client_by_id(event.data.client_id)
                     if client and client.server_capabilities.documentHighlightProvider then
                         vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
@@ -228,6 +241,7 @@ return {
                             callback = vim.lsp.buf.document_highlight,
                         })
 
+                        -- When you move your cursor, the highlights will be cleared
                         vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
                             buffer = event.buf,
                             callback = vim.lsp.buf.clear_references,
@@ -237,7 +251,7 @@ return {
             })
 
             -- LSP servers and clients are able to communicate to each other what features they support.
-            --  By default, Neovim doesn't support everything that is in the LSP specification.
+            -- By default, Neovim doesn't support everything that is in the LSP specification.
             --  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
             --  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
             local capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -250,14 +264,10 @@ return {
             --  - settings (table): Override the default settings passed when initializing the server.
             --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
             local servers = {
-                -- clangd = {},
-                -- gopls = {},
                 -- pyright = {},
                 -- python-lsp-server = {},
                 -- ruff = {},
-                -- rust_analyzer = {},
-
-                -- help lspconfig-all
+                -- help lspconfig-all  -- for all other servers
                 -- github.com/pmizio/typescript-tools.nvim
                 -- tsserver = {},
                 lua_ls = {
@@ -269,8 +279,6 @@ return {
                             completion = {
                                 callSnippet = "Replace",
                             },
-                            -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-                            -- diagnostics = { disable = { 'missing-fields' } },
                         },
                     },
                 },
@@ -329,12 +337,11 @@ return {
                 }
             end,
             formatters_by_ft = {
+                -- installing these via mason
                 -- lua = { "stylua" },
                 -- Conform can also run multiple formatters sequentially
                 -- python = { "autoflake", "ruff" },
-                --
-                -- You can use a sub-list to tell conform to run *until* a formatter
-                -- is found.
+                -- You can use a sub-list to tell conform to run *until* a formatter is found.
                 -- javascript = { { "prettierd", "prettier" } },
             },
         },
@@ -368,7 +375,6 @@ return {
                 },
             },
             "saadparwaiz1/cmp_luasnip",
-
             -- Adds other completion capabilities.
             --  nvim-cmp does not ship with all sources by default. They are split
             --  into multiple repos for maintenance purposes.
@@ -391,6 +397,11 @@ return {
                 },
                 completion = { completeopt = "menu,menuone,noinsert" },
                 -- read `:help ins-completion`
+                ---@diagnostic disable-next-line: missing-fields
+                performance = {
+                    max_view_entries = 8,
+                    throttle = 300,
+                },
                 mapping = cmp.mapping.preset.insert({
                     -- Select the [n]ext item
                     ["<C-n>"] = cmp.mapping.select_next_item(),
@@ -681,21 +692,21 @@ return {
         end,
     },
 
-    { -- save restore autosession
-        "rmagatti/auto-session",
-        config = function()
-            require("auto-session").setup({
-                log_level = "error",
-                auto_session_suppress_dirs = { "~/", "~/Downloads", "/" },
-            })
-            vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
-
-            local keymap = vim.keymap
-            keymap.set("n", "<leader>qr", "<cmd>SessionRestore<cr>", { desc = "restore session" })
-            keymap.set("n", "<leader>qs", "<cmd>SessionSave<cr>", { desc = "save session" })
-            keymap.set("n", "<leader>qd", "<cmd>SessionDelete<cr>", { desc = "delete session" })
-        end,
-    },
+    -- { -- save restore autosession
+    --     "rmagatti/auto-session",
+    --     config = function()
+    --         require("auto-session").setup({
+    --             log_level = "error",
+    --             auto_session_suppress_dirs = { "~/", "~/Downloads", "/" },
+    --         })
+    --         vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+    --
+    --         local keymap = vim.keymap
+    --         keymap.set("n", "<leader>qr", "<cmd>SessionRestore<cr>", { desc = "restore session" })
+    --         keymap.set("n", "<leader>qs", "<cmd>SessionSave<cr>", { desc = "save session" })
+    --         keymap.set("n", "<leader>qd", "<cmd>SessionDelete<cr>", { desc = "delete session" })
+    --     end,
+    -- },
 
     { -- lines down the code window, show indents, and blocks of code
         "shellRaining/hlchunk.nvim",
@@ -705,8 +716,6 @@ return {
             require("hlchunk").setup({ blank = { enable = false } })
         end,
     },
-
-    { "eandrju/cellular-automaton.nvim" },
 
     { "tommcdo/vim-exchange" },
 
@@ -718,10 +727,10 @@ return {
             require("lualine").setup({
                 options = { section_separators = "" },
                 sections = {
-                    lualine_a = { "progress", "searchcount" },
+                    lualine_a = {},
                     lualine_b = { "diff", { "diagnostics", sections = { "error", "warn" } } },
-                    lualine_c = { { "filename", path = 1 } },
-                    lualine_x = {},
+                    lualine_c = { { "filename", path = 1, file_status = false } },
+                    lualine_x = { "progress" },
                     lualine_y = {},
                     lualine_z = {},
                 },
@@ -729,7 +738,7 @@ return {
                     lualine_a = {},
                     lualine_b = {},
                     lualine_c = { "filename" },
-                    lualine_x = {},
+                    lualine_x = { "progress" },
                     lualine_y = {},
                     lualine_z = {},
                 },
