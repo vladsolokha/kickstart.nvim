@@ -5,24 +5,21 @@
 --      nvim-treesitter
 --      nvim-treesitter-context
 --      gitsigns
---      hlchunk (pretty indents)
 --      cybu (cycle buffers): web-dev-icons, plenary
+--      hlchunk (pretty indents)
 --      lualine
---
 -- code, format, lsp, stuff that affects code
 --      telescope: plenary, web-dev-icons, telescope-ui-select, telescope-fzf-native, ripgrep (ext. install)
 --      nvim-lspconfig: mason, mason-lspconfig, mason-tool-installer, fidget, neodev, telescope, cmp_nvim_lsp
 --      conform (auto format code)
+--      nvim-cmp: LuaSnip, friendly-snippets, cmp_luasnip, cmp-nvim-lsp, cmp-path, cmp-cmdline, cmp-buffer
+--      flash (s or S for search on screen)
 --      toggleterm: lazygit (ext. install)
 --      mini: (ai, surround, bufremove, files, hipatterns, comment)
---      nvim-cmp: LuaSnip, friendly-snippets, cmp_luasnip, cmp-nvim-lsp, cmp-path, cmp-cmdline, cmp-buffer
 --      undotree (undo like git)
---      flash (s or S for search on screen)
 --      vim-exchange
-
 return {
-    -- colorscheme
-    {
+    { -- colorscheme
         "folke/tokyonight.nvim",
         lazy = false,
         priority = 1000,
@@ -32,7 +29,9 @@ return {
             })
         end,
     },
+
     { "sainnhe/gruvbox-material", event = "VeryLazy" },
+
     { "neanias/everforest-nvim",  event = "VeryLazy", },
 
     {                       -- forget which key does what, visual help for next key press
@@ -68,6 +67,60 @@ return {
         end,
     },
 
+    { -- Highlight, edit, and navigate code
+        "nvim-treesitter/nvim-treesitter",
+        build = ":TSUpdate",
+        opts = {
+            ensure_installed = {},
+            -- Autoinstall languages that are not installed
+            auto_install = true,
+            highlight = {
+                enable = true,
+                additional_vim_regex_highlighting = { "ruby" },
+            },
+            indent = { enable = true, disable = { "ruby" } },
+        },
+        config = function(_, opts)
+            -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
+
+            ---@diagnostic disable-next-line: missing-fields
+            require("nvim-treesitter.configs").setup(opts)
+        end,
+    },
+
+    { -- context of functions and other long statements on treesitter
+        "nvim-treesitter/nvim-treesitter-context",
+        config = function()
+            require("treesitter-context").setup({
+                max_lines = 8,
+            })
+            vim.keymap.set("n", "[c", function()
+                require("treesitter-context").go_to_context(vim.v.count1)
+            end, { silent = true, desc = "top context" })
+        end,
+    },
+
+    { -- Adds git related signs to the gutter, as well as utilities for managing changes
+        "lewis6991/gitsigns.nvim",
+        config = function()
+            require("gitsigns").setup({
+                signs = {
+                    add = { text = "+" },
+                    change = { text = "~" },
+                    delete = { text = "_" },
+                    topdelete = { text = "‾" },
+                    changedelete = { text = "~" },
+                },
+            })
+            vim.keymap.set(
+                "n",
+                "<leader>cb",
+                require("gitsigns").toggle_current_line_blame,
+                { desc = "blame git line" }
+            )
+        end,
+    },
+
     { -- cycle through buffers list
         "ghillb/cybu.nvim",
         -- branch = "main", -- timely updates
@@ -90,6 +143,42 @@ return {
             })
             vim.keymap.set({ "n" }, "<c-s-tab>", ":CybuPrev<cr>", { desc = "prev buffer cycle" })
             vim.keymap.set({ "n" }, "<c-tab>", ":CybuNext<cr>", { desc = "next buffer cycle" })
+        end,
+    },
+
+    { -- lines down the code window, show indents, and blocks of code
+        "shellRaining/hlchunk.nvim",
+        event = "UIEnter",
+        config = function()
+            ---@diagnostic disable-next-line: missing-fields
+            require("hlchunk").setup({ blank = { enable = false } })
+        end,
+    },
+
+    { -- pretty status line at bottom of windows
+        "nvim-lualine/lualine.nvim",
+        dependencies = { "nvim-tree/nvim-web-devicons" },
+        config = function()
+            require("lualine").get_config()
+            require("lualine").setup({
+                options = { section_separators = "" },
+                sections = {
+                    lualine_a = {},
+                    lualine_b = { "diff", { "diagnostics", sections = { "error", "warn" } } },
+                    lualine_c = { { "filename", path = 1, file_status = false } },
+                    lualine_x = { "progress" },
+                    lualine_y = {},
+                    lualine_z = {},
+                },
+                inactive_sections = {
+                    lualine_a = {},
+                    lualine_b = {},
+                    lualine_c = { "filename" },
+                    lualine_x = { "progress" },
+                    lualine_y = {},
+                    lualine_z = {},
+                },
+            })
         end,
     },
 
@@ -466,39 +555,6 @@ return {
         end,
     },
 
-    { -- Highlight, edit, and navigate code
-        "nvim-treesitter/nvim-treesitter",
-        build = ":TSUpdate",
-        opts = {
-            ensure_installed = {},
-            -- Autoinstall languages that are not installed
-            auto_install = true,
-            highlight = {
-                enable = true,
-                additional_vim_regex_highlighting = { "ruby" },
-            },
-            indent = { enable = true, disable = { "ruby" } },
-        },
-        config = function(_, opts)
-            -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-
-            ---@diagnostic disable-next-line: missing-fields
-            require("nvim-treesitter.configs").setup(opts)
-        end,
-    },
-
-    { -- context of functions and other long statements on treesitter
-        "nvim-treesitter/nvim-treesitter-context",
-        config = function()
-            require("treesitter-context").setup({
-                max_lines = 8,
-            })
-            vim.keymap.set("n", "[c", function()
-                require("treesitter-context").go_to_context(vim.v.count1)
-            end, { silent = true, desc = "top context" })
-        end,
-    },
-
     { -- leap around a page, hop, use s or S to highlight blocks of code quickly
         "folke/flash.nvim",
         event = "VeryLazy",
@@ -520,27 +576,6 @@ return {
             { 'S',     mode = { 'n', 'o', 'x' }, function() require('flash').treesitter() end, desc = 'flash treesitter' },
             { '<c-s>', mode = { 'c' },           function() require('flash').toggle() end,     desc = 'toggle flash search' },
         },
-    },
-
-    { -- Adds git related signs to the gutter, as well as utilities for managing changes
-        "lewis6991/gitsigns.nvim",
-        config = function()
-            require("gitsigns").setup({
-                signs = {
-                    add = { text = "+" },
-                    change = { text = "~" },
-                    delete = { text = "_" },
-                    topdelete = { text = "‾" },
-                    changedelete = { text = "~" },
-                },
-            })
-            vim.keymap.set(
-                "n",
-                "<leader>cb",
-                require("gitsigns").toggle_current_line_blame,
-                { desc = "blame git line" }
-            )
-        end,
     },
 
     { -- terminal, toggle, lazygit, run python code, multiple terminals with <num><C-/>
@@ -692,41 +727,7 @@ return {
         end,
     },
 
-    { -- lines down the code window, show indents, and blocks of code
-        "shellRaining/hlchunk.nvim",
-        event = "UIEnter",
-        config = function()
-            ---@diagnostic disable-next-line: missing-fields
-            require("hlchunk").setup({ blank = { enable = false } })
-        end,
-    },
-
+    -- swap or exchange stuff horizontally cx on something, move or select, cx again to swap
     { "tommcdo/vim-exchange" },
 
-    {
-        "nvim-lualine/lualine.nvim",
-        dependencies = { "nvim-tree/nvim-web-devicons" },
-        config = function()
-            require("lualine").get_config()
-            require("lualine").setup({
-                options = { section_separators = "" },
-                sections = {
-                    lualine_a = {},
-                    lualine_b = { "diff", { "diagnostics", sections = { "error", "warn" } } },
-                    lualine_c = { { "filename", path = 1, file_status = false } },
-                    lualine_x = { "progress" },
-                    lualine_y = {},
-                    lualine_z = {},
-                },
-                inactive_sections = {
-                    lualine_a = {},
-                    lualine_b = {},
-                    lualine_c = { "filename" },
-                    lualine_x = { "progress" },
-                    lualine_y = {},
-                    lualine_z = {},
-                },
-            })
-        end,
-    },
 }
