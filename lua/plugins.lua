@@ -57,11 +57,6 @@ return {
 
             -- Document existing key chains
             require("which-key").register({
-                ["<leader>c"] = { name = "code", _ = "which_key_ignore" },
-                ["<leader>w"] = { name = "window", _ = "which_key_ignore" },
-                ["<leader>/"] = { name = "search in", _ = "which_key_ignore" },
-                ["<leader>x"] = { name = "errors", _ = "which_key_ignore" },
-                ["<leader>r"] = { name = "run code", _ = "which_key_ignore" },
                 ["<leader>q"] = { name = "quit", _ = "which_key_ignore" },
             })
         end,
@@ -114,9 +109,9 @@ return {
             })
             vim.keymap.set(
                 "n",
-                "<leader>cb",
+                "<leader>b",
                 require("gitsigns").toggle_current_line_blame,
-                { desc = "blame git line" }
+                { desc = "git blame toggle" }
             )
         end,
     },
@@ -141,8 +136,8 @@ return {
                     },
                 },
             })
-            vim.keymap.set({ "n" }, "<c-s-tab>", ":CybuPrev<cr>", { desc = "prev buffer cycle" })
-            vim.keymap.set({ "n" }, "<c-tab>", ":CybuNext<cr>", { desc = "next buffer cycle" })
+            vim.keymap.set({ "n" }, "<c-s-tab>", ":CybuPrev<cr>", { desc = "prev buff" })
+            vim.keymap.set({ "n" }, "<c-tab>", ":CybuNext<cr>", { desc = "next buff" })
         end,
     },
 
@@ -236,39 +231,36 @@ return {
             -- find files like vs code ctrl-p
             vim.keymap.set("n", "<leader><leader>", function()
                 builtin.find_files({ hidden = true })
-            end, { desc = "files" })
+            end, { desc = "find files" })
 
             -- grep all, search fuzzy any word
-            vim.keymap.set("n", "<leader>//", function()
+            vim.keymap.set("n", "<leader>/", function()
                 builtin.live_grep({ max_results = 50 })
-            end, { desc = "grep all" })
+            end, { desc = "find grep all" })
 
             -- word search current word under cursor
             vim.keymap.set("n", "//", function()
                 builtin.grep_string()
-            end, { desc = "word search this current word" })
+            end, { desc = "find word current" })
 
             -- old files recently opened
             vim.keymap.set("n", "<leader>o", function()
                 builtin.oldfiles({ hidden = true, prompt_title = "recent files" })
-            end, { desc = "recent files" })
+            end, { desc = "find recent files" })
 
             -- switch colors scheme theme change colors
-            vim.keymap.set("n", "<leader>/t", function()
+            vim.keymap.set("n", "<leader>m", function()
                 builtin.colorscheme()
-            end, { desc = "theme colors" })
+            end, { desc = "mood colors" })
 
             -- config files
-            vim.keymap.set("n", "<leader>/c", function()
+            vim.keymap.set("n", "<leader>,", function()
                 builtin.find_files(require("telescope.themes").get_dropdown({
                     cwd = vim.fn.stdpath("config"),
                     previewer = false,
                     layout_config = { height = 10 },
                 }))
-            end, { desc = "config files" })
-
-            -- !
-            vim.keymap.set("n", "<leader>/!", builtin.planets, { desc = "search pluto / moon" })
+            end, { desc = "config settings" })
         end,
     },
 
@@ -305,17 +297,17 @@ return {
                     map("gy", require("telescope.builtin").lsp_type_definitions, "type definition")
 
                     --  Symbols are things like variables, functions, types, etc.
-                    map("<leader>/s", require("telescope.builtin").lsp_document_symbols, "document symbols")
+                    map("gb", require("telescope.builtin").lsp_document_symbols, "buff symbols")
 
                     --  Similar to document symbols, except searches over your entire project.
-                    map("<leader>/p", require("telescope.builtin").lsp_dynamic_workspace_symbols, "project symbols")
+                    map("ga", require("telescope.builtin").lsp_dynamic_workspace_symbols, "all symbols")
 
                     --  Most Language Servers support renaming across files, etc.
-                    map("<leader>cn", vim.lsp.buf.rename, "rename this var")
+                    map("gR", vim.lsp.buf.rename, "rename this vars")
 
                     -- Execute a code action, usually your cursor needs to be on top of an error
                     -- or a suggestion from your LSP for this to activate.
-                    map("<leader>ca", vim.lsp.buf.code_action, "code action")
+                    map("<leader>a", vim.lsp.buf.code_action, "code action")
 
                     map("K", vim.lsp.buf.hover, "hover documentation")
 
@@ -405,12 +397,12 @@ return {
         cmd = { "ConformInfo" },
         keys = {
             {
-                "<leader>cf",
+                "<leader>f",
                 function()
                     require("conform").format({ async = true, lsp_fallback = true })
                 end,
                 mode = "",
-                desc = "format buffer",
+                desc = "buff format",
             },
         },
         opts = {
@@ -639,29 +631,14 @@ return {
                 "n",
                 "<leader>g",
                 "<cmd>lua Toggle_lazygit()<CR>",
-                { desc = "lazygit", noremap = true, silent = true }
+                { desc = "git lazy", noremap = true, silent = true }
             )
 
             -- run python down
-            vim.keymap.set("n", "<leader>rr", '<cmd>TermExec cmd="python3 %"<cr>', { desc = "run python file down" })
+            vim.keymap.set("n", "<leader>y", '<cmd>TermExec cmd="python3 %"<cr>', { desc = "term python run" })
 
-            -- run python side
-            vim.keymap.set(
-                "n",
-                "<leader>rs",
-                '<cmd>TermExec cmd="python3 %" direction=vertical<cr>',
-                { desc = "run python file on side ->" }
-            )
-            -- run python install modules from cwd
-            vim.keymap.set(
-                "n",
-                "<leader>ri",
-                '<cmd>TermExec cmd="python3 -m pip install ."<cr>',
-                { desc = "run python pip install ." }
-            )
-
-            vim.keymap.set("n", "<leader>t", "<cmd>ToggleTerm direction=vertical<cr>", { desc = "terminal vertical" })
-            vim.keymap.set("n", "<c-/>", "<cmd>ToggleTerm direction=horizontal<cr>", { desc = "terminal horizontal" })
+            vim.keymap.set("n", "<leader>t", "<cmd>ToggleTerm direction=vertical<cr>", { desc = "term side ->" })
+            vim.keymap.set("n", "<c-/>", "<cmd>ToggleTerm direction=horizontal<cr>", { desc = "term down" })
         end,
     },
 
@@ -689,7 +666,7 @@ return {
 
             -- delete buffer, buffer remove
             require("mini.bufremove").setup()
-            vim.keymap.set("n", "<leader>d", ":lua MiniBufremove.delete()<cr>", { desc = "buffer delete" })
+            vim.keymap.set("n", "<leader>d", ":lua MiniBufremove.delete()<cr>", { desc = "buff delete" })
 
             -- files mini files explorer tree
             require("mini.files").setup({

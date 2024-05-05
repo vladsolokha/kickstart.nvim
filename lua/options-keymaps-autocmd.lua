@@ -76,34 +76,37 @@ vim.keymap.set("n", "<c-i>", "<c-i>") -- keep c-i separate from tab keys
 vim.keymap.set({ "n", "i", "v", "x" }, "<C-s>", "<Esc><cmd>w<cr>")
 
 vim.keymap.set("n", "<leader>qq", "<cmd>qa<cr>", { desc = "close nvim" })
-vim.keymap.set("n", "<leader>L", "<cmd>Lazy<cr>", { desc = "lazy" })
-vim.keymap.set("n", "<leader>M", "<cmd>Mason<cr>", { desc = "mason" })
+vim.keymap.set("n", "<leader>L", "<cmd>Lazy<cr>", { desc = "Lazy" })
+vim.keymap.set("n", "<leader>M", "<cmd>Mason<cr>", { desc = "Mason" })
 
 -- Diagnostic keymaps
-vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "previous message" })
-vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next message" })
-vim.keymap.set("n", "<leader>xe", vim.diagnostic.open_float, { desc = "errors float" })
-vim.keymap.set("n", "<leader>xq", vim.diagnostic.setloclist, { desc = "quickfix list" })
-vim.keymap.set("n", "<leader>xh", vim.diagnostic.hide, { desc = "hide" })
-vim.keymap.set("n", "<leader>xs", vim.diagnostic.show, { desc = "show" })
+vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "prev diag" })
+vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next diag" })
 
--- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
-vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "exit terminal mode" })
+local is_diag = true
+vim.keymap.set('n', '<leader>x', function()
+    is_diag = not is_diag
+    if is_diag then
+        vim.diagnostic.show()
+    else
+        vim.diagnostic.hide()
+    end
+end, { desc = "diag toggle" })
 
 --  See `:help wincmd` for a list of all window commands
-vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "left window" })
-vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "right window" })
-vim.keymap.set("n", "<C-k>", "<C-w><C-j>", { desc = "lower window" })
-vim.keymap.set("n", "<C-j>", "<C-w><C-k>", { desc = "upper window" })
+vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "left win" })
+vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "right win" })
+vim.keymap.set("n", "<C-k>", "<C-w><C-j>", { desc = "lower win" })
+vim.keymap.set("n", "<C-j>", "<C-w><C-k>", { desc = "upper win" })
 
-vim.keymap.set("n", "<leader>ws", "<cmd>vsplit|bnext<cr>", { desc = "side split ->" })
-vim.keymap.set("n", "<leader>wv", "<cmd>sbn<cr>", { desc = "down split" })
-vim.keymap.set("n", "<leader>wr", "<C-w>r", { desc = "swap / rotate" })
+vim.keymap.set("n", "<leader>i", "<cmd>vsplit|bnext<cr>", { desc = "win new side ->" })
+vim.keymap.set("n", "<leader>n", "<cmd>sbn<cr>", { desc = "win new down" })
+vim.keymap.set("n", "<leader>s", "<C-w>r", { desc = "win swap rotate" })
 
-vim.keymap.set("n", "<leader>ww", "15<C-w>>", { desc = "increase width" })
-vim.keymap.set("n", "<leader>wh", "15<C-w>+", { desc = "increase height" })
+vim.keymap.set("n", "<leader>w", "15<C-w>>", { desc = "win bigger <->" })
+vim.keymap.set("n", "<leader>h", "15<C-w>+", { desc = "win bigger hi" })
 
-vim.keymap.set("n", "<leader>wd", "<C-w>q", { desc = "delete window" })
+vim.keymap.set("n", "<leader>c", "<C-w>q", { desc = "win close" })
 
 -- move lines up or down, Alt-Up/Down
 vim.keymap.set("n", "<A-Down>", "<cmd>m .+1<cr>==")
@@ -126,22 +129,20 @@ vim.keymap.set({ "i" }, "kj", "<esc>", { desc = "old normal" })
 
 vim.keymap.set({ "v" }, "y", "ygv<esc>", { desc = "restore cursor position after yank" })
 vim.keymap.set({ "n" }, "<cr>", "i<cr><esc>l", { desc = "split line down at cursor" })
-vim.keymap.set("n", "<leader>p", 'diw"0P', { desc = "stamp word" })
+vim.keymap.set("n", "<leader>p", 'diw"0P', { desc = "word paste" })
 vim.keymap.set("n", "J", "mzJ`z")
 vim.keymap.set({ "x", "v" }, "p", [["_dP]], { desc = "stamp word" }) -- put word without yanking replaced
 vim.keymap.set("n", "Y", "Yg$")
 vim.keymap.set(
     "n",
-    "<leader>S",
+    "<leader>r",
     [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
-    { desc = "rename all of current word" }
+    { desc = "word rename all" }
 )
 
 -- in highlight, add ' or " around highlight
 vim.keymap.set("v", [["]], [[:s/\%V\%V\(\w\+\)/"\1"/g<CR>gv]])
 vim.keymap.set("v", [[']], [[:s/\%V\%V\(\w\+\)/'\1'/g<CR>gv]])
-
-vim.keymap.set("n", "<leader>c!", "<cmd>CellularAutomaton make_it_rain<CR>", { desc = "make it rain!" })
 
 -- [[Auto Commands]] - event functions - autocommands
 -- functions that run on some event
