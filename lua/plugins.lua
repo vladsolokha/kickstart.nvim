@@ -18,6 +18,8 @@
 --      mini: (ai, surround, bufremove, files, hipatterns, comment)
 --      undotree (undo like git)
 --      vim-exchange
+--      colorizer
+--      auto-session
 return {
     { -- colorscheme
         "folke/tokyonight.nvim",
@@ -58,6 +60,7 @@ return {
             -- Document existing key chains
             require("which-key").register({
                 ["<leader>q"] = { name = "quit", _ = "which_key_ignore" },
+                ["<leader>w"] = { name = "window", _ = "which_key_ignore" },
             })
         end,
     },
@@ -128,7 +131,7 @@ return {
                 behavior = { -- set behavior for different modes
                     mode = {
                         default = {
-                            view = "paging", -- paging, rolling
+                            view = "rolling", -- paging, rolling
                         },
                         auto = {
                             view = "paging", -- paging, rolling
@@ -519,7 +522,6 @@ return {
                     { name = "luasnip" },
                     { name = "path" },
                     { name = "buffer" },
-                    { name = "cmdline" },
                 },
             })
 
@@ -576,7 +578,7 @@ return {
 
         config = function()
             require("toggleterm").setup({
-                -- open_mapping = [[<C-/>]],
+                open_mapping = [[<C-/>]],
                 size = function(term)
                     if term.direction == "horizontal" then
                         return 20
@@ -637,8 +639,10 @@ return {
             -- run python down
             vim.keymap.set("n", "<leader>y", '<cmd>TermExec cmd="python3 %"<cr>', { desc = "term python run" })
 
-            vim.keymap.set("n", "<leader>t", "<cmd>ToggleTerm direction=vertical<cr>", { desc = "term side ->" })
-            vim.keymap.set("n", "<c-/>", "<cmd>ToggleTerm direction=horizontal<cr>", { desc = "term down" })
+            vim.keymap.set("n", "<leader>t", "<cmd>ToggleTerm direction=vertical<cr>",
+                { desc = "term side ->" })
+            vim.keymap.set("n", "<c-/>", "<cmd>ToggleTerm direction=horizontal<cr>",
+                { desc = "term down" })
         end,
     },
 
@@ -720,6 +724,16 @@ return {
                     css_fn = true,   -- Enable all CSS *functions*: rgb_fn, hsl_fn
                 },
             })
+        end
+    },
+
+    {
+        'rmagatti/auto-session',
+        config = function()
+            require("auto-session").setup {
+                log_level = "error",
+                auto_session_suppress_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
+            }
         end
     },
 

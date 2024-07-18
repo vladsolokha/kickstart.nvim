@@ -2,10 +2,10 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 vim.g.have_nerd_font = true
-
 vim.opt.number = true
 -- vim.opt.relativenumber = true
 
+vim.opt.sessionoptions = 'buffers,curdir,help,tabpages,winsize'
 
 vim.opt.mouse = "a"
 
@@ -82,6 +82,7 @@ vim.keymap.set("n", "<leader>M", "<cmd>Mason<cr>", { desc = "Mason" })
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "prev diag" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next diag" })
+vim.keymap.set("n", "<leader>i", vim.diagnostic.open_float, { desc = "show diag" })
 
 local is_diag = true
 vim.keymap.set('n', '<leader>x', function()
@@ -99,12 +100,12 @@ vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "right win" })
 vim.keymap.set("n", "<C-k>", "<C-w><C-j>", { desc = "lower win" })
 vim.keymap.set("n", "<C-j>", "<C-w><C-k>", { desc = "upper win" })
 
-vim.keymap.set("n", "<leader>i", "<cmd>vsplit|bnext<cr>", { desc = "win new side ->" })
-vim.keymap.set("n", "<leader>n", "<cmd>sbn<cr>", { desc = "win new down" })
-vim.keymap.set("n", "<leader>s", "<C-w>r", { desc = "win swap rotate" })
+vim.keymap.set("n", "<leader>wv", "<cmd>vsplit|bnext<cr>", { desc = "vsplit -->" })
+vim.keymap.set("n", "<leader>ws", "<cmd>sbn<cr>", { desc = "split down" })
+vim.keymap.set("n", "<leader>wr", "<C-w>r", { desc = "rotate (swap)" })
 
-vim.keymap.set("n", "<leader>w", "15<C-w>>", { desc = "win bigger <->" })
-vim.keymap.set("n", "<leader>h", "15<C-w>+", { desc = "win bigger hi" })
+vim.keymap.set("n", "<leader>ww", "15<C-w>>", { desc = "wider <-+->" })
+vim.keymap.set("n", "<leader>wh", "15<C-w>+", { desc = "taller heighten" })
 
 vim.keymap.set("n", "<leader>c", "<C-w>q", { desc = "win close" })
 
@@ -140,6 +141,9 @@ vim.keymap.set(
     { desc = "word rename all" }
 )
 
+-- select all using typecal ctrl-a keymap keys press
+vim.keymap.set("n", "C-a", "ggVG", { desc = "select all" })
+
 -- in highlight, add ' or " around highlight
 vim.keymap.set("v", [["]], [[:s/\%V\%V\(\w\+\)/"\1"/g<CR>gv]])
 vim.keymap.set("v", [[']], [[:s/\%V\%V\(\w\+\)/'\1'/g<CR>gv]])
@@ -172,12 +176,12 @@ vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost", "InsertEnter", "CmdlineEn
         end
     end,
 })
---
+
 -- start vim with telescope open find_files
-vim.api.nvim_create_autocmd("VimEnter", {
-    callback = function()
-        if vim.fn.argv(0) == "" then
-            require("telescope.builtin").find_files()
-        end
-    end,
-})
+-- vim.api.nvim_create_autocmd("VimEnter", {
+--     callback = function()
+--         if vim.fn.argv(0) == "" then
+--             require("telescope.builtin").find_files()
+--         end
+--     end,
+-- })
