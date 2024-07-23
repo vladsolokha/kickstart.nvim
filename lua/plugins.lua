@@ -20,6 +20,7 @@
 --      vim-exchange
 --      colorizer
 --      auto-session
+--      nvim-tmux-navigation
 return {
     { -- colorscheme
         "folke/tokyonight.nvim",
@@ -639,7 +640,7 @@ return {
             -- run python down
             vim.keymap.set("n", "<leader>y", '<cmd>TermExec cmd="python3 %"<cr>', { desc = "term python run" })
 
-            vim.keymap.set("n", "<leader>t", "<cmd>ToggleTerm direction=vertical<cr>",
+            vim.keymap.set("n", "<leader>s", "<cmd>ToggleTerm direction=vertical<cr>",
                 { desc = "term side ->" })
             vim.keymap.set("n", "<c-/>", "<cmd>ToggleTerm direction=horizontal<cr>",
                 { desc = "term down" })
@@ -736,5 +737,25 @@ return {
             }
         end
     },
+
+    {
+        "alexghergh/nvim-tmux-navigation",
+        config = function()
+            local nvim_tmux_nav = require('nvim-tmux-navigation')
+
+            nvim_tmux_nav.setup {
+                disable_when_zoomed = true -- defaults to false
+            }
+
+            vim.keymap.set('n', "<C-h>", nvim_tmux_nav.NvimTmuxNavigateLeft)
+            vim.keymap.set('n', "<C-k>", nvim_tmux_nav.NvimTmuxNavigateDown)
+            vim.keymap.set('n', "<C-j>", nvim_tmux_nav.NvimTmuxNavigateUp)
+            vim.keymap.set('n', "<C-l>", nvim_tmux_nav.NvimTmuxNavigateRight)
+            vim.keymap.set('n', "<C-\\>", nvim_tmux_nav.NvimTmuxNavigateNext)
+            -- vim.keymap.set('n', "<C-Space>", nvim_tmux_nav.NvimTmuxNavigateNext)
+            vim.keymap.set('n', "<C-'>", "<cmd>!tmux split-window -dh<CR>")                                -- new tmux horizontal pane
+            vim.keymap.set('n', "<leader>t", "<cmd>!tmux split-window -dv<CR>", { desc = "tmux v-split" }) -- new tmux vert pane
+        end
+    }
 
 }
