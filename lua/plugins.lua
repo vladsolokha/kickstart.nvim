@@ -47,8 +47,8 @@ return {
         config = function() -- This is the function that runs, AFTER loading
             require("which-key").setup({
                 presets = { operators = false, motions = false, text_objects = false },
-                key_labels = { ["<space>"] = "space", ["<cr>"] = "return", ["<tab>"] = "tab" },
-                window = {
+                replace = { ["<space>"] = "space", ["<cr>"] = "return", ["<tab>"] = "tab" },
+                win = {
                     margin = { 0, 0, 0, 0 },
                     padding = { 0, 0, 0, 0 },
                     winblend = 5,
@@ -56,16 +56,22 @@ return {
                 spelling = { enabled = false },
                 layout = { height = { min = 5, max = 15 }, width = { min = 25, max = 50 }, spacing = 2 },
                 show_help = false,
+                spec = {
+                    { "<leader>q",  group = "quit" },
+                    { "<leader>q_", hidden = true },
+                    { "<leader>w",  group = "window" },
+                    { "<leader>w_", hidden = true },
+                }
             })
 
-            -- Document existing key chains
-            require("which-key").register({
-                ["<leader>q"] = { name = "quit", _ = "which_key_ignore" },
-                ["<leader>w"] = { name = "window", _ = "which_key_ignore" },
-            })
+            -- -- Document existing key chains
+            -- require("which-key").register({
+            --     ["<leader>q"] = { name = "quit", _ = "which_key_ignore" },
+            --     ["<leader>w"] = { name = "window", _ = "which_key_ignore" },
+            -- })
         end,
-    },
 
+    },
     { -- Highlight, edit, and navigate code
         "nvim-treesitter/nvim-treesitter",
         build = ":TSUpdate",
@@ -140,8 +146,9 @@ return {
                     },
                 },
             })
-            vim.keymap.set({ "n" }, "<c-s-tab>", ":CybuPrev<cr>", { desc = "prev buff" })
-            vim.keymap.set({ "n" }, "<c-tab>", ":CybuNext<cr>", { desc = "next buff" })
+            vim.keymap.set({ "n" }, "<C-S-tab>", ":CybuPrev<cr>", { desc = "prev buff" })
+            vim.keymap.set({ "n" }, "<C-tab>", ":CybuNext<cr>", { desc = "next buff" })
+            vim.keymap.set({ "n" }, "<leader>n", ":CybuNext<cr>", { desc = "next buff" })
         end,
     },
 
@@ -640,9 +647,9 @@ return {
             -- run python down
             vim.keymap.set("n", "<leader>y", '<cmd>TermExec cmd="python3 %"<cr>', { desc = "term python run" })
 
-            vim.keymap.set("n", "<leader>s", "<cmd>ToggleTerm direction=vertical<cr>",
+            vim.keymap.set("n", "<leader>v", "<cmd>ToggleTerm direction=vertical<cr>",
                 { desc = "term side ->" })
-            vim.keymap.set("n", "<c-/>", "<cmd>ToggleTerm direction=horizontal<cr>",
+            vim.keymap.set("n", "<leader>s", "<cmd>ToggleTerm direction=horizontal<cr>",
                 { desc = "term down" })
         end,
     },
@@ -751,10 +758,8 @@ return {
             vim.keymap.set('n', "<C-k>", nvim_tmux_nav.NvimTmuxNavigateDown)
             vim.keymap.set('n', "<C-j>", nvim_tmux_nav.NvimTmuxNavigateUp)
             vim.keymap.set('n', "<C-l>", nvim_tmux_nav.NvimTmuxNavigateRight)
-            vim.keymap.set('n', "<C-\\>", nvim_tmux_nav.NvimTmuxNavigateNext)
-            -- vim.keymap.set('n', "<C-Space>", nvim_tmux_nav.NvimTmuxNavigateNext)
-            vim.keymap.set('n', "<C-'>", "<cmd>!tmux split-window -dh<CR>")                                -- new tmux horizontal pane
-            vim.keymap.set('n', "<leader>t", "<cmd>!tmux split-window -dv<CR>", { desc = "tmux v-split" }) -- new tmux vert pane
+
+            vim.keymap.set('n', "<leader>t", "<cmd>!tmux split-window -dh<CR>", { desc = "tmux split pane down" }) -- new tmux horizontal pane
         end
     }
 
