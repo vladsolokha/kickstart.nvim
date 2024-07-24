@@ -37,41 +37,56 @@ return {
 
     { "neanias/everforest-nvim",  event = "VeryLazy", },
 
-    {                       -- forget which key does what, visual help for next key press
+    { -- forget which key does what, visual help for next key press
         "folke/which-key.nvim",
-        event = "VimEnter", -- Sets the loading event to 'VimEnter'
-        init = function()
-            vim.o.timeout = true
-            vim.o.timeoutlen = 1000
-        end,
-        config = function() -- This is the function that runs, AFTER loading
-            require("which-key").setup({
-                presets = { operators = false, motions = false, text_objects = false },
-                replace = { ["<space>"] = "space", ["<cr>"] = "return", ["<tab>"] = "tab" },
-                win = {
-                    margin = { 0, 0, 0, 0 },
-                    padding = { 0, 0, 0, 0 },
-                    winblend = 5,
-                },
+        event = "VeryLazy",
+        opts = {
+            delay = 800,
+            win = {
+                height = { min = 2, max = 20 },
+                padding = { 0, 0 },
+                title = false,
+                wo = { winblend = 5 },
+            },
+            layout = {
+                width = { min = 20, max = 30 },
+                spacing = 2,
+            },
+            plugins = {
+                marks = false,
                 spelling = { enabled = false },
-                layout = { height = { min = 5, max = 15 }, width = { min = 25, max = 50 }, spacing = 2 },
-                show_help = false,
-                spec = {
-                    { "<leader>q",  group = "quit" },
-                    { "<leader>q_", hidden = true },
-                    { "<leader>w",  group = "window" },
-                    { "<leader>w_", hidden = true },
-                }
-            })
-
-            -- -- Document existing key chains
-            -- require("which-key").register({
-            --     ["<leader>q"] = { name = "quit", _ = "which_key_ignore" },
-            --     ["<leader>w"] = { name = "window", _ = "which_key_ignore" },
-            -- })
-        end,
-
+                presets = { z = false },
+            },
+            spec = {
+                { "<leader>q", group = "quit" },
+                { "<leader>w", group = "windows" },
+            },
+            expand = 3, -- expand groups when <= 5 mappings
+            replace = {
+                key = {
+                    { "<CR>",    "ret" },
+                    { "<Space>", "spc" },
+                    { "<Esc>",   "esc" },
+                    { "<BS>",    "bs" },
+                },
+            },
+            icons = {
+                mappings = false,
+            },
+            show_help = false,
+            show_keys = false,
+        },
+        keys = {
+            {
+                "<leader>?",
+                function()
+                    require("which-key").show({ global = false })
+                end,
+                desc = "which-key?",
+            },
+        },
     },
+
     { -- Highlight, edit, and navigate code
         "nvim-treesitter/nvim-treesitter",
         build = ":TSUpdate",

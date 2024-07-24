@@ -126,8 +126,6 @@ vim.keymap.set("n", "N", "Nzz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
 
-vim.keymap.set({ "i" }, "kj", "<esc>", { desc = "old normal" })
-
 vim.keymap.set({ "v" }, "y", "ygv<esc>", { desc = "restore cursor position after yank" })
 vim.keymap.set({ "n" }, "<cr>", "i<cr><esc>l", { desc = "split line down at cursor" })
 vim.keymap.set("n", "<leader>p", 'diw"0P', { desc = "word paste" })
