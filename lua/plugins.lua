@@ -653,11 +653,6 @@ return {
 
             -- run python down
             vim.keymap.set("n", "<leader>y", '<cmd>TermExec cmd="python3 %"<cr>', { desc = "term python run" })
-
-            vim.keymap.set("n", "<leader>v", "<cmd>ToggleTerm direction=vertical<cr>",
-                { desc = "term side ->" })
-            vim.keymap.set("n", "<leader>s", "<cmd>ToggleTerm direction=horizontal<cr>",
-                { desc = "term down" })
         end,
     },
 
@@ -766,7 +761,7 @@ return {
             vim.keymap.set('n', "<C-j>", nvim_tmux_nav.NvimTmuxNavigateUp)
             vim.keymap.set('n', "<C-l>", nvim_tmux_nav.NvimTmuxNavigateRight)
 
-            vim.keymap.set('n', "<leader>t", "<cmd>!tmux split-window -dh<CR>", { desc = "tmux split pane down" }) -- new tmux horizontal pane
+            vim.keymap.set('n', "<leader>t", "<cmd>!tmux split-window -dv<CR>", { desc = "tmux split pane down" }) -- new tmux horizontal pane
         end
     }
 
