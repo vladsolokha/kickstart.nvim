@@ -76,15 +76,7 @@ return {
             show_help = false,
             show_keys = false,
         },
-        keys = {
-            {
-                "<leader>?",
-                function()
-                    require("which-key").show({ global = false })
-                end,
-                desc = "which-key?",
-            },
-        },
+        keys = {},
     },
 
     { -- Highlight, edit, and navigate code
