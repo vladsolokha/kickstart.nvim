@@ -1,41 +1,31 @@
 -- [[ plugins in order ]]
 -- color, theme, ui, how it looks
---      colorscheme: tokyonight, gruvbox-material, everforest
---      which_key
---      nvim-treesitter
---      nvim-treesitter-context
+--      colorscheme
+--      which-key
+--      treesitter
+--      context
 --      gitsigns
---      cybu (cycle buffers): web-dev-icons, plenary
 --      hlchunk (pretty indents)
---      lualine
+--      harpoon
 -- code, format, lsp, stuff that affects code
---      telescope: plenary, web-dev-icons, telescope-ui-select, telescope-fzf-native, ripgrep (ext. install)
---      nvim-lspconfig: mason, mason-lspconfig, mason-tool-installer, fidget, neodev, telescope, cmp_nvim_lsp
+--      telescope: plenary, web-dev-icons, ui-select, fzf-native, ripgrep (ext. install)
+--      lspconfig: mason, tool-installer, fidget, neodev
 --      conform (auto format code)
---      nvim-cmp: LuaSnip, friendly-snippets, cmp_luasnip, cmp-nvim-lsp, cmp-path, cmp-cmdline, cmp-buffer
---      flash (s or S for search on screen)
---      toggleterm: lazygit (ext. install)
---      mini: (ai, surround, bufremove, files, hipatterns, comment)
+--      cmp: LuaSnip, snippets, luasnip, path, cmdline, buffer
+--      mini: (ai, surround, explorer, comment)
 --      undotree (undo like git)
---      vim-exchange
---      colorizer
 --      auto-session
---      nvim-tmux-navigation
 return {
     { -- colorscheme
-        "folke/tokyonight.nvim",
+        "miikanissi/modus-themes.nvim",
         lazy = false,
         priority = 1000,
         config = function()
-            require("tokyonight").setup({
-                vim.cmd([[colorscheme tokyonight-storm]]),
+            require("modus-themes").setup({
+                vim.cmd([[colorscheme modus_operandi]]),
             })
         end,
     },
-
-    { "sainnhe/gruvbox-material", event = "VeryLazy" },
-
-    { "neanias/everforest-nvim",  event = "VeryLazy", },
 
     { -- forget which key does what, visual help for next key press
         "folke/which-key.nvim",
@@ -46,7 +36,6 @@ return {
                 height = { min = 2, max = 20 },
                 padding = { 0, 0 },
                 title = false,
-                wo = { winblend = 5 },
             },
             layout = {
                 width = { min = 20, max = 30 },
@@ -124,38 +113,6 @@ return {
                     changedelete = { text = "~" },
                 },
             })
-            vim.keymap.set(
-                "n",
-                "<leader>b",
-                require("gitsigns").toggle_current_line_blame,
-                { desc = "git blame toggle" }
-            )
-        end,
-    },
-
-    { -- cycle through buffers list
-        "ghillb/cybu.nvim",
-        -- branch = "main", -- timely updates
-        branch = "v1.x",
-        dependencies = { "nvim-tree/nvim-web-devicons", "nvim-lua/plenary.nvim" },
-        config = function()
-            require("cybu").setup({
-                position = { anchor = "bottomright" },
-                display_time = 2500,
-                behavior = { -- set behavior for different modes
-                    mode = {
-                        default = {
-                            view = "rolling", -- paging, rolling
-                        },
-                        auto = {
-                            view = "paging", -- paging, rolling
-                        },
-                    },
-                },
-            })
-            vim.keymap.set({ "n" }, "<C-S-tab>", ":CybuPrev<cr>", { desc = "prev buff" })
-            vim.keymap.set({ "n" }, "<C-tab>", ":CybuNext<cr>", { desc = "next buff" })
-            vim.keymap.set({ "n" }, "<leader>n", ":CybuNext<cr>", { desc = "next buff" })
         end,
     },
 
@@ -168,30 +125,27 @@ return {
         end,
     },
 
-    { -- pretty status line at bottom of windows
-        "nvim-lualine/lualine.nvim",
-        dependencies = { "nvim-tree/nvim-web-devicons" },
+    {
+        "ThePrimeagen/harpoon",
+        branch = "harpoon2",
+        dependencies = { "nvim-lua/plenary.nvim" },
         config = function()
-            require("lualine").get_config()
-            require("lualine").setup({
-                options = { section_separators = "" },
-                sections = {
-                    lualine_a = {},
-                    lualine_b = { "diff", { "diagnostics", sections = { "error", "warn" } } },
-                    lualine_c = { { "filename", path = 1, file_status = false } },
-                    lualine_x = { "progress" },
-                    lualine_y = {},
-                    lualine_z = {},
-                },
-                inactive_sections = {
-                    lualine_a = {},
-                    lualine_b = {},
-                    lualine_c = { "filename" },
-                    lualine_x = { "progress" },
-                    lualine_y = {},
-                    lualine_z = {},
-                },
+            local harpoon = require("harpoon")
+            harpoon:setup({
+                settings = {
+                    save_on_toggle = true,
+                    sync_on_ui_close = true,
+                }
             })
+
+            vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end, { desc = "harpoon add" })
+            vim.keymap.set("n", "<leader>he", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
+                { desc = "harpoon edit" })
+
+            vim.keymap.set("n", "<C-n>", function() harpoon:list():select(1) end)
+            vim.keymap.set("n", "<C-e>", function() harpoon:list():select(2) end)
+            vim.keymap.set("n", "<leader>hi", function() harpoon:list():select(3) end)
+            vim.keymap.set("n", "<leader>ho", function() harpoon:list():select(4) end)
         end,
     },
 
@@ -225,7 +179,6 @@ return {
                 defaults = {
                     layout_strategy = "flex",
                     path_display = { truncate = 3 },
-                    winblend = 10,
                     layout_config = {
                         horizontal = { height = 0.6 },
                         vertical = { height = 0.6 },
@@ -564,98 +517,6 @@ return {
         end,
     },
 
-    { -- leap around a page, hop, use s or S to highlight blocks of code quickly
-        "folke/flash.nvim",
-        event = "VeryLazy",
-        --@type Flash.Config
-        opts = {},
-        config = function()
-            require("flash").setup({
-                labels = "tnseriaodhcplfuwyxgmvkbjzq",
-                -- disable f,F,T,t,;,, modes, no highlights
-                modes = {
-                    search = { enabled = false },
-                    char = { enabled = false },
-                },
-            })
-        end,
-        -- stylua: ignore
-        keys = {
-            { 's',     mode = { 'n', 'x', 'o' }, function() require('flash').jump() end,       desc = 'flash' },
-            { 'S',     mode = { 'n', 'o', 'x' }, function() require('flash').treesitter() end, desc = 'flash treesitter' },
-            { '<c-s>', mode = { 'c' },           function() require('flash').toggle() end,     desc = 'toggle flash search' },
-        },
-    },
-
-    { -- terminal, toggle, lazygit, run python code, multiple terminals with <num><C-/>
-        "akinsho/toggleterm.nvim",
-        version = "*",
-
-        config = function()
-            require("toggleterm").setup({
-                open_mapping = [[<C-/>]],
-                size = function(term)
-                    if term.direction == "horizontal" then
-                        return 20
-                    elseif term.direction == "vertical" then
-                        return vim.o.columns * 0.5
-                    end
-                end,
-                float_opts = {
-                    border = "",
-                    winblend = 5,
-                },
-            })
-
-            function _G.set_terminal_keymaps()
-                local opts = { buffer = 0 }
-                vim.keymap.set("t", "<esc><esc>", [[<C-\><C-n>]], opts)
-                vim.keymap.set("t", "<C-h>", [[<Cmd>wincmd h<CR>]], opts)
-                vim.keymap.set("t", "<C-k>", [[<Cmd>wincmd j<CR>]], opts)
-                vim.keymap.set("t", "<C-j>", [[<Cmd>wincmd k<CR>]], opts)
-                vim.keymap.set("t", "<C-l>", [[<Cmd>wincmd l<CR>]], opts)
-            end
-
-            -- if you only want these mappings for toggle term use term://*toggleterm#* instead
-            vim.cmd("autocmd! TermOpen term://*toggleterm#* lua set_terminal_keymaps()")
-
-            -- lazygit terminal custom
-            local Terminal = require("toggleterm.terminal").Terminal
-            local lazygit = Terminal:new({
-                cmd = "lazygit",
-                dir = "git_dir",
-                hidden = true,
-                direction = "float",
-                -- function to run on opening the terminal
-                on_open = function(term)
-                    vim.cmd("startinsert!")
-                    vim.api.nvim_buf_set_keymap(
-                        term.bufnr,
-                        "n",
-                        "q",
-                        "<cmd>close<CR>",
-                        { noremap = true, silent = true }
-                    )
-                end,
-            })
-
-            function Toggle_lazygit()
-                lazygit:toggle()
-            end
-
-            -- lazygit terminal keymap
-            vim.api.nvim_set_keymap(
-                "n",
-                "<leader>g",
-                "<cmd>lua Toggle_lazygit()<CR>",
-                { desc = "git lazy", noremap = true, silent = true }
-            )
-
-            -- run python down
-            vim.keymap.set("n", "<leader>y", '<cmd>TermExec cmd="python3 %"<cr>', { desc = "term python run" })
-        end,
-    },
-
     { --  Check out: https://github.com/echasnovski/mini.nvim
         "echasnovski/mini.nvim",
         config = function()
@@ -666,21 +527,17 @@ return {
             require("mini.ai").setup({ n_lines = 500 })
 
             -- Add/delete/replace surroundings (brackets, quotes, etc.)
-            -- - gsaiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
-            -- - gsd'   - [S]urround [D]elete [']quotes
-            -- - gsr)'  - [S]urround [R]eplace [)] [']
+            -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
+            -- - sd'   - [S]urround [D]elete [']quotes
+            -- - sr)'  - [S]urround [R]eplace [)] [']
             require("mini.surround").setup({
                 -- Module mappings. Use `''` (empty string) to disable one.
                 mappings = {
-                    add = "gsa",     -- Add surrounding in Normal and Visual modes
-                    delete = "gsd",  -- Delete surrounding
-                    replace = "gsr", -- Replace surrounding
+                    add = "sa",     -- Add surrounding in Normal and Visual modes
+                    delete = "sd",  -- Delete surrounding
+                    replace = "sr", -- Replace surrounding
                 },
             })
-
-            -- delete buffer, buffer remove
-            require("mini.bufremove").setup()
-            vim.keymap.set("n", "<leader>d", ":lua MiniBufremove.delete()<cr>", { desc = "buff delete" })
 
             -- files mini files explorer tree
             require("mini.files").setup({
@@ -700,41 +557,15 @@ return {
 
             vim.keymap.set("n", "<leader>e", ":lua Minifile_toggle()<cr>", { desc = "explorer" })
 
-            require("mini.hipatterns").setup({
-                highlighters = {
-                    -- Highlight hex color strings (`#rrggbb`) using that color
-                    hex_color = require("mini.hipatterns").gen_highlighter.hex_color(),
-                },
-            })
-
-            require("mini.comment").setup({})
+            require("mini.comment").setup()
         end,
     },
 
     { -- undo and redo visually
         "mbbill/undotree",
         config = function()
-            vim.keymap.set("n", "<leader>u", vim.cmd.UndotreeToggle, { desc = "undotree" })
+            vim.keymap.set("n", "<leader>u", "<cmd>UndotreeToggle<cr><cmd>UndotreeFocus<cr>", { desc = "undotree" })
         end,
-    },
-
-    -- swap or exchange stuff horizontally cx on something, move or select, cx again to swap
-    { "tommcdo/vim-exchange" },
-
-    { -- color chooser coloring in code
-        'NvChad/nvim-colorizer.lua',
-        config = function()
-            require 'colorizer'.setup({
-                user_default_options = {
-                    RRGGBBAA = true, -- #RRGGBBAA hex codes
-                    AARRGGBB = true, -- 0xAARRGGBB hex codes
-                    rgb_fn = true,   -- CSS rgb() and rgba() functions
-                    hsl_fn = true,   -- CSS hsl() and hsla() functions
-                    css = true,      -- Enable all CSS features: rgb_fn, hsl_fn, names, RGB, RRGGBB
-                    css_fn = true,   -- Enable all CSS *functions*: rgb_fn, hsl_fn
-                },
-            })
-        end
     },
 
     {
@@ -748,21 +579,16 @@ return {
     },
 
     {
-        "alexghergh/nvim-tmux-navigation",
+        "tpope/vim-fugitive",
         config = function()
-            local nvim_tmux_nav = require('nvim-tmux-navigation')
-
-            nvim_tmux_nav.setup {
-                disable_when_zoomed = true -- defaults to false
-            }
-
-            vim.keymap.set('n', "<C-h>", nvim_tmux_nav.NvimTmuxNavigateLeft)
-            vim.keymap.set('n', "<C-k>", nvim_tmux_nav.NvimTmuxNavigateDown)
-            vim.keymap.set('n', "<C-j>", nvim_tmux_nav.NvimTmuxNavigateUp)
-            vim.keymap.set('n', "<C-l>", nvim_tmux_nav.NvimTmuxNavigateRight)
-
-            vim.keymap.set('n', "<leader>t", "<cmd>!tmux split-window -dv<CR>", { desc = "tmux split pane down" }) -- new tmux horizontal pane
-        end
+            vim.keymap.set(
+                "n",
+                "<leader>b",
+                "<cmd>Git blame<CR>",
+                { desc = "Git blame toggle" }
+            )
+            vim.keymap.set("n", "<leader>G", "<cmd>Git<Cr>", { desc = "Git fugitive" })
+        end,
     }
 
 }

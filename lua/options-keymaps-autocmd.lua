@@ -1,16 +1,20 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
+vim.opt.guicursor = ""
 
 vim.g.have_nerd_font = true
 vim.opt.number = true
--- vim.opt.relativenumber = true
 
 vim.opt.sessionoptions = 'buffers,curdir,help,tabpages,winsize'
 
 vim.opt.mouse = "a"
 
+vim.g.netrw_keepdir = 0
+vim.g.netrw_banner = 0 -- use I inside to show banner
+vim.g.netrw_localcopydircmd = 'cp -r'
+
 -- Sync clipboard between OS and Neovim.
-vim.opt.clipboard = "unnamedplus"
+vim.opt.clipboard:append("unnamedplus")
 
 -- Enable break indent
 vim.opt.breakindent = true
@@ -84,13 +88,14 @@ vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "prev diag" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next diag" })
 vim.keymap.set("n", "<leader>i", vim.diagnostic.open_float, { desc = "show diag" })
 
-local is_diag = true
+local is_diag = false
 vim.keymap.set('n', '<leader>x', function()
-    is_diag = not is_diag
     if is_diag then
         vim.diagnostic.show()
+        is_diag = not is_diag
     else
         vim.diagnostic.hide()
+        is_diag = not is_diag
     end
 end, { desc = "diag toggle" })
 
@@ -139,6 +144,14 @@ vim.keymap.set(
     { desc = "word rename all" }
 )
 
+-- get to Git log and lazygit
+vim.keymap.set("n", "<leader>g", [[<cmd>!tmux neww -c 'lazygit<Cr>']], { desc = "lazygit" })
+
+-- get to next buffer with n and prev buffer with i
+vim.keymap.set("n", "<leader>n", "<cmd>bn<Cr>", { desc = "buff next" })
+vim.keymap.set("n", "<leader>i", "<cmd>bp<Cr>", { desc = "buff prev" })
+vim.keymap.set("n", "<leader>d", "<cmd>%bd|e#<Cr>", { desc = "buff close all other" })
+
 -- select all using typecal ctrl-a keymap keys press
 vim.keymap.set("n", "C-a", "ggVG", { desc = "select all" })
 
@@ -183,3 +196,23 @@ vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost", "InsertEnter", "CmdlineEn
 --         end
 --     end,
 -- })
+
+vim.api.nvim_create_autocmd('filetype', {
+    pattern = 'netrw',
+    desc = 'Better mappings for netrw',
+    callback = function()
+        local bind = function(lhs, rhs)
+            vim.keymap.set('n', lhs, rhs, { remap = true, buffer = true })
+        end
+        -- edit new file
+        bind('n', '%')
+        -- rename file
+        bind('r', 'R')
+        -- move up directory
+        bind('<Left>', '-^')
+        -- open file | dir
+        bind('<Right>', '<CR>')
+        -- show hide dotfiles
+        bind('.', 'gh')
+    end
+})
