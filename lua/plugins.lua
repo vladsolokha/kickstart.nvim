@@ -31,7 +31,7 @@ return {
         "folke/which-key.nvim",
         event = "VeryLazy",
         opts = {
-            delay = 800,
+            delay = 1000,
             win = {
                 height = { min = 2, max = 20 },
                 padding = { 0, 0 },
@@ -93,7 +93,7 @@ return {
         "nvim-treesitter/nvim-treesitter-context",
         config = function()
             require("treesitter-context").setup({
-                max_lines = 8,
+                max_lines = 2,
             })
             vim.keymap.set("n", "[c", function()
                 require("treesitter-context").go_to_context(vim.v.count1)
@@ -144,8 +144,8 @@ return {
 
             vim.keymap.set("n", "<C-n>", function() harpoon:list():select(1) end)
             vim.keymap.set("n", "<C-e>", function() harpoon:list():select(2) end)
-            vim.keymap.set("n", "<leader>hi", function() harpoon:list():select(3) end)
-            vim.keymap.set("n", "<leader>ho", function() harpoon:list():select(4) end)
+            vim.keymap.set("n", "<leader>hi", function() harpoon:list():select(3) end, { desc = "harpoon 3" })
+            vim.keymap.set("n", "<leader>ho", function() harpoon:list():select(4) end, { desc = "harpoon 4" })
         end,
     },
 
@@ -451,8 +451,8 @@ return {
                 -- read `:help ins-completion`
                 ---@diagnostic disable-next-line: missing-fields
                 performance = {
-                    max_view_entries = 8,
-                    throttle = 300,
+                    max_view_entries = 4,
+                    throttle = 800,
                 },
                 mapping = cmp.mapping.preset.insert({
                     -- Select the [n]ext item
@@ -467,7 +467,7 @@ return {
                     -- Accept ([y]es) the completion.
                     ["<C-y>"] = cmp.mapping.confirm({ select = true }),
                     -- Manually trigger a completion from nvim-cmp.
-                    ["<C-Space>"] = cmp.mapping.complete({}),
+                    ["<C-k>"] = cmp.mapping.complete({}),
 
                     -- <c-l> will move you to the right of each of the expansion locations.
                     -- <c-h> is similar, except moving you backwards.
@@ -499,9 +499,6 @@ return {
                 sources = {
                     { name = 'buffer' }
                 },
-                view = {
-                    entries = { name = 'wildmenu', separator = '|' }
-                },
             })
 
             -- Use cmdline & path source for ':'
@@ -512,7 +509,6 @@ return {
                 }, {
                     { name = 'cmdline' }
                 }),
-                view = { entries = { name = 'wildmenu', separator = ' | ' } },
             })
         end,
     },
@@ -566,16 +562,6 @@ return {
         config = function()
             vim.keymap.set("n", "<leader>u", "<cmd>UndotreeToggle<cr><cmd>UndotreeFocus<cr>", { desc = "undotree" })
         end,
-    },
-
-    {
-        'rmagatti/auto-session',
-        config = function()
-            require("auto-session").setup {
-                log_level = "error",
-                auto_session_suppress_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
-            }
-        end
     },
 
     {

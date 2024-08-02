@@ -59,6 +59,10 @@ vim.opt.splitbelow = true
 vim.opt.list = true
 vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 
+-- better move around wrapped lines
+vim.keymap.set({ "n", "v", "x" }, "<Up>", [[v:count == 0 ? 'gk' : 'k']], { expr = true, silent = true })
+vim.keymap.set({ "n", "v", "x" }, "<Down>", [[v:count == 0 ? 'gj' : 'j']], { expr = true, silent = true })
+
 -- Preview substitutions live, as you type!
 vim.opt.inccommand = "split"
 
@@ -88,12 +92,15 @@ vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "prev diag" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next diag" })
 vim.keymap.set("n", "<leader>i", vim.diagnostic.open_float, { desc = "show diag" })
 
+vim.diagnostic.enable(false)
 local is_diag = false
 vim.keymap.set('n', '<leader>x', function()
     if is_diag then
+        vim.diagnostic.enable(true)
         vim.diagnostic.show()
         is_diag = not is_diag
     else
+        vim.diagnostic.enable(true)
         vim.diagnostic.hide()
         is_diag = not is_diag
     end
@@ -144,13 +151,9 @@ vim.keymap.set(
     { desc = "word rename all" }
 )
 
--- get to Git log and lazygit
-vim.keymap.set("n", "<leader>g", [[<cmd>!tmux neww -c 'lazygit<Cr>']], { desc = "lazygit" })
-
 -- get to next buffer with n and prev buffer with i
 vim.keymap.set("n", "<leader>n", "<cmd>bn<Cr>", { desc = "buff next" })
 vim.keymap.set("n", "<leader>i", "<cmd>bp<Cr>", { desc = "buff prev" })
-vim.keymap.set("n", "<leader>d", "<cmd>%bd|e#<Cr>", { desc = "buff close all other" })
 
 -- select all using typecal ctrl-a keymap keys press
 vim.keymap.set("n", "C-a", "ggVG", { desc = "select all" })
@@ -189,13 +192,13 @@ vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost", "InsertEnter", "CmdlineEn
 })
 
 -- start vim with telescope open find_files
--- vim.api.nvim_create_autocmd("VimEnter", {
---     callback = function()
---         if vim.fn.argv(0) == "" then
---             require("telescope.builtin").find_files()
---         end
---     end,
--- })
+vim.api.nvim_create_autocmd("VimEnter", {
+    callback = function()
+        if vim.fn.argv(0) == "" then
+            MiniFiles.open()
+        end
+    end,
+})
 
 vim.api.nvim_create_autocmd('filetype', {
     pattern = 'netrw',
