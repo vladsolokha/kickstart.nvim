@@ -1,7 +1,6 @@
 -- [[ plugins in order ]]
 -- color, theme, ui, how it looks
 --      colorscheme
---      which-key
 --      treesitter
 --      context
 --      gitsigns
@@ -14,7 +13,6 @@
 --      cmp: LuaSnip, snippets, luasnip, path, cmdline, buffer
 --      mini: (ai, surround, explorer, comment)
 --      undotree (undo like git)
---      auto-session
 return {
     { -- colorscheme
         "miikanissi/modus-themes.nvim",
@@ -25,47 +23,6 @@ return {
                 vim.cmd([[colorscheme modus_operandi]]),
             })
         end,
-    },
-
-    { -- forget which key does what, visual help for next key press
-        "folke/which-key.nvim",
-        event = "VeryLazy",
-        opts = {
-            delay = 1000,
-            win = {
-                height = { min = 2, max = 20 },
-                padding = { 0, 0 },
-                title = false,
-            },
-            layout = {
-                width = { min = 20, max = 30 },
-                spacing = 2,
-            },
-            plugins = {
-                marks = false,
-                spelling = { enabled = false },
-                presets = { z = false },
-            },
-            spec = {
-                { "<leader>q", group = "quit" },
-                { "<leader>w", group = "windows" },
-            },
-            expand = 3, -- expand groups when <= 5 mappings
-            replace = {
-                key = {
-                    { "<CR>",    "ret" },
-                    { "<Space>", "spc" },
-                    { "<Esc>",   "esc" },
-                    { "<BS>",    "bs" },
-                },
-            },
-            icons = {
-                mappings = false,
-            },
-            show_help = false,
-            show_keys = false,
-        },
-        keys = {},
     },
 
     { -- Highlight, edit, and navigate code
@@ -118,10 +75,28 @@ return {
 
     { -- lines down the code window, show indents, and blocks of code
         "shellRaining/hlchunk.nvim",
-        event = "UIEnter",
+        event = { "BufReadPre", "BufNewFile" },
         config = function()
             ---@diagnostic disable-next-line: missing-fields
-            require("hlchunk").setup({ blank = { enable = false } })
+            require("hlchunk").setup({
+                blank = { enable = false },
+                chunk = {
+                    enable = true,
+                    use_treesitter = true,
+                    chars = {
+                        horizontal_line = "─",
+                        vertical_line = "│",
+                        left_top = "┌",
+                        left_bottom = "└",
+                        right_arrow = "─",
+                    },
+                    style = "#adadad",
+                    duration = 100,
+                    delay = 100,
+                },
+
+
+            })
         end,
     },
 
@@ -172,9 +147,6 @@ return {
             -- [[ Configure Telescope ]]
             -- See `:help telescope` and `:help telescope.setup()`
             require("telescope").setup({
-                -- You can put your default mappings / updates / etc. in here
-                --  All the info you're looking for is in `:help telescope.setup()`
-                -- defaults = { mappings = { i = { ['<c-enter>'] = 'to_fuzzy_refine' }, }, },
                 pickers = { colorscheme = { enable_preview = true } },
                 defaults = {
                     layout_strategy = "flex",
@@ -242,8 +214,6 @@ return {
             "williamboman/mason.nvim",
             "williamboman/mason-lspconfig.nvim",
             "WhoIsSethDaniel/mason-tool-installer.nvim",
-            -- `neodev` configures Lua LSP for your Neovim config, runtime and plugins
-            -- used for completion, annotations and signatures of Neovim apis
             { "folke/neodev.nvim", opts = {} },
         },
         config = function()
@@ -254,35 +224,35 @@ return {
             vim.api.nvim_create_autocmd("LspAttach", {
                 callback = function(event)
                     local map = function(keys, func, desc)
-                        vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "lsp: " .. desc })
+                        vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "" .. desc })
                     end
 
                     --  To jump back, press <C-t>.
                     map("gd", require("telescope.builtin").lsp_definitions, "definition")
-                    map("gr", require("telescope.builtin").lsp_references, "references")
+                    map("K", vim.lsp.buf.hover, "hover documentation")
+
+                    map("<leader>lf", require("telescope.builtin").lsp_references, "references")
 
                     --  Useful when your language has ways of declaring types without an actual implementation.
-                    map("gI", require("telescope.builtin").lsp_implementations, "implementation")
+                    map("<leader>li", require("telescope.builtin").lsp_implementations, "implementation")
 
                     --  the definition of its *type*, not where it was *defined*.
-                    map("gy", require("telescope.builtin").lsp_type_definitions, "type definition")
+                    map("<leader>lt", require("telescope.builtin").lsp_type_definitions, "type definition")
 
                     --  Symbols are things like variables, functions, types, etc.
-                    map("gb", require("telescope.builtin").lsp_document_symbols, "buff symbols")
+                    map("<leader>ls", require("telescope.builtin").lsp_document_symbols, "buff symbols")
 
                     --  Similar to document symbols, except searches over your entire project.
-                    map("ga", require("telescope.builtin").lsp_dynamic_workspace_symbols, "all symbols")
+                    map("<leader>ly", require("telescope.builtin").lsp_dynamic_workspace_symbols, "all symbols")
 
                     --  Most Language Servers support renaming across files, etc.
-                    map("gR", vim.lsp.buf.rename, "rename this vars")
+                    map("<leader>lr", vim.lsp.buf.rename, "rename this vars")
 
                     -- Execute a code action, usually your cursor needs to be on top of an error
                     -- or a suggestion from your LSP for this to activate.
-                    map("<leader>a", vim.lsp.buf.code_action, "code action")
+                    map("<leader>la", vim.lsp.buf.code_action, "code action")
 
-                    map("K", vim.lsp.buf.hover, "hover documentation")
-
-                    map("gD", vim.lsp.buf.declaration, "header declaration")
+                    map("<leader>lh", vim.lsp.buf.declaration, "header declaration")
 
                     -- highlight references of the word under your cursor while resting
                     -- help CursorHold
@@ -302,26 +272,14 @@ return {
                 end,
             })
 
-            -- LSP servers and clients are able to communicate to each other what features they support.
-            -- By default, Neovim doesn't support everything that is in the LSP specification.
-            --  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
-            --  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
             local capabilities = vim.lsp.protocol.make_client_capabilities()
             capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
-            --  Add any additional override configuration in the following tables. Available keys are:
-            --  - cmd (table): Override the default command used to start the server
-            --  - filetypes (table): Override the default list of associated filetypes for the server
-            --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
-            --  - settings (table): Override the default settings passed when initializing the server.
             --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
             local servers = {
                 -- pyright = {},
                 -- python-lsp-server = {},
-                -- ruff = {},
-                -- help lspconfig-all  -- for all other servers
                 -- github.com/pmizio/typescript-tools.nvim
-                -- tsserver = {},
                 lua_ls = {
                     -- cmd = {...},
                     -- filetypes = { ...},
@@ -335,11 +293,7 @@ return {
                     },
                 },
             }
-            -- Ensure the servers and tools above are installed
-            -- To check the current status of installed tools and/or
-            -- manually install other tools, you can run
-            -- :Mason
-            require("mason").setup()
+            require("mason").setup() -- :Mason
 
             local ensure_installed = vim.tbl_keys(servers or {})
             vim.list_extend(ensure_installed, {
@@ -351,9 +305,6 @@ return {
                 handlers = {
                     function(server_name)
                         local server = servers[server_name] or {}
-                        -- This handles overriding only values explicitly passed
-                        -- by the server configuration above. Useful when disabling
-                        -- certain features of an LSP (for example, turning off formatting for tsserver)
                         server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
                         require("lspconfig")[server_name].setup(server)
                     end,
@@ -379,23 +330,12 @@ return {
         opts = {
             notify_on_error = false,
             format_on_save = function(bufnr)
-                -- Disable "format_on_save lsp_fallback" for languages that don't
-                -- have a well standardized coding style. You can add additional
-                -- languages here or re-enable it for the disabled ones.
                 local disable_filetypes = { c = true, cpp = true }
                 return {
                     timeout_ms = 500,
                     lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
                 }
             end,
-            formatters_by_ft = {
-                -- installing these via mason
-                -- lua = { "stylua" },
-                -- Conform can also run multiple formatters sequentially
-                -- python = { "autoflake", "ruff" },
-                -- You can use a sub-list to tell conform to run *until* a formatter is found.
-                -- javascript = { { "prettierd", "prettier" } },
-            },
         },
     },
 
@@ -413,8 +353,6 @@ return {
                     return "make install_jsregexp"
                 end)(),
                 dependencies = {
-                    -- `friendly-snippets` contains a variety of premade snippets.
-                    --    See the README about individual language/framework/plugin snippets:
                     --    https://github.com/rafamadriz/friendly-snippets
                     {
                         "rafamadriz/friendly-snippets",
@@ -427,9 +365,6 @@ return {
                 },
             },
             "saadparwaiz1/cmp_luasnip",
-            -- Adds other completion capabilities.
-            --  nvim-cmp does not ship with all sources by default. They are split
-            --  into multiple repos for maintenance purposes.
             "hrsh7th/cmp-nvim-lsp",
             "hrsh7th/cmp-path",
             "hrsh7th/cmp-cmdline",
@@ -516,22 +451,14 @@ return {
     { --  Check out: https://github.com/echasnovski/mini.nvim
         "echasnovski/mini.nvim",
         config = function()
-            -- Better Around/Inside textobjects
-            --  - va)  - [V]isually select [A]round [)]paren
-            --  - yinq - [Y]ank [I]nside [N]ext [']quote
-            --  - ci'  - [C]hange [I]nside [']quote
             require("mini.ai").setup({ n_lines = 500 })
 
-            -- Add/delete/replace surroundings (brackets, quotes, etc.)
-            -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
-            -- - sd'   - [S]urround [D]elete [']quotes
-            -- - sr)'  - [S]urround [R]eplace [)] [']
             require("mini.surround").setup({
                 -- Module mappings. Use `''` (empty string) to disable one.
                 mappings = {
-                    add = "sa",     -- Add surrounding in Normal and Visual modes
-                    delete = "sd",  -- Delete surrounding
-                    replace = "sr", -- Replace surrounding
+                    add = "gsa",     -- Add surrounding in Normal and Visual modes
+                    delete = "gsd",  -- Delete surrounding
+                    replace = "gsr", -- Replace surrounding
                 },
             })
 
@@ -552,8 +479,49 @@ return {
             end
 
             vim.keymap.set("n", "<leader>e", ":lua Minifile_toggle()<cr>", { desc = "explorer" })
+            -- <leader>E is :Ex now
 
             require("mini.comment").setup()
+
+            local miniclue = require("mini.clue")
+            miniclue.setup({
+                triggers = {
+                    -- Leader triggers
+                    { mode = 'n', keys = '<Leader>' },
+                    { mode = 'x', keys = '<Leader>' },
+
+                    { mode = 'n', keys = '<C-w>' },
+                    { mode = 'n', keys = ']' },
+                    { mode = 'n', keys = '[' },
+                },
+                clues = {
+                    { mode = 'n', keys = '<Leader>h', desc = '+Harpoon' },
+                    { mode = 'n', keys = '<Leader>l', desc = '+LSP' },
+                    { mode = 'n', keys = '<Leader>q', desc = '+Quit' },
+                    { mode = 'n', keys = ']d',        postkeys = ']' },
+                    { mode = 'n', keys = '[d',        postkeys = '[' },
+                    miniclue.gen_clues.windows({
+                        submode_move = true,
+                        submode_navigate = true,
+                        submode_resize = true,
+                    }),
+                },
+                window = {
+                    delay = 1000,
+                    config = {
+                        width = 'auto',
+                        border = 'single',
+                    },
+                },
+            })
+
+            require("mini.jump2d").setup({
+                -- Characters used for labels of jump spots (in supplied order)
+                labels = 'tnseridhcxwyfgmuplaoqzkj',
+                mappings = {
+                    start_jumping = 's',
+                },
+            })
         end,
     },
 
@@ -567,13 +535,7 @@ return {
     {
         "tpope/vim-fugitive",
         config = function()
-            vim.keymap.set(
-                "n",
-                "<leader>b",
-                "<cmd>Git blame<CR>",
-                { desc = "Git blame toggle" }
-            )
-            vim.keymap.set("n", "<leader>G", "<cmd>Git<Cr>", { desc = "Git fugitive" })
+            vim.keymap.set("n", "<leader>g", "<cmd>Git<Cr>", { desc = "Git fugitive" })
         end,
     }
 
