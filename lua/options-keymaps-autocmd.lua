@@ -56,8 +56,8 @@ vim.opt.splitbelow = true
 -- Sets how neovim will display certain whitespace characters in the editor.
 --  See `:help 'list'`
 --  and `:help 'listchars'`
-vim.opt.list = true
-vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
+-- vim.opt.list = true
+-- vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 
 -- Preview substitutions live, as you type!
 vim.opt.inccommand = "split"
@@ -92,7 +92,7 @@ vim.keymap.set("n", "<leader>M", "<cmd>Mason<cr>", { desc = "Mason" })
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "prev diag" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next diag" })
-vim.keymap.set("n", "<leader>i", vim.diagnostic.open_float, { desc = "diag error" })
+vim.keymap.set("n", "<leader>z", vim.diagnostic.open_float, { desc = "diag error" })
 
 vim.diagnostic.enable(false)
 local is_diag = false
@@ -115,11 +115,11 @@ vim.keymap.set("n", "<C-k>", "<C-w><C-j>", { desc = "lower win" })
 vim.keymap.set("n", "<C-j>", "<C-w><C-k>", { desc = "upper win" })
 
 -- Window shortcuts keymaps
-vim.keymap.set("n", "<leader>wv", "<cmd>vsplit|bnext<cr>", { desc = "vsplit -->" })
-vim.keymap.set("n", "<leader>ws", "<cmd>sbn<cr>", { desc = "split down" })
-vim.keymap.set("n", "<leader>wr", "<C-w>r", { desc = "rotate (swap)" })
-vim.keymap.set("n", "<leader>ww", "15<C-w>>", { desc = "wider <-+->" })
-vim.keymap.set("n", "<leader>wh", "15<C-w>+", { desc = "taller heighten" })
+-- vim.keymap.set("n", "<leader>wv", "<cmd>vsplit|bnext<cr>", { desc = "vsplit -->" })
+-- vim.keymap.set("n", "<leader>ws", "<cmd>sbn<cr>", { desc = "split down" })
+-- vim.keymap.set("n", "<leader>wr", "<C-w>r", { desc = "rotate (swap)" })
+-- vim.keymap.set("n", "<leader>ww", "15<C-w>>", { desc = "wider <-+->" })
+-- vim.keymap.set("n", "<leader>wh", "15<C-w>+", { desc = "taller heighten" })
 
 -- Easy window close
 vim.keymap.set("n", "<leader>c", "<C-w>q", { desc = "win close" })
@@ -160,8 +160,11 @@ vim.keymap.set(
 vim.keymap.set("n", "<leader>n", "<cmd>bn<Cr>", { desc = "buff next" })
 vim.keymap.set("n", "<leader>i", "<cmd>bp<Cr>", { desc = "buff prev" })
 
+-- go into Ex mode
+vim.keymap.set("n", "<leader>E", "<cmd>Ex<Cr>", { desc = ":Explore" })
+
 -- select all using typecal ctrl-a keymap keys press
-vim.keymap.set("n", "<leader>A", "ggVG", { desc = "select all" })
+vim.keymap.set("n", "<leader>a", "ggVG", { desc = "select all" })
 
 -- in highlight, add ' or " around highlight
 vim.keymap.set("v", [["]], [[:s/\%V\%V\(\w\+\)/"\1"/g<CR>gv]])
