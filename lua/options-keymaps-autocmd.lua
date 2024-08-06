@@ -4,6 +4,7 @@ vim.opt.guicursor = ""
 
 vim.g.have_nerd_font = true
 vim.opt.number = true
+vim.opt.fillchars = { eob = " " }
 
 vim.opt.sessionoptions = 'buffers,curdir,help,tabpages,winsize'
 
@@ -198,13 +199,13 @@ vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost", "InsertEnter", "CmdlineEn
 })
 
 -- start vim with open mini files explorer
-vim.api.nvim_create_autocmd("VimEnter", {
-    callback = function()
-        if vim.fn.argv(0) == "" then
-            MiniFiles.open()
-        end
-    end,
-})
+-- vim.api.nvim_create_autocmd("VimEnter", {
+--     callback = function()
+--         if vim.fn.argv(0) == "" then
+--             MiniFiles.open()
+--         end
+--     end,
+-- })
 
 vim.api.nvim_create_autocmd('filetype', {
     pattern = 'netrw',
