@@ -46,33 +46,6 @@ return {
         end,
     },
 
-    { -- context of functions and other long statements on treesitter
-        "nvim-treesitter/nvim-treesitter-context",
-        config = function()
-            require("treesitter-context").setup({
-                max_lines = 2,
-            })
-            vim.keymap.set("n", "[c", function()
-                require("treesitter-context").go_to_context(vim.v.count1)
-            end, { silent = true, desc = "top context" })
-        end,
-    },
-
-    { -- Adds git related signs to the gutter, as well as utilities for managing changes
-        "lewis6991/gitsigns.nvim",
-        config = function()
-            require("gitsigns").setup({
-                signs = {
-                    add = { text = "+" },
-                    change = { text = "~" },
-                    delete = { text = "_" },
-                    topdelete = { text = "‾" },
-                    changedelete = { text = "~" },
-                },
-            })
-        end,
-    },
-
     { -- lines down the code window, show indents, and blocks of code
         "shellRaining/hlchunk.nvim",
         event = { "BufReadPre", "BufNewFile" },
@@ -94,8 +67,6 @@ return {
                     duration = 100,
                     delay = 100,
                 },
-
-
             })
         end,
     },
@@ -116,11 +87,10 @@ return {
             vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end, { desc = "harpoon add" })
             vim.keymap.set("n", "<leader>he", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
                 { desc = "harpoon edit" })
-
             vim.keymap.set("n", "<C-n>", function() harpoon:list():select(1) end)
             vim.keymap.set("n", "<C-e>", function() harpoon:list():select(2) end)
-            vim.keymap.set("n", "<leader>hi", function() harpoon:list():select(3) end, { desc = "harpoon 3" })
-            vim.keymap.set("n", "<leader>ho", function() harpoon:list():select(4) end, { desc = "harpoon 4" })
+            vim.keymap.set("n", "<C-y>", function() harpoon:list():select(3) end)
+            vim.keymap.set("n", "<C-m>", function() harpoon:list():select(4) end)
         end,
     },
 
@@ -152,8 +122,8 @@ return {
                     layout_strategy = "flex",
                     path_display = { truncate = 3 },
                     layout_config = {
-                        horizontal = { height = 0.6 },
-                        vertical = { height = 0.6 },
+                        horizontal = { height = 0.8 },
+                        vertical = { height = 0.8 },
                     },
                 },
                 extensions = {
