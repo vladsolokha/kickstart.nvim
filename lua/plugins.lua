@@ -5,9 +5,10 @@
 --      undotree (undo like git)
 --      fugitive (git wrapper)
 --      no-neck-pain
+--      flash
 --      harpoon
 --      conform (auto format code)
---      mini: (ai, file explorer, comment, key clue)
+--      mini: (ai, comment, jump2d, files, clue)
 --      telescope
 --      lspconfig: mason, tool-installer, fidget, neodev
 --      cmp: LuaSnip, snippets, luasnip, path, cmdline, buffer
@@ -119,7 +120,7 @@ return {
             vim.keymap.set("n", "<C-n>", function() harpoon:list():select(1) end)
             vim.keymap.set("n", "<C-e>", function() harpoon:list():select(2) end)
             vim.keymap.set("n", "<C-y>", function() harpoon:list():select(3) end)
-            vim.keymap.set("n", "<C-m>", function() harpoon:list():select(4) end)
+            vim.keymap.set("n", "<C-t>", function() harpoon:list():select(4) end)
         end,
     },
 
@@ -156,12 +157,10 @@ return {
 
             require("mini.comment").setup()
 
-            require("mini.surround").setup({
-                -- Module mappings. Use `''` (empty string) to disable one.
+            require("mini.jump2d").setup({
+                labels = 'tnseridhcxwyfgmuplaoqzkj',
                 mappings = {
-                    add = "gsa",     -- Add surrounding in Normal and Visual modes
-                    delete = "gsd",  -- Delete surrounding
-                    replace = "gsr", -- Replace surrounding
+                    start_jumping = 's',
                 },
             })
 
