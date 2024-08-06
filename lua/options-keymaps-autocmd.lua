@@ -1,6 +1,7 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
-vim.opt.guicursor = ""
+-- turn cursor blink off
+vim.opt.guicursor = "a:blinkoff0"
 
 vim.g.have_nerd_font = true
 vim.opt.number = true
@@ -66,8 +67,6 @@ vim.opt.scrolloff = 10
 vim.opt.hlsearch = true
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 
-vim.keymap.set("n", "<c-i>", "<c-i>") -- keep c-i separate from tab keys
-
 -- better move around wrapped lines
 vim.keymap.set({ "n", "v" }, "<Up>", [[v:count == 0 ? 'gk' : 'k']], { expr = true, silent = true })
 vim.keymap.set({ "n", "v" }, "<Down>", [[v:count == 0 ? 'gj' : 'j']], { expr = true, silent = true })
@@ -126,6 +125,8 @@ vim.keymap.set("v", "<A-Up>", ":m '<-2<CR>gv=gv")
 vim.keymap.set("v", "<Tab>", ">gv")
 vim.keymap.set("v", "<S-Tab>", "<gv")
 
+vim.keymap.set("n", "<c-i>", "<c-i>") -- keep c-i separate from tab keys
+
 -- center cursor when jump scrolling
 vim.keymap.set("n", "n", "nzz")
 vim.keymap.set("n", "N", "Nzz")
@@ -133,12 +134,13 @@ vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
 
 -- other shortcuts and peves
-vim.keymap.set({ "v" }, "y", "ygv<esc>")
-vim.keymap.set({ "n" }, "<cr>", "i<cr><esc>l")
+vim.keymap.set("v", "y", "ygv<esc>")        -- keep cursor when yanking
+vim.keymap.set("n", "<cr>", "i<cr><esc>l")  -- enter new line in n mode
 vim.keymap.set("n", "<leader>p", 'diw"0P', { desc = "stamp word" })
-vim.keymap.set("n", "J", "mzJ`z")
+vim.keymap.set("n", "J", "mzJ`z")           -- keep cursor when joining lines
 vim.keymap.set({ "x", "v" }, "p", [["_dP]]) -- put word without yanking replaced
-vim.keymap.set("n", "Y", "Yg$")
+vim.keymap.set("n", "Y", "Yg$")             -- go to end when yank whole line
+-- replace word under cursor interactively
 vim.keymap.set(
     "n",
     "<leader>r",
