@@ -1,18 +1,16 @@
--- [[ plugins in order ]]
--- color, theme, ui, how it looks
+-- [[ plugins ]]
 --      colorscheme
 --      treesitter
---      context
---      gitsigns
 --      hlchunk (pretty indents)
---      harpoon
--- code, format, lsp, stuff that affects code
---      telescope: plenary, web-dev-icons, ui-select, fzf-native, ripgrep (ext. install)
---      lspconfig: mason, tool-installer, fidget, neodev
---      conform (auto format code)
---      cmp: LuaSnip, snippets, luasnip, path, cmdline, buffer
---      mini: (ai, surround, explorer, comment)
 --      undotree (undo like git)
+--      fugitive (git wrapper)
+--      no-neck-pain
+--      harpoon
+--      conform (auto format code)
+--      mini: (ai, file explorer, comment, key clue)
+--      telescope
+--      lspconfig: mason, tool-installer, fidget, neodev
+--      cmp: LuaSnip, snippets, luasnip, path, cmdline, buffer
 return {
     { -- colorscheme
         "miikanissi/modus-themes.nvim",
@@ -40,7 +38,6 @@ return {
         },
         config = function(_, opts)
             -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-
             ---@diagnostic disable-next-line: missing-fields
             require("nvim-treesitter.configs").setup(opts)
         end,
@@ -64,8 +61,40 @@ return {
                         right_arrow = "─",
                     },
                     style = "#adadad",
-                    duration = 100,
-                    delay = 100,
+                    duration = 0,
+                    delay = 0,
+                },
+            })
+        end,
+    },
+
+    { -- undo and redo visually
+        "mbbill/undotree",
+        config = function()
+            vim.keymap.set("n", "<leader>u", "<cmd>UndotreeToggle<cr><cmd>UndotreeFocus<cr>", { desc = "undotree" })
+        end,
+    },
+
+    { -- git wrapper for git stuff
+        "tpope/vim-fugitive",
+        config = function()
+            vim.keymap.set("n", "<leader>g", "<cmd>Git<Cr>", { desc = "Git fugitive" })
+        end,
+    },
+    {
+        "shortcuts/no-neck-pain.nvim",
+        version = "*",
+        config = function()
+            require("no-neck-pain").setup({
+                disableOnLastBuffer = false,
+                autocmds = {
+                    enableOnVimEnter = true,
+                    reloadOnColorSchemeChange = true,
+                },
+                buffers = {
+                    right = {
+                        enabled = false,
+                    },
                 },
             })
         end,
@@ -91,6 +120,101 @@ return {
             vim.keymap.set("n", "<C-e>", function() harpoon:list():select(2) end)
             vim.keymap.set("n", "<C-y>", function() harpoon:list():select(3) end)
             vim.keymap.set("n", "<C-m>", function() harpoon:list():select(4) end)
+        end,
+    },
+
+    { -- autoformat, make doc look like standard code, removing white spaces and extra stuff
+        "stevearc/conform.nvim",
+        event = { "BufWritePre" },
+        cmd = { "ConformInfo" },
+        keys = {
+            {
+                "<leader>f",
+                function()
+                    require("conform").format({ async = true, lsp_fallback = true })
+                end,
+                mode = "",
+                desc = "buff format",
+            },
+        },
+        opts = {
+            notify_on_error = false,
+            format_on_save = function(bufnr)
+                local disable_filetypes = { c = true, cpp = true }
+                return {
+                    timeout_ms = 500,
+                    lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
+                }
+            end,
+        },
+    },
+
+    { --  Check out: https://github.com/echasnovski/mini.nvim
+        "echasnovski/mini.nvim",
+        config = function()
+            require("mini.ai").setup({ n_lines = 500 })
+
+            require("mini.comment").setup()
+
+            require("mini.surround").setup({
+                -- Module mappings. Use `''` (empty string) to disable one.
+                mappings = {
+                    add = "gsa",     -- Add surrounding in Normal and Visual modes
+                    delete = "gsd",  -- Delete surrounding
+                    replace = "gsr", -- Replace surrounding
+                },
+            })
+
+            -- files mini files explorer tree
+            require("mini.files").setup({
+                mappings = {
+                    go_in = "<Right>",
+                    go_in_plus = "<S-Right>",
+                    go_out = "<Left>",
+                    go_out_plus = "<S-Left>",
+                },
+            })
+
+            function Minifile_toggle()
+                if not MiniFiles.close() then
+                    MiniFiles.open()
+                end
+            end
+
+            vim.keymap.set("n", "<leader>e", ":lua Minifile_toggle()<cr>", { desc = "explorer" })
+            -- <leader>E is :Ex now
+
+            local miniclue = require("mini.clue")
+            miniclue.setup({
+                triggers = {
+                    -- Leader triggers
+                    { mode = 'n', keys = '<Leader>' },
+                    { mode = 'x', keys = '<Leader>' },
+
+                    { mode = 'n', keys = '<C-w>' },
+                    { mode = 'n', keys = ']' },
+                    { mode = 'n', keys = '[' },
+                },
+                clues = {
+                    { mode = 'n', keys = '<Leader>h', desc = '+Harpoon' },
+                    { mode = 'n', keys = '<Leader>l', desc = '+LSP' },
+                    { mode = 'n', keys = '<Leader>q', desc = '+Quit' },
+                    { mode = 'n', keys = ']d',        postkeys = ']' },
+                    { mode = 'n', keys = '[d',        postkeys = '[' },
+                    miniclue.gen_clues.windows({
+                        submode_move = true,
+                        submode_navigate = true,
+                        submode_resize = true,
+                    }),
+                },
+                window = {
+                    delay = 750,
+                    config = {
+                        width = 'auto',
+                        border = 'single',
+                    },
+                },
+            })
         end,
     },
 
@@ -223,22 +347,6 @@ return {
                     map("<leader>la", vim.lsp.buf.code_action, "code action")
 
                     map("<leader>lh", vim.lsp.buf.declaration, "header declaration")
-
-                    -- highlight references of the word under your cursor while resting
-                    -- help CursorHold
-                    local client = vim.lsp.get_client_by_id(event.data.client_id)
-                    if client and client.server_capabilities.documentHighlightProvider then
-                        vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-                            buffer = event.buf,
-                            callback = vim.lsp.buf.document_highlight,
-                        })
-
-                        -- When you move your cursor, the highlights will be cleared
-                        vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
-                            buffer = event.buf,
-                            callback = vim.lsp.buf.clear_references,
-                        })
-                    end
                 end,
             })
 
@@ -281,32 +389,6 @@ return {
                 },
             })
         end,
-    },
-
-    { -- autoformat, make doc look like standard code, removing white spaces and extra stuff
-        "stevearc/conform.nvim",
-        event = { "BufWritePre" },
-        cmd = { "ConformInfo" },
-        keys = {
-            {
-                "<leader>f",
-                function()
-                    require("conform").format({ async = true, lsp_fallback = true })
-                end,
-                mode = "",
-                desc = "buff format",
-            },
-        },
-        opts = {
-            notify_on_error = false,
-            format_on_save = function(bufnr)
-                local disable_filetypes = { c = true, cpp = true }
-                return {
-                    timeout_ms = 500,
-                    lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
-                }
-            end,
-        },
     },
 
     { -- Autocompletion, when typing, helps with words, code completion
@@ -417,96 +499,4 @@ return {
             })
         end,
     },
-
-    { --  Check out: https://github.com/echasnovski/mini.nvim
-        "echasnovski/mini.nvim",
-        config = function()
-            require("mini.ai").setup({ n_lines = 500 })
-
-            require("mini.surround").setup({
-                -- Module mappings. Use `''` (empty string) to disable one.
-                mappings = {
-                    add = "gsa",     -- Add surrounding in Normal and Visual modes
-                    delete = "gsd",  -- Delete surrounding
-                    replace = "gsr", -- Replace surrounding
-                },
-            })
-
-            -- files mini files explorer tree
-            require("mini.files").setup({
-                mappings = {
-                    go_in = "<Right>",
-                    go_in_plus = "<S-Right>",
-                    go_out = "<Left>",
-                    go_out_plus = "<S-Left>",
-                },
-            })
-
-            function Minifile_toggle()
-                if not MiniFiles.close() then
-                    MiniFiles.open()
-                end
-            end
-
-            vim.keymap.set("n", "<leader>e", ":lua Minifile_toggle()<cr>", { desc = "explorer" })
-            -- <leader>E is :Ex now
-
-            require("mini.comment").setup()
-
-            local miniclue = require("mini.clue")
-            miniclue.setup({
-                triggers = {
-                    -- Leader triggers
-                    { mode = 'n', keys = '<Leader>' },
-                    { mode = 'x', keys = '<Leader>' },
-
-                    { mode = 'n', keys = '<C-w>' },
-                    { mode = 'n', keys = ']' },
-                    { mode = 'n', keys = '[' },
-                },
-                clues = {
-                    { mode = 'n', keys = '<Leader>h', desc = '+Harpoon' },
-                    { mode = 'n', keys = '<Leader>l', desc = '+LSP' },
-                    { mode = 'n', keys = '<Leader>q', desc = '+Quit' },
-                    { mode = 'n', keys = ']d',        postkeys = ']' },
-                    { mode = 'n', keys = '[d',        postkeys = '[' },
-                    miniclue.gen_clues.windows({
-                        submode_move = true,
-                        submode_navigate = true,
-                        submode_resize = true,
-                    }),
-                },
-                window = {
-                    delay = 1000,
-                    config = {
-                        width = 'auto',
-                        border = 'single',
-                    },
-                },
-            })
-
-            require("mini.jump2d").setup({
-                -- Characters used for labels of jump spots (in supplied order)
-                labels = 'tnseridhcxwyfgmuplaoqzkj',
-                mappings = {
-                    start_jumping = 's',
-                },
-            })
-        end,
-    },
-
-    { -- undo and redo visually
-        "mbbill/undotree",
-        config = function()
-            vim.keymap.set("n", "<leader>u", "<cmd>UndotreeToggle<cr><cmd>UndotreeFocus<cr>", { desc = "undotree" })
-        end,
-    },
-
-    {
-        "tpope/vim-fugitive",
-        config = function()
-            vim.keymap.set("n", "<leader>g", "<cmd>Git<Cr>", { desc = "Git fugitive" })
-        end,
-    }
-
 }
