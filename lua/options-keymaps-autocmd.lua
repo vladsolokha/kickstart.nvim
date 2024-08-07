@@ -75,9 +75,9 @@ vim.keymap.set({ "n", "v" }, "<Down>", [[v:count == 0 ? 'gj' : 'j']], { expr = t
 vim.keymap.set({ "n", "i", "v", "x" }, "<C-s>", "<Esc><cmd>w<cr>")
 
 -- quit, lazy, and Mason shortcuts
-vim.keymap.set("n", "<leader>qq", "<cmd>qa<cr>", { desc = "close nvim" })
-vim.keymap.set("n", "<leader>L", "<cmd>Lazy<cr>", { desc = "Lazy" })
-vim.keymap.set("n", "<leader>M", "<cmd>Mason<cr>", { desc = "Mason" })
+vim.keymap.set("n", "<leader>qq", "<cmd>quitall!<cr>", { desc = "close nvim" })
+-- vim.keymap.set("n", "<leader>L", "<cmd>Lazy<cr>", { desc = "Lazy" })
+-- vim.keymap.set("n", "<leader>M", "<cmd>Mason<cr>", { desc = "Mason" })
 
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "prev diag" })
@@ -86,7 +86,7 @@ vim.keymap.set("n", "<leader>z", vim.diagnostic.open_float, { desc = "diag error
 
 vim.diagnostic.enable(false)
 local is_diag = false
-vim.keymap.set('n', '<leader>x', function()
+vim.keymap.set('n', '<leader>d', function()
     vim.diagnostic.enable(true)
     if is_diag then
         vim.diagnostic.show()
@@ -110,8 +110,8 @@ vim.keymap.set("n", "<C-j>", "<C-w><C-k>", { desc = "upper win" })
 -- vim.keymap.set("n", "<leader>ww", "15<C-w>>", { desc = "wider <-+->" })
 -- vim.keymap.set("n", "<leader>wh", "15<C-w>+", { desc = "taller heighten" })
 
--- Easy window close
-vim.keymap.set("n", "<leader>c", "<C-w>q", { desc = "win close" })
+-- Easy window close matches tmux x to close win/pane
+vim.keymap.set("n", "<leader>x", "<C-w>q", { desc = "win close" })
 
 -- move lines up or down, Alt-Up/Down
 vim.keymap.set("n", "<A-Down>", "<cmd>m .+1<cr>==")
@@ -153,7 +153,7 @@ vim.keymap.set("n", "<leader>n", "<cmd>bn<Cr>", { desc = "buff next" })
 vim.keymap.set("n", "<leader>i", "<cmd>bp<Cr>", { desc = "buff prev" })
 
 -- go into Ex mode
-vim.keymap.set("n", "<leader>E", "<cmd>Ex<Cr>", { desc = ":Explore" })
+vim.keymap.set("n", "<leader>E", "<cmd>Ex<Cr>", { desc = ":Ex" })
 
 -- select all using typecal ctrl-a keymap keys press
 vim.keymap.set("n", "<leader>a", "ggVG", { desc = "select all" })
@@ -189,15 +189,6 @@ vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost", "InsertEnter", "CmdlineEn
     end,
 })
 
--- start vim with open mini files explorer
--- vim.api.nvim_create_autocmd("VimEnter", {
---     callback = function()
---         if vim.fn.argv(0) == "" then
---             MiniFiles.open()
---         end
---     end,
--- })
-
 vim.api.nvim_create_autocmd('filetype', {
     pattern = 'netrw',
     desc = 'Better mappings for netrw',
@@ -217,3 +208,12 @@ vim.api.nvim_create_autocmd('filetype', {
         bind('.', 'gh')
     end
 })
+
+-- start vim with open mini files explorer
+-- vim.api.nvim_create_autocmd("VimEnter", {
+--     callback = function()
+--         if vim.fn.argv(0) == "" then
+--             MiniFiles.open()
+--         end
+--     end,
+-- })
