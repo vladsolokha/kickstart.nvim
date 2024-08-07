@@ -1,14 +1,13 @@
 -- [[ plugins ]]
 --      colorscheme
 --      treesitter
---      hlchunk (pretty indents)
+--      hlchunk (pretty indents lines)
 --      undotree (undo like git)
 --      fugitive (git wrapper)
 --      no-neck-pain
---      flash
 --      harpoon
 --      conform (auto format code)
---      mini: (ai, comment, jump2d, files, clue)
+--      mini: (ai, comment, files, clue)
 --      telescope
 --      lspconfig: mason, tool-installer, fidget, neodev
 --      cmp: LuaSnip, snippets, luasnip, path, cmdline, buffer
@@ -16,12 +15,19 @@ return {
     { -- colorscheme
         "miikanissi/modus-themes.nvim",
         lazy = false,
-        priority = 1000,
+        -- priority = 1000,
         config = function()
             require("modus-themes").setup({
-                vim.cmd([[colorscheme modus_operandi]]),
+                vim.cmd([[colorscheme modus]]),
             })
         end,
+    },
+
+    {
+        "folke/tokyonight.nvim",
+        lazy = false,
+        priority = 1000,
+        opts = {},
     },
 
     { -- Highlight, edit, and navigate code
@@ -93,9 +99,12 @@ return {
                     reloadOnColorSchemeChange = true,
                 },
                 buffers = {
-                    right = {
-                        enabled = false,
+                    scratchPad = {
+                        enabled = true,
+                        location = '~/.notes/no-neck-pain-scratchpad'
                     },
+                    bo = { filetype = 'md' },
+                    right = { enabled = false },
                 },
             })
         end,
@@ -154,23 +163,21 @@ return {
         "echasnovski/mini.nvim",
         config = function()
             require("mini.ai").setup({ n_lines = 500 })
-
             require("mini.comment").setup()
-
-            require("mini.jump2d").setup({
-                labels = 'tnseridhcxwyfgmuplaoqzkj',
-                mappings = {
-                    start_jumping = 's',
-                },
-            })
-
+            -- require("mini.jump2d").setup({
+            --     labels = 'tnseridhcxwyfgmuplaoqzkj',
+            --     mappings = {
+            --         start_jumping = 's',
+            --     },
+            -- })
             -- files mini files explorer tree
             require("mini.files").setup({
                 mappings = {
-                    go_in = "<Right>",
-                    go_in_plus = "<S-Right>",
-                    go_out = "<Left>",
+                    go_in       = "<Right>",
+                    go_in_plus  = "<S-Right>",
+                    go_out      = "<Left>",
                     go_out_plus = "<S-Left>",
+                    close       = "<ESC>",
                 },
             })
 
@@ -207,7 +214,7 @@ return {
                     }),
                 },
                 window = {
-                    delay = 750,
+                    delay = 300,
                     config = {
                         width = 'auto',
                         border = 'single',
@@ -275,7 +282,7 @@ return {
             end, { desc = "find grep all" })
 
             -- word search current word under cursor
-            vim.keymap.set("n", "//", function()
+            vim.keymap.set("n", "<leader>'", function()
                 builtin.grep_string()
             end, { desc = "find word current" })
 
@@ -285,9 +292,9 @@ return {
             end, { desc = "find recent files" })
 
             -- switch colors scheme theme change colors
-            vim.keymap.set("n", "<leader>m", function()
-                builtin.colorscheme()
-            end, { desc = "mood colors" })
+            -- vim.keymap.set("n", "<leader>m", function()
+            --     builtin.colorscheme()
+            -- end, { desc = "mood colors" })
 
             -- config files
             vim.keymap.set("n", "<leader>,", function()
@@ -320,23 +327,21 @@ return {
                         vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "" .. desc })
                     end
 
-                    --  To jump back, press <C-t>.
-                    map("gd", require("telescope.builtin").lsp_definitions, "definition")
                     map("K", vim.lsp.buf.hover, "hover documentation")
-
-                    map("<leader>lf", require("telescope.builtin").lsp_references, "references")
+                    map("gd", require("telescope.builtin").lsp_definitions, "definition")
+                    map("gr", require("telescope.builtin").lsp_references, "references")
 
                     --  Useful when your language has ways of declaring types without an actual implementation.
                     map("<leader>li", require("telescope.builtin").lsp_implementations, "implementation")
 
                     --  the definition of its *type*, not where it was *defined*.
-                    map("<leader>lt", require("telescope.builtin").lsp_type_definitions, "type definition")
+                    map("<leader>lt", require("telescope.builtin").lsp_type_definitions, "type def")
 
                     --  Symbols are things like variables, functions, types, etc.
                     map("<leader>ls", require("telescope.builtin").lsp_document_symbols, "buff symbols")
 
                     --  Similar to document symbols, except searches over your entire project.
-                    map("<leader>ly", require("telescope.builtin").lsp_dynamic_workspace_symbols, "all symbols")
+                    map("<leader>lp", require("telescope.builtin").lsp_dynamic_workspace_symbols, "proj symbols")
 
                     --  Most Language Servers support renaming across files, etc.
                     map("<leader>lr", vim.lsp.buf.rename, "rename this vars")
@@ -345,7 +350,7 @@ return {
                     -- or a suggestion from your LSP for this to activate.
                     map("<leader>la", vim.lsp.buf.code_action, "code action")
 
-                    map("<leader>lh", vim.lsp.buf.declaration, "header declaration")
+                    -- map("<leader>lh", vim.lsp.buf.declaration, "header declaration")
                 end,
             })
 
@@ -438,7 +443,7 @@ return {
                 ---@diagnostic disable-next-line: missing-fields
                 performance = {
                     max_view_entries = 4,
-                    throttle = 800,
+                    throttle = 300,
                 },
                 mapping = cmp.mapping.preset.insert({
                     -- Select the [n]ext item
