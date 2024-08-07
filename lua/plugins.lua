@@ -13,21 +13,22 @@
 --      cmp: LuaSnip, snippets, luasnip, path, cmdline, buffer
 return {
     { -- colorscheme
-        "miikanissi/modus-themes.nvim",
-        lazy = false,
-        -- priority = 1000,
-        config = function()
-            require("modus-themes").setup({
-                vim.cmd([[colorscheme modus]]),
-            })
-        end,
-    },
-
-    {
         "folke/tokyonight.nvim",
         lazy = false,
         priority = 1000,
-        opts = {},
+        config = function()
+            require("tokyonight").setup({
+                style = "night", --  `storm`, `night`, `day`, `moon`
+                styles = {
+                    comments = { italic = false },
+                    keywords = { italic = false },
+                },
+                plugins = {
+                    telescope = true,
+                },
+            })
+            vim.cmd([[colorscheme tokyonight-night]])
+        end
     },
 
     { -- Highlight, edit, and navigate code
@@ -96,7 +97,6 @@ return {
                 disableOnLastBuffer = false,
                 autocmds = {
                     enableOnVimEnter = true,
-                    reloadOnColorSchemeChange = true,
                 },
                 buffers = {
                     scratchPad = {
