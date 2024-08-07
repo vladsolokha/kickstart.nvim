@@ -8,6 +8,7 @@ vim.opt.number = true
 vim.opt.fillchars = { eob = " " }
 
 vim.opt.sessionoptions = 'buffers,curdir,help,tabpages,winsize'
+vim.opt.laststatus = 3
 
 vim.opt.mouse = "a"
 
