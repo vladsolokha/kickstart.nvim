@@ -7,7 +7,7 @@
 --      no-neck-pain
 --      harpoon
 --      conform (auto format code)
---      mini: (ai, comment, files, clue)
+--      mini: (ai, starter, surround, files, clue)
 --      telescope
 --      lspconfig: mason, tool-installer, fidget, neodev
 --      cmp: LuaSnip, snippets, luasnip, path, cmdline, buffer
@@ -36,16 +36,17 @@ return {
         build = ":TSUpdate",
         opts = {
             ensure_installed = {},
-            -- Autoinstall languages that are not installed
             auto_install = true,
             highlight = {
                 enable = true,
-                additional_vim_regex_highlighting = { "ruby" },
+                -- additional_vim_regex_highlighting = { "ruby" },
             },
-            indent = { enable = true, disable = { "ruby" } },
+            indent = {
+                enable = true,
+                -- disable = { "ruby" }
+            },
         },
         config = function(_, opts)
-            -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
             ---@diagnostic disable-next-line: missing-fields
             require("nvim-treesitter.configs").setup(opts)
         end,
@@ -68,7 +69,6 @@ return {
                         left_bottom = "└",
                         right_arrow = "─",
                     },
-                    style = "#adadad",
                     duration = 0,
                     delay = 0,
                 },
@@ -129,7 +129,7 @@ return {
             vim.keymap.set("n", "<C-n>", function() harpoon:list():select(1) end)
             vim.keymap.set("n", "<C-e>", function() harpoon:list():select(2) end)
             vim.keymap.set("n", "<C-y>", function() harpoon:list():select(3) end)
-            vim.keymap.set("n", "<C-t>", function() harpoon:list():select(4) end)
+            vim.keymap.set("n", "<c-t>", function() harpoon:list():select(4) end)
         end,
     },
 
@@ -163,24 +163,43 @@ return {
         "echasnovski/mini.nvim",
         config = function()
             require("mini.ai").setup({ n_lines = 500 })
-            require("mini.comment").setup()
-            -- require("mini.jump2d").setup({
-            --     labels = 'tnseridhcxwyfgmuplaoqzkj',
-            --     mappings = {
-            --         start_jumping = 's',
-            --     },
-            -- })
-            -- files mini files explorer tree
+
+            local starter = require('mini.starter')
+            starter.setup({
+                header = "Vlad is a pretty freaking Awesome guy",
+                items = {
+                    starter.sections.recent_files(5, false),
+                    starter.sections.recent_files(5, true),
+                },
+                content_hooks = {
+                    starter.gen_hook.padding(3, 13),
+                },
+                footer = '',
+            })
+
+            require("mini.surround").setup({
+                mappings = {
+                    add = 'sa',          -- Add surrounding in Normal and Visual modes
+                    delete = 'sd',       -- Delete surrounding
+                    find = '',           -- Find surrounding (to the right)
+                    find_left = '',      -- Find surrounding (to the left)
+                    highlight = '',      -- Highlight surrounding
+                    replace = 'sr',      -- Replace surrounding
+                    update_n_lines = '', -- Update `n_lines`
+
+                    suffix_last = '',    -- Suffix to search with "prev" method
+                    suffix_next = '',    -- Suffix to search with "next" method
+                },
+            })
             require("mini.files").setup({
                 mappings = {
-                    go_in       = "<Right>",
-                    go_in_plus  = "<S-Right>",
+                    go_in_plus  = "<Right>",
+                    go_in       = "<S-Right>",
                     go_out      = "<Left>",
                     go_out_plus = "<S-Left>",
                     close       = "<ESC>",
                 },
             })
-
             function Minifile_toggle()
                 if not MiniFiles.close() then
                     MiniFiles.open()
@@ -189,14 +208,12 @@ return {
 
             vim.keymap.set("n", "<leader>e", ":lua Minifile_toggle()<cr>", { desc = "explorer" })
             -- <leader>E is :Ex now
-
             local miniclue = require("mini.clue")
             miniclue.setup({
                 triggers = {
                     -- Leader triggers
                     { mode = 'n', keys = '<Leader>' },
                     { mode = 'x', keys = '<Leader>' },
-
                     { mode = 'n', keys = '<C-w>' },
                     { mode = 'n', keys = ']' },
                     { mode = 'n', keys = '[' },
@@ -235,7 +252,7 @@ return {
                 enabled = vim.g.have_nerd_font
             },
             { "nvim-telescope/telescope-ui-select.nvim" },
-            { -- If encountering errors, see telescope-fzf-native README for installation instructions
+            {
                 "nvim-telescope/telescope-fzf-native.nvim",
                 build = "make",
                 cond = function()
@@ -244,8 +261,6 @@ return {
             },
         },
         config = function()
-            -- [[ Configure Telescope ]]
-            -- See `:help telescope` and `:help telescope.setup()`
             require("telescope").setup({
                 pickers = { colorscheme = { enable_preview = true } },
                 defaults = {
@@ -263,12 +278,9 @@ return {
                 },
             })
 
-            -- Enable Telescope extensions if they are installed
             pcall(require("telescope").load_extension, "fzf")
             pcall(require("telescope").load_extension, "ui-select")
 
-            -- [[ Telescope keymaps ]]
-            -- help telescope.builtin
             local builtin = require("telescope.builtin")
 
             -- find files like vs code ctrl-p
@@ -291,11 +303,6 @@ return {
                 builtin.oldfiles({ hidden = true, prompt_title = "recent files" })
             end, { desc = "find recent files" })
 
-            -- switch colors scheme theme change colors
-            -- vim.keymap.set("n", "<leader>m", function()
-            --     builtin.colorscheme()
-            -- end, { desc = "mood colors" })
-
             -- config files
             vim.keymap.set("n", "<leader>,", function()
                 builtin.find_files(require("telescope.themes").get_dropdown({
@@ -310,17 +317,12 @@ return {
     { -- LSP Configuration & Plugins
         "neovim/nvim-lspconfig",
         dependencies = {
-            -- Automatically install LSPs and related tools to stdpath for Neovim
             "williamboman/mason.nvim",
             "williamboman/mason-lspconfig.nvim",
             "WhoIsSethDaniel/mason-tool-installer.nvim",
             { "folke/neodev.nvim", opts = {} },
         },
         config = function()
-            -- LSP provides Neovim with features like:
-            --  - Go to definition - Find references - Autocompletion - Symbol Search
-            -- help lsp-vs-treesitter
-
             vim.api.nvim_create_autocmd("LspAttach", {
                 callback = function(event)
                     local map = function(keys, func, desc)
@@ -357,15 +359,9 @@ return {
             local capabilities = vim.lsp.protocol.make_client_capabilities()
             capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
-            --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
             local servers = {
-                -- pyright = {},
-                -- python-lsp-server = {},
                 -- github.com/pmizio/typescript-tools.nvim
                 lua_ls = {
-                    -- cmd = {...},
-                    -- filetypes = { ...},
-                    -- capabilities = {},
                     settings = {
                         Lua = {
                             completion = {
@@ -414,8 +410,6 @@ return {
                         "rafamadriz/friendly-snippets",
                         config = function()
                             require("luasnip.loaders.from_vscode").lazy_load()
-                            --- will exclude all javascript snippets
-                            --     exclude = { "javascript" },
                         end,
                     },
                 },
@@ -427,7 +421,6 @@ return {
             "hrsh7th/cmp-buffer",
         },
         config = function()
-            -- See `:help cmp`
             local cmp = require("cmp")
             local luasnip = require("luasnip")
             luasnip.config.setup({})
@@ -449,7 +442,7 @@ return {
                     -- Select the [n]ext item
                     ["<C-n>"] = cmp.mapping.select_next_item(),
                     -- Select the [p]revious item
-                    ["<C-p>"] = cmp.mapping.select_prev_item(),
+                    ["<C-e>"] = cmp.mapping.select_prev_item(),
 
                     -- Scroll the documentation window [b]ack / [f]orward
                     ["<C-d>"] = cmp.mapping.scroll_docs(-4),
@@ -458,23 +451,18 @@ return {
                     -- Accept ([y]es) the completion.
                     ["<C-y>"] = cmp.mapping.confirm({ select = true }),
                     -- Manually trigger a completion from nvim-cmp.
-                    ["<C-k>"] = cmp.mapping.complete({}),
+                    ["<C-t>"] = cmp.mapping.complete({}),
 
-                    -- <c-l> will move you to the right of each of the expansion locations.
-                    -- <c-h> is similar, except moving you backwards.
-                    ["<C-l>"] = cmp.mapping(function()
+                    ["<C-h>"] = cmp.mapping(function()
                         if luasnip.expand_or_locally_jumpable() then
                             luasnip.expand_or_jump()
                         end
                     end, { "i", "s" }),
-                    ["<C-h>"] = cmp.mapping(function()
+                    ["<C-k>"] = cmp.mapping(function()
                         if luasnip.locally_jumpable(-1) then
                             luasnip.jump(-1)
                         end
                     end, { "i", "s" }),
-
-                    -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
-                    --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
                 }),
                 sources = {
                     { name = "nvim_lsp" },
