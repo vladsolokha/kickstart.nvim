@@ -77,18 +77,14 @@ vim.keymap.set({ "n", "i", "v", "x" }, "<C-s>", "<Esc><cmd>w<cr>")
 
 -- quit, lazy, and Mason shortcuts
 vim.keymap.set("n", "<leader>qq", "<cmd>quitall!<cr>", { desc = "close nvim" })
--- vim.keymap.set("n", "<leader>L", "<cmd>Lazy<cr>", { desc = "Lazy" })
--- vim.keymap.set("n", "<leader>M", "<cmd>Mason<cr>", { desc = "Mason" })
 
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "prev diag" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next diag" })
-vim.keymap.set("n", "<leader>z", vim.diagnostic.open_float, { desc = "diag error" })
+vim.keymap.set("n", "<leader>i", vim.diagnostic.open_float, { desc = "diag error" })
 
-vim.diagnostic.enable(false)
 local is_diag = false
 vim.keymap.set('n', '<leader>d', function()
-    vim.diagnostic.enable(true)
     if is_diag then
         vim.diagnostic.show()
         is_diag = not is_diag
@@ -103,13 +99,6 @@ vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "left win" })
 vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "right win" })
 vim.keymap.set("n", "<C-k>", "<C-w><C-j>", { desc = "lower win" })
 vim.keymap.set("n", "<C-j>", "<C-w><C-k>", { desc = "upper win" })
-
--- Window shortcuts keymaps
--- vim.keymap.set("n", "<leader>wv", "<cmd>vsplit|bnext<cr>", { desc = "vsplit -->" })
--- vim.keymap.set("n", "<leader>ws", "<cmd>sbn<cr>", { desc = "split down" })
--- vim.keymap.set("n", "<leader>wr", "<C-w>r", { desc = "rotate (swap)" })
--- vim.keymap.set("n", "<leader>ww", "15<C-w>>", { desc = "wider <-+->" })
--- vim.keymap.set("n", "<leader>wh", "15<C-w>+", { desc = "taller heighten" })
 
 -- Easy window close matches tmux x to close win/pane
 vim.keymap.set("n", "<leader>x", "<C-w>q", { desc = "win close" })
@@ -126,7 +115,8 @@ vim.keymap.set("v", "<A-Up>", ":m '<-2<CR>gv=gv")
 vim.keymap.set("v", "<Tab>", ">gv")
 vim.keymap.set("v", "<S-Tab>", "<gv")
 
-vim.keymap.set("n", "<c-i>", "<c-i>") -- keep c-i separate from tab keys
+-- keep c-i separate from tab keys
+vim.keymap.set("n", "<c-i>", "<c-i>")
 
 -- center cursor when jump scrolling
 vim.keymap.set("n", "n", "nzz")
@@ -148,10 +138,6 @@ vim.keymap.set(
     [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
     { desc = "word rename in buff" }
 )
-
--- get to n = next buffer, i = prev buffer
-vim.keymap.set("n", "<leader>n", "<cmd>bn<Cr>", { desc = "buff next" })
-vim.keymap.set("n", "<leader>i", "<cmd>bp<Cr>", { desc = "buff prev" })
 
 -- go into Ex mode
 vim.keymap.set("n", "<leader>E", "<cmd>Ex<Cr>", { desc = ":Ex" })
