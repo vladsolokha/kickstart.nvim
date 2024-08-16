@@ -1,13 +1,14 @@
 -- [[ plugins ]]
 --      colorscheme
 --      treesitter
+--      context
 --      hlchunk (pretty indents lines)
 --      undotree (undo like git)
 --      fugitive (git wrapper)
 --      no-neck-pain
 --      harpoon
 --      conform (auto format code)
---      mini: (ai, starter, surround, files, clue)
+--      mini: (ai, jump2d, starter, surround, files, clue)
 --      telescope
 --      lspconfig: mason, tool-installer, fidget, neodev
 --      cmp: LuaSnip, snippets, luasnip, path, cmdline, buffer
@@ -31,6 +32,8 @@ return {
         end
     },
 
+    { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
+
     { -- Highlight, edit, and navigate code
         "nvim-treesitter/nvim-treesitter",
         build = ":TSUpdate",
@@ -50,6 +53,20 @@ return {
             ---@diagnostic disable-next-line: missing-fields
             require("nvim-treesitter.configs").setup(opts)
         end,
+    },
+
+    { -- function, conditional context top of screen
+        "nvim-treesitter/nvim-treesitter-context",
+        config = function()
+            require 'treesitter-context'.setup {
+                max_lines = 8,           -- How many lines the window should span. Values <= 0 mean no limit.
+                multiline_threshold = 8, -- Maximum number of lines to show for a single context
+            }
+            vim.keymap.set("n", "[c", function()
+                require("treesitter-context").go_to_context(vim.v.count1)
+            end, { desc = "up to context", silent = true })
+            vim.keymap.set("n", "<leader>c", "<cmd>TSContextToggle<CR>", { desc = "context toggle" })
+        end
     },
 
     { -- lines down the code window, show indents, and blocks of code
@@ -149,13 +166,14 @@ return {
         },
         opts = {
             notify_on_error = false,
-            format_on_save = function(bufnr)
-                local disable_filetypes = { c = true, cpp = true }
-                return {
-                    timeout_ms = 500,
-                    lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
-                }
-            end,
+            format_on_save = nil,
+            -- format_on_save = function(bufnr)
+            --     local disable_filetypes = { c = true, cpp = true }
+            --     return {
+            --         timeout_ms = 500,
+            --         lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
+            --     }
+            -- end,
         },
     },
 
@@ -164,17 +182,21 @@ return {
         config = function()
             require("mini.ai").setup({ n_lines = 500 })
 
+            require('mini.jump2d').setup({
+                labels = 'tnsedhricplfuwyaogmvkbjqz',
+                view = { dim = true, },
+                mappings = { start_jumping = [[']], },
+            })
+
             local starter = require('mini.starter')
             starter.setup({
+                silent = true,
                 header = "Vlad is a pretty freaking Awesome guy",
-                items = {
-                    starter.sections.recent_files(5, false),
-                    starter.sections.recent_files(5, true),
-                },
+                items = { name = '', action = '', section = '' },
                 content_hooks = {
-                    starter.gen_hook.padding(3, 13),
+                    starter.gen_hook.padding(10, 20),
                 },
-                footer = '',
+                footer = '[Space Space] files\n[Space e] explorer\n[Space o] recent',
             })
 
             require("mini.surround").setup({
@@ -370,6 +392,14 @@ return {
                         },
                     },
                 },
+                ruff = {
+                    init_options = {
+                        settings = {
+                            -- Ruff language server settings go here
+                            ignore = { "E501", "E402" },
+                        },
+                    },
+                },
             }
             require("mason").setup() -- :Mason
 
@@ -435,7 +465,6 @@ return {
                 -- read `:help ins-completion`
                 ---@diagnostic disable-next-line: missing-fields
                 performance = {
-                    max_view_entries = 4,
                     throttle = 300,
                 },
                 mapping = cmp.mapping.preset.insert({
@@ -470,6 +499,21 @@ return {
                     { name = "path" },
                     { name = "buffer" },
                 },
+            })
+
+            -- disable completion in comments
+            cmp.setup({
+                enabled = function()
+                    -- disable completion in comments
+                    local context = require 'cmp.config.context'
+                    -- keep command mode completion enabled when cursor is in a comment
+                    if vim.api.nvim_get_mode().mode == 'c' then
+                        return true
+                    else
+                        return not context.in_treesitter_capture("comment")
+                            and not context.in_syntax_group("Comment")
+                    end
+                end
             })
 
             -- Use buffer source for `/` and `?`

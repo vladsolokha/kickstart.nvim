@@ -1,7 +1,10 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
--- turn cursor blink off
-vim.opt.guicursor = "a:blinkoff0"
+
+vim.cmd('hi iCursor gui=NONE guibg=Red guifg=NONE')
+vim.cmd('hi defCursor gui=NONE guibg=White guifg=Black')
+vim.cmd('hi visCursor gui=NONE guibg=Green guifg=Yellow')
+vim.opt.guicursor = "a:blinkon0-defCursor,i-r:iCursor,v-ve:visCursor"
 
 vim.g.have_nerd_font = true
 vim.opt.number = true
@@ -83,15 +86,8 @@ vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "prev diag" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next diag" })
 vim.keymap.set("n", "<leader>i", vim.diagnostic.open_float, { desc = "diag error" })
 
-local is_diag = false
 vim.keymap.set('n', '<leader>d', function()
-    if is_diag then
-        vim.diagnostic.show()
-        is_diag = not is_diag
-    else
-        vim.diagnostic.hide()
-        is_diag = not is_diag
-    end
+    vim.diagnostic.enable(not vim.diagnostic.is_enabled())
 end, { desc = "diag toggle" })
 
 --  See `:help wincmd` for a list of all window commands
