@@ -79,16 +79,15 @@ vim.keymap.set({ "n", "v" }, "<Down>", [[v:count == 0 ? 'gj' : 'j']], { expr = t
 vim.keymap.set({ "n", "i", "v", "x" }, "<C-s>", "<Esc><cmd>w<cr>")
 
 -- quit, lazy, and Mason shortcuts
-vim.keymap.set("n", "<leader>qq", "<cmd>quitall!<cr>", { desc = "close nvim" })
+vim.keymap.set("n", "<leader>qq", "<cmd>quitall!<cr>", { desc = "quit" })
 
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "prev diag" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next diag" })
-vim.keymap.set("n", "<leader>i", vim.diagnostic.open_float, { desc = "diag error" })
 
 vim.keymap.set('n', '<leader>d', function()
     vim.diagnostic.enable(not vim.diagnostic.is_enabled())
-end, { desc = "diag toggle" })
+end, { desc = "diag toggle", silent = false })
 
 --  See `:help wincmd` for a list of all window commands
 vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "left win" })
@@ -123,23 +122,25 @@ vim.keymap.set("n", "<C-d>", "<C-d>zz")
 -- other shortcuts and peves
 vim.keymap.set("v", "y", "ygv<esc>")        -- keep cursor when yanking
 vim.keymap.set("n", "<cr>", "i<cr><esc>l")  -- enter new line in n mode
-vim.keymap.set("n", "<leader>p", 'diw"0P', { desc = "stamp word" })
+vim.keymap.set("n", "<leader>p", 'diw"0P', { desc = "stamp" })
 vim.keymap.set("n", "J", "mzJ`z")           -- keep cursor when joining lines
 vim.keymap.set({ "x", "v" }, "p", [["_dP]]) -- put word without yanking replaced
 vim.keymap.set("n", "Y", "Yg$")             -- go to end when yank whole line
+vim.keymap.set("n", "<leader>y", "<cmd>let @+=expand('%')<cr>", { desc = "copy path" })
+vim.keymap.set("n", "<leader>Y", "<cmd>let @+=expand('%:p')<cr>", { desc = "full path" })
 -- replace word under cursor interactively
 vim.keymap.set(
     "n",
     "<leader>r",
     [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
-    { desc = "word rename in buff" }
+    { desc = "word rename" }
 )
 
 -- go into Ex mode
-vim.keymap.set("n", "<leader>E", "<cmd>Ex<Cr>", { desc = ":Ex" })
+vim.keymap.set("n", "<leader>E", "<cmd>Ex<Cr>", { desc = "netrw" })
 
 -- select all using typecal ctrl-a keymap keys press
-vim.keymap.set("n", "<leader>a", "ggVG", { desc = "select all" })
+vim.keymap.set("n", "<leader>a", "ggVG", { desc = "sel all" })
 
 -- in highlight, add ' or " around highlight
 vim.keymap.set("v", [["]], [[:s/\%V\%V\(\w\+\)/"\1"/g<CR>gv]])

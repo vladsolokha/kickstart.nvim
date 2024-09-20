@@ -5,14 +5,17 @@
 --      hlchunk (pretty indents lines)
 --      undotree (undo like git)
 --      fugitive (git wrapper)
---      no-neck-pain
+--      exchange
+--      neck-pain
+--      tmux-navigation
 --      harpoon
 --      conform (auto format code)
---      mini: (ai, jump2d, starter, surround, files, clue)
+--      mini: (ai, jump2d, starter, surround, diff, files, clue)
 --      telescope
 --      lspconfig: mason, tool-installer, fidget, neodev
 --      cmp: LuaSnip, snippets, luasnip, path, cmdline, buffer
 return {
+
     { -- colorscheme
         "folke/tokyonight.nvim",
         lazy = false,
@@ -32,22 +35,14 @@ return {
         end
     },
 
-    { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
-
     { -- Highlight, edit, and navigate code
         "nvim-treesitter/nvim-treesitter",
         build = ":TSUpdate",
         opts = {
             ensure_installed = {},
             auto_install = true,
-            highlight = {
-                enable = true,
-                -- additional_vim_regex_highlighting = { "ruby" },
-            },
-            indent = {
-                enable = true,
-                -- disable = { "ruby" }
-            },
+            highlight = { enable = true, },
+            indent = { enable = true, },
         },
         config = function(_, opts)
             ---@diagnostic disable-next-line: missing-fields
@@ -64,8 +59,8 @@ return {
             }
             vim.keymap.set("n", "[c", function()
                 require("treesitter-context").go_to_context(vim.v.count1)
-            end, { desc = "up to context", silent = true })
-            vim.keymap.set("n", "<leader>c", "<cmd>TSContextToggle<CR>", { desc = "context toggle" })
+            end, { desc = "context", silent = true })
+            vim.keymap.set("n", "<leader>c", "<cmd>TSContextToggle<CR>", { desc = "context" })
         end
     },
 
@@ -103,9 +98,15 @@ return {
     { -- git wrapper for git stuff
         "tpope/vim-fugitive",
         config = function()
-            vim.keymap.set("n", "<leader>g", "<cmd>Git<Cr>", { desc = "Git fugitive" })
+            vim.keymap.set("n", "<leader>gg", "<cmd>Git<Cr>", { desc = "status" })
+            vim.keymap.set("n", "<leader>gd", "<cmd>Gvdiffsplit<Cr>", { desc = "diffvsplt" })
         end,
     },
+
+    { -- vim exchange, cx{motion} to select, (.) or cx{motion} to swap, cxc to clear
+        "tommcdo/vim-exchange",
+    },
+
     {
         "shortcuts/no-neck-pain.nvim",
         version = "*",
@@ -118,12 +119,21 @@ return {
                 buffers = {
                     scratchPad = {
                         enabled = true,
-                        location = '~/.notes/no-neck-pain-scratchpad'
+                        location = '~/.notes/scratchpad'
                     },
                     bo = { filetype = 'md' },
                     right = { enabled = false },
                 },
             })
+        end,
+    },
+
+    { -- tmux nvim navigate R between panes
+        "alexghergh/nvim-tmux-navigation",
+        config = function()
+            local ntn = require('nvim-tmux-navigation')
+            ntn.setup {}
+            vim.keymap.set('n', "<C-l>", ntn.NvimTmuxNavigateRight)
         end,
     },
 
@@ -139,10 +149,9 @@ return {
                     sync_on_ui_close = true,
                 }
             })
-
-            vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end, { desc = "harpoon add" })
+            vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end, { desc = "add" })
             vim.keymap.set("n", "<leader>he", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
-                { desc = "harpoon edit" })
+                { desc = "edit" })
             vim.keymap.set("n", "<C-n>", function() harpoon:list():select(1) end)
             vim.keymap.set("n", "<C-e>", function() harpoon:list():select(2) end)
             vim.keymap.set("n", "<C-y>", function() harpoon:list():select(3) end)
@@ -161,19 +170,12 @@ return {
                     require("conform").format({ async = true, lsp_fallback = true })
                 end,
                 mode = "",
-                desc = "buff format",
+                desc = "format",
             },
         },
         opts = {
             notify_on_error = false,
             format_on_save = nil,
-            -- format_on_save = function(bufnr)
-            --     local disable_filetypes = { c = true, cpp = true }
-            --     return {
-            --         timeout_ms = 500,
-            --         lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
-            --     }
-            -- end,
         },
     },
 
@@ -191,7 +193,7 @@ return {
             local starter = require('mini.starter')
             starter.setup({
                 silent = true,
-                header = "Vlad is a pretty freaking Awesome guy",
+                header = "Everything is Awesome",
                 items = { name = '', action = '', section = '' },
                 content_hooks = {
                     starter.gen_hook.padding(10, 20),
@@ -203,16 +205,18 @@ return {
                 mappings = {
                     add = 'sa',          -- Add surrounding in Normal and Visual modes
                     delete = 'sd',       -- Delete surrounding
-                    find = '',           -- Find surrounding (to the right)
-                    find_left = '',      -- Find surrounding (to the left)
-                    highlight = '',      -- Highlight surrounding
+                    find = 'sf',         -- Find surrounding (to the right)
+                    find_left = 'sl',    -- Find surrounding (to the left)
+                    highlight = 'sh',    -- Highlight surrounding
                     replace = 'sr',      -- Replace surrounding
                     update_n_lines = '', -- Update `n_lines`
-
                     suffix_last = '',    -- Suffix to search with "prev" method
                     suffix_next = '',    -- Suffix to search with "next" method
                 },
             })
+
+            require("mini.diff").setup()
+
             require("mini.files").setup({
                 mappings = {
                     go_in_plus  = "<Right>",
@@ -228,8 +232,9 @@ return {
                 end
             end
 
-            vim.keymap.set("n", "<leader>e", ":lua Minifile_toggle()<cr>", { desc = "explorer" })
+            vim.keymap.set("n", "<leader>e", ":lua Minifile_toggle()<cr>", { desc = "explore" })
             -- <leader>E is :Ex now
+
             local miniclue = require("mini.clue")
             miniclue.setup({
                 triggers = {
@@ -244,6 +249,7 @@ return {
                     { mode = 'n', keys = '<Leader>h', desc = '+Harpoon' },
                     { mode = 'n', keys = '<Leader>l', desc = '+LSP' },
                     { mode = 'n', keys = '<Leader>q', desc = '+Quit' },
+                    { mode = 'n', keys = '<Leader>g', desc = '+Git' },
                     { mode = 'n', keys = ']d',        postkeys = ']' },
                     { mode = 'n', keys = '[d',        postkeys = '[' },
                     miniclue.gen_clues.windows({
@@ -282,6 +288,7 @@ return {
                 end,
             },
         },
+
         config = function()
             require("telescope").setup({
                 pickers = { colorscheme = { enable_preview = true } },
@@ -289,8 +296,8 @@ return {
                     layout_strategy = "flex",
                     path_display = { truncate = 3 },
                     layout_config = {
-                        horizontal = { height = 0.8 },
-                        vertical = { height = 0.8 },
+                        horizontal = { height = 0.9 },
+                        vertical = { height = 0.9 },
                     },
                 },
                 extensions = {
@@ -299,32 +306,26 @@ return {
                     },
                 },
             })
-
             pcall(require("telescope").load_extension, "fzf")
             pcall(require("telescope").load_extension, "ui-select")
-
             local builtin = require("telescope.builtin")
 
             -- find files like vs code ctrl-p
             vim.keymap.set("n", "<leader><leader>", function()
                 builtin.find_files({ hidden = true })
-            end, { desc = "find files" })
-
+            end, { desc = "files" })
             -- grep all, search fuzzy any word
             vim.keymap.set("n", "<leader>/", function()
                 builtin.live_grep({ max_results = 50 })
-            end, { desc = "find grep all" })
-
+            end, { desc = "grep all" })
             -- word search current word under cursor
             vim.keymap.set("n", "<leader>'", function()
                 builtin.grep_string()
-            end, { desc = "find word current" })
-
+            end, { desc = "word" })
             -- old files recently opened
             vim.keymap.set("n", "<leader>o", function()
                 builtin.oldfiles({ hidden = true, prompt_title = "recent files" })
-            end, { desc = "find recent files" })
-
+            end, { desc = "recent" })
             -- config files
             vim.keymap.set("n", "<leader>,", function()
                 builtin.find_files(require("telescope.themes").get_dropdown({
@@ -332,7 +333,7 @@ return {
                     previewer = false,
                     layout_config = { height = 10 },
                 }))
-            end, { desc = "config settings" })
+            end, { desc = "config" })
         end,
     },
 
@@ -354,27 +355,19 @@ return {
                     map("K", vim.lsp.buf.hover, "hover documentation")
                     map("gd", require("telescope.builtin").lsp_definitions, "definition")
                     map("gr", require("telescope.builtin").lsp_references, "references")
-
                     --  Useful when your language has ways of declaring types without an actual implementation.
                     map("<leader>li", require("telescope.builtin").lsp_implementations, "implementation")
-
                     --  the definition of its *type*, not where it was *defined*.
                     map("<leader>lt", require("telescope.builtin").lsp_type_definitions, "type def")
-
                     --  Symbols are things like variables, functions, types, etc.
                     map("<leader>ls", require("telescope.builtin").lsp_document_symbols, "buff symbols")
-
                     --  Similar to document symbols, except searches over your entire project.
                     map("<leader>lp", require("telescope.builtin").lsp_dynamic_workspace_symbols, "proj symbols")
-
                     --  Most Language Servers support renaming across files, etc.
-                    map("<leader>lr", vim.lsp.buf.rename, "rename this vars")
-
+                    map("<leader>lr", vim.lsp.buf.rename, "rename vars")
                     -- Execute a code action, usually your cursor needs to be on top of an error
                     -- or a suggestion from your LSP for this to activate.
                     map("<leader>la", vim.lsp.buf.code_action, "code action")
-
-                    -- map("<leader>lh", vim.lsp.buf.declaration, "header declaration")
                 end,
             })
 
@@ -382,7 +375,6 @@ return {
             capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
             local servers = {
-                -- github.com/pmizio/typescript-tools.nvim
                 lua_ls = {
                     settings = {
                         Lua = {
@@ -394,21 +386,19 @@ return {
                 },
                 ruff = {
                     init_options = {
-                        settings = {
-                            -- Ruff language server settings go here
+                        settings = { -- Ruff language server settings go here
                             ignore = { "E501", "E402" },
                         },
                     },
                 },
             }
-            require("mason").setup() -- :Mason
 
+            require("mason").setup() -- :Mason
             local ensure_installed = vim.tbl_keys(servers or {})
             vim.list_extend(ensure_installed, {
                 "stylua", -- Used to format Lua code
             })
             require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
-
             require("mason-lspconfig").setup({
                 handlers = {
                     function(server_name)
@@ -424,8 +414,7 @@ return {
     { -- Autocompletion, when typing, helps with words, code completion
         "hrsh7th/nvim-cmp",
         event = "InsertEnter",
-        dependencies = {
-            -- Snippet Engine & its associated nvim-cmp source
+        dependencies = { -- Snippet Engine & its associated nvim-cmp source
             {
                 "L3MON4D3/LuaSnip",
                 build = (function()
@@ -434,8 +423,7 @@ return {
                     end
                     return "make install_jsregexp"
                 end)(),
-                dependencies = {
-                    --    https://github.com/rafamadriz/friendly-snippets
+                dependencies = { -- https://github.com/rafamadriz/friendly-snippets
                     {
                         "rafamadriz/friendly-snippets",
                         config = function()
@@ -450,11 +438,11 @@ return {
             "hrsh7th/cmp-cmdline",
             "hrsh7th/cmp-buffer",
         },
+
         config = function()
             local cmp = require("cmp")
             local luasnip = require("luasnip")
             luasnip.config.setup({})
-
             cmp.setup({
                 snippet = {
                     expand = function(args)
@@ -462,7 +450,6 @@ return {
                     end,
                 },
                 completion = { completeopt = "menu,menuone,noinsert" },
-                -- read `:help ins-completion`
                 ---@diagnostic disable-next-line: missing-fields
                 performance = {
                     throttle = 300,
@@ -472,16 +459,13 @@ return {
                     ["<C-n>"] = cmp.mapping.select_next_item(),
                     -- Select the [p]revious item
                     ["<C-e>"] = cmp.mapping.select_prev_item(),
-
                     -- Scroll the documentation window [b]ack / [f]orward
                     ["<C-d>"] = cmp.mapping.scroll_docs(-4),
                     ["<C-u>"] = cmp.mapping.scroll_docs(4),
-
                     -- Accept ([y]es) the completion.
                     ["<C-y>"] = cmp.mapping.confirm({ select = true }),
                     -- Manually trigger a completion from nvim-cmp.
                     ["<C-t>"] = cmp.mapping.complete({}),
-
                     ["<C-h>"] = cmp.mapping(function()
                         if luasnip.expand_or_locally_jumpable() then
                             luasnip.expand_or_jump()
@@ -500,13 +484,10 @@ return {
                     { name = "buffer" },
                 },
             })
-
             -- disable completion in comments
             cmp.setup({
                 enabled = function()
-                    -- disable completion in comments
                     local context = require 'cmp.config.context'
-                    -- keep command mode completion enabled when cursor is in a comment
                     if vim.api.nvim_get_mode().mode == 'c' then
                         return true
                     else
@@ -515,7 +496,6 @@ return {
                     end
                 end
             })
-
             -- Use buffer source for `/` and `?`
             cmp.setup.cmdline({ '/', '?' }, {
                 mapping = cmp.mapping.preset.cmdline(),
@@ -523,7 +503,6 @@ return {
                     { name = 'buffer' }
                 },
             })
-
             -- Use cmdline & path source for ':'
             cmp.setup.cmdline(':', {
                 mapping = cmp.mapping.preset.cmdline(),
