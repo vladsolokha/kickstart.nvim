@@ -6,6 +6,7 @@ vim.cmd('hi defCursor gui=NONE guibg=White guifg=Black')
 vim.cmd('hi visCursor gui=NONE guibg=Green guifg=Yellow')
 vim.opt.guicursor = "a:blinkon0-defCursor,i-r:iCursor,v-ve:visCursor"
 
+vim.opt.showmode = false
 vim.g.have_nerd_font = true
 vim.opt.number = true
 vim.opt.fillchars = { eob = " " }

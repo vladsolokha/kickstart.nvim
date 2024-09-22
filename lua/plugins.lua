@@ -2,15 +2,15 @@
 --      colorscheme
 --      treesitter
 --      context
+--      text-objects
 --      hlchunk (pretty indents lines)
 --      undotree (undo like git)
 --      fugitive (git wrapper)
---      exchange
 --      neck-pain
 --      tmux-navigation
 --      harpoon
 --      conform (auto format code)
---      mini: (ai, jump2d, starter, surround, diff, files, clue)
+--      mini: ( starter, diff, files, clue)
 --      telescope
 --      lspconfig: mason, tool-installer, fidget, neodev
 --      cmp: LuaSnip, snippets, luasnip, path, cmdline, buffer
@@ -64,6 +64,74 @@ return {
         end
     },
 
+    { -- text-objects, select i/o func, loop, swap stuff too
+        "nvim-treesitter/nvim-treesitter-textobjects",
+        dependencies = { "nvim-treesitter/nvim-treesitter" },
+        opts = {
+            textobjects = {
+                move = {
+                    enable = true,
+                    goto_next_start = {
+                        ["]a"] = "@parameter.inner",
+                        ["]l"] = "@loop.outer",
+                        ["]i"] = "@conditional.outer",
+                        ["]c"] = "@class.outer",
+                        ["]b"] = "@block.outer",
+                        ["]e"] = "@assignment.outer",
+                        ["]n"] = "@annotation.outer",
+                        ["]f"] = "@call.outer",
+                    },
+                    goto_previous_start = {
+                        ["[a"] = "@parameter.inner",
+                        ["[l"] = "@loop.outer",
+                        ["[i"] = "@conditional.outer",
+                        ["[c"] = "@class.outer",
+                        ["[b"] = "@block.outer",
+                        ["[e"] = "@assignment.outer",
+                        ["[n"] = "@annotation.outer",
+                        ["[f"] = "@call.outer",
+                    },
+                },
+                select = {
+                    enable = true,
+                    lookahead = true,
+                    keymaps = {
+                        ["aa"] = { query = "@parameter.outer" },
+                        ["ia"] = { query = "@parameter.inner" },
+                        ["al"] = { query = "@loop.outer" },
+                        ["il"] = { query = "@loop.inner" },
+                        ["ai"] = { query = "@conditional.outer" },
+                        ["ii"] = { query = "@conditional.inner" },
+                        ["ac"] = { query = "@class.outer" },
+                        ["ic"] = { query = "@class.inner" },
+                        ["ab"] = { query = "@block.outer" },
+                        ["ib"] = { query = "@block.inner" },
+                        ["ae"] = { query = "@assignment.lhs" },
+                        ["ie"] = { query = "@assignment.rhs" },
+                        ["in"] = { query = "@annotation.inner" },
+                        ["an"] = { query = "@annotation.outer" },
+                        ["af"] = { query = "@call.outer" },
+                        ["if"] = { query = "@call.inner" },
+                        ["am"] = { query = "@function.outer" },
+                        ["im"] = { query = "@function.inner" },
+                        ["id"] = { query = "@number.inner" },
+                    },
+                },
+            },
+        },
+        config = function(_, opts)
+            local ts_repeat_move = require("nvim-treesitter.textobjects.repeatable_move")
+
+            vim.keymap.set({ "n", "x", "o" }, ";", ts_repeat_move.repeat_last_move)
+            vim.keymap.set({ "n", "x", "o" }, ",", ts_repeat_move.repeat_last_move_opposite)
+            vim.keymap.set({ "n", "x", "o" }, "f", ts_repeat_move.builtin_f_expr, { expr = true })
+            vim.keymap.set({ "n", "x", "o" }, "F", ts_repeat_move.builtin_F_expr, { expr = true })
+            vim.keymap.set({ "n", "x", "o" }, "t", ts_repeat_move.builtin_t_expr, { expr = true })
+            vim.keymap.set({ "n", "x", "o" }, "T", ts_repeat_move.builtin_T_expr, { expr = true })
+            require("nvim-treesitter.configs").setup(opts)
+        end,
+    },
+
     { -- lines down the code window, show indents, and blocks of code
         "shellRaining/hlchunk.nvim",
         event = { "BufReadPre", "BufNewFile" },
@@ -101,10 +169,6 @@ return {
             vim.keymap.set("n", "<leader>gg", "<cmd>Git<Cr>", { desc = "status" })
             vim.keymap.set("n", "<leader>gd", "<cmd>Gvdiffsplit<Cr>", { desc = "diffvsplt" })
         end,
-    },
-
-    { -- vim exchange, cx{motion} to select, (.) or cx{motion} to swap, cxc to clear
-        "tommcdo/vim-exchange",
     },
 
     {
@@ -182,37 +246,15 @@ return {
     { --  Check out: https://github.com/echasnovski/mini.nvim
         "echasnovski/mini.nvim",
         config = function()
-            require("mini.ai").setup({ n_lines = 500 })
-
-            require('mini.jump2d').setup({
-                labels = 'tnsedhricplfuwyaogmvkbjqz',
-                view = { dim = true, },
-                mappings = { start_jumping = [[']], },
-            })
-
             local starter = require('mini.starter')
             starter.setup({
                 silent = true,
-                header = "Everything is Awesome",
+                header = "[Space Space] files\n[Space e] explorer\n[Space o] recent",
                 items = { name = '', action = '', section = '' },
                 content_hooks = {
                     starter.gen_hook.padding(10, 20),
                 },
-                footer = '[Space Space] files\n[Space e] explorer\n[Space o] recent',
-            })
-
-            require("mini.surround").setup({
-                mappings = {
-                    add = 'sa',          -- Add surrounding in Normal and Visual modes
-                    delete = 'sd',       -- Delete surrounding
-                    find = 'sf',         -- Find surrounding (to the right)
-                    find_left = 'sl',    -- Find surrounding (to the left)
-                    highlight = 'sh',    -- Highlight surrounding
-                    replace = 'sr',      -- Replace surrounding
-                    update_n_lines = '', -- Update `n_lines`
-                    suffix_last = '',    -- Suffix to search with "prev" method
-                    suffix_next = '',    -- Suffix to search with "next" method
-                },
+                footer = ""
             })
 
             require("mini.diff").setup()
@@ -232,7 +274,7 @@ return {
                 end
             end
 
-            vim.keymap.set("n", "<leader>e", ":lua Minifile_toggle()<cr>", { desc = "explore" })
+            vim.keymap.set("n", "<leader>e", ":lua Minifile_toggle()<cr>", { silent = true, desc = "explore" })
             -- <leader>E is :Ex now
 
             local miniclue = require("mini.clue")
