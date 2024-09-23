@@ -6,6 +6,7 @@
 --      hlchunk (pretty indents lines)
 --      undotree (undo like git)
 --      fugitive (git wrapper)
+--      exchange
 --      neck-pain
 --      tmux-navigation
 --      harpoon
@@ -169,6 +170,10 @@ return {
             vim.keymap.set("n", "<leader>gg", "<cmd>Git<Cr>", { desc = "status" })
             vim.keymap.set("n", "<leader>gd", "<cmd>Gvdiffsplit<Cr>", { desc = "diffvsplt" })
         end,
+    },
+
+    { -- vim exchange, cx{motion} to select, (.) or cx{motion} to swap, cxc to clear
+        "tommcdo/vim-exchange",
     },
 
     {

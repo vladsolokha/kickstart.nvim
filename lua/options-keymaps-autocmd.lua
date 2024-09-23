@@ -11,8 +11,40 @@ vim.g.have_nerd_font = true
 vim.opt.number = true
 vim.opt.fillchars = { eob = " " }
 
-vim.opt.sessionoptions = 'buffers,curdir,help,tabpages,winsize'
+-- status line options
 vim.opt.laststatus = 3
+local function git_branch()
+    local branch = vim.fn.system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
+    if string.len(branch) > 0 then
+        return branch
+    else
+        return ":"
+    end
+end
+local function statusline()
+    local branch = git_branch()
+    local file_name = "%F"
+    local modified = "%m%h%r" -- modified [+], help [Help], readonly [RO]
+    local align_right = "%="
+    local file_type = "%y"
+    local file_encoding = "%{strlen(&fenc)?&fenc:'none'}"
+    local line = "%l / %L"
+    local col = "c:%c"
+    local percentage = "%p%%"
+    return string.format(
+        "  (%s)  %s  %s  %s%s  %s  %s  %s  %s  ",
+        branch,
+        file_name,
+        modified,
+        align_right,
+        file_type,
+        file_encoding,
+        line,
+        col,
+        percentage
+    )
+end
+vim.opt.statusline = statusline()
 
 vim.opt.mouse = "a"
 
