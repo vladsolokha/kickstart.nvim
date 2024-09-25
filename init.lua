@@ -1,9 +1,7 @@
 -- [[ Use options, keymaps, and autocommands in one file ]]
--- modify as in a typical .vimrc file
 require("options-keymaps-autocmd")
 
 -- [[ Install `lazy.nvim` plugin manager ]]
-
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
 	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -11,13 +9,8 @@ if not vim.loop.fs_stat(lazypath) then
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
--- [[ Plugins ]]
--- All managed by lazy plugin manager
--- :Lazy
+-- [[ Plugins ]] :Lazy
 require("lazy").setup({
-	-- modify plugins here
-	-- also contains some keymaps and options
-	-- i.e.: telescope, fuzzy-find, which-key, toggleterm, lsp, and more
 	{ import = "plugins" },
 }, {
 	ui = {
@@ -41,5 +34,4 @@ require("lazy").setup({
 	},
 })
 
--- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

@@ -1,40 +1,18 @@
 -- [[ plugins ]]
---      colorscheme
 --      treesitter
 --      context
---      text-objects
---      hlchunk (pretty indents lines)
 --      undotree (undo like git)
 --      fugitive (git wrapper)
+--      surround
 --      exchange
 --      neck-pain
 --      tmux-navigation
 --      harpoon
 --      conform (auto format code)
---      mini: ( starter, diff, files, clue)
---      telescope
+--      mini:
+--      (icons, ai, hipatterns, base16, indentscope, completion, starter, diff, files, clue, pick)
 --      lspconfig: mason, tool-installer, fidget, neodev
---      cmp: LuaSnip, snippets, luasnip, path, cmdline, buffer
 return {
-
-    { -- colorscheme
-        "folke/tokyonight.nvim",
-        lazy = false,
-        priority = 1000,
-        config = function()
-            require("tokyonight").setup({
-                style = "night", --  `storm`, `night`, `day`, `moon`
-                styles = {
-                    comments = { italic = false },
-                    keywords = { italic = false },
-                },
-                plugins = {
-                    telescope = true,
-                },
-            })
-            vim.cmd([[colorscheme tokyonight-night]])
-        end
-    },
 
     { -- Highlight, edit, and navigate code
         "nvim-treesitter/nvim-treesitter",
@@ -65,98 +43,6 @@ return {
         end
     },
 
-    { -- text-objects, select i/o func, loop, swap stuff too
-        "nvim-treesitter/nvim-treesitter-textobjects",
-        dependencies = { "nvim-treesitter/nvim-treesitter" },
-        opts = {
-            textobjects = {
-                move = {
-                    enable = true,
-                    goto_next_start = {
-                        ["]a"] = "@parameter.inner",
-                        ["]l"] = "@loop.outer",
-                        ["]i"] = "@conditional.outer",
-                        ["]c"] = "@class.outer",
-                        ["]b"] = "@block.outer",
-                        ["]e"] = "@assignment.outer",
-                        ["]n"] = "@annotation.outer",
-                        ["]f"] = "@call.outer",
-                    },
-                    goto_previous_start = {
-                        ["[a"] = "@parameter.inner",
-                        ["[l"] = "@loop.outer",
-                        ["[i"] = "@conditional.outer",
-                        ["[c"] = "@class.outer",
-                        ["[b"] = "@block.outer",
-                        ["[e"] = "@assignment.outer",
-                        ["[n"] = "@annotation.outer",
-                        ["[f"] = "@call.outer",
-                    },
-                },
-                select = {
-                    enable = true,
-                    lookahead = true,
-                    keymaps = {
-                        ["aa"] = { query = "@parameter.outer" },
-                        ["ia"] = { query = "@parameter.inner" },
-                        ["al"] = { query = "@loop.outer" },
-                        ["il"] = { query = "@loop.inner" },
-                        ["ai"] = { query = "@conditional.outer" },
-                        ["ii"] = { query = "@conditional.inner" },
-                        ["ac"] = { query = "@class.outer" },
-                        ["ic"] = { query = "@class.inner" },
-                        ["ab"] = { query = "@block.outer" },
-                        ["ib"] = { query = "@block.inner" },
-                        ["ae"] = { query = "@assignment.lhs" },
-                        ["ie"] = { query = "@assignment.rhs" },
-                        ["in"] = { query = "@annotation.inner" },
-                        ["an"] = { query = "@annotation.outer" },
-                        ["af"] = { query = "@call.outer" },
-                        ["if"] = { query = "@call.inner" },
-                        ["am"] = { query = "@function.outer" },
-                        ["im"] = { query = "@function.inner" },
-                        ["id"] = { query = "@number.inner" },
-                    },
-                },
-            },
-        },
-        config = function(_, opts)
-            local ts_repeat_move = require("nvim-treesitter.textobjects.repeatable_move")
-
-            vim.keymap.set({ "n", "x", "o" }, ";", ts_repeat_move.repeat_last_move)
-            vim.keymap.set({ "n", "x", "o" }, ",", ts_repeat_move.repeat_last_move_opposite)
-            vim.keymap.set({ "n", "x", "o" }, "f", ts_repeat_move.builtin_f_expr, { expr = true })
-            vim.keymap.set({ "n", "x", "o" }, "F", ts_repeat_move.builtin_F_expr, { expr = true })
-            vim.keymap.set({ "n", "x", "o" }, "t", ts_repeat_move.builtin_t_expr, { expr = true })
-            vim.keymap.set({ "n", "x", "o" }, "T", ts_repeat_move.builtin_T_expr, { expr = true })
-            require("nvim-treesitter.configs").setup(opts)
-        end,
-    },
-
-    { -- lines down the code window, show indents, and blocks of code
-        "shellRaining/hlchunk.nvim",
-        event = { "BufReadPre", "BufNewFile" },
-        config = function()
-            ---@diagnostic disable-next-line: missing-fields
-            require("hlchunk").setup({
-                blank = { enable = false },
-                chunk = {
-                    enable = true,
-                    use_treesitter = true,
-                    chars = {
-                        horizontal_line = "─",
-                        vertical_line = "│",
-                        left_top = "┌",
-                        left_bottom = "└",
-                        right_arrow = "─",
-                    },
-                    duration = 0,
-                    delay = 0,
-                },
-            })
-        end,
-    },
-
     { -- undo and redo visually
         "mbbill/undotree",
         config = function()
@@ -167,9 +53,14 @@ return {
     { -- git wrapper for git stuff
         "tpope/vim-fugitive",
         config = function()
-            vim.keymap.set("n", "<leader>gg", "<cmd>Git<Cr>", { desc = "status" })
-            vim.keymap.set("n", "<leader>gd", "<cmd>Gvdiffsplit<Cr>", { desc = "diffvsplt" })
+            vim.keymap.set("n", "<leader>gg", "<cmd>G<Cr>", { desc = "status" })
+            vim.keymap.set("n", "<leader>gd", "<cmd>Gvdiffsplit<Cr>", { desc = "diff" })
+            vim.keymap.set("n", "<leader>gb", "<cmd>G blame<Cr>", { desc = "blame" })
         end,
+    },
+
+    { -- surround cs{motion} to change, ds{motion} to delete, ys{motion} add
+        "tpope/vim-surround"
     },
 
     { -- vim exchange, cx{motion} to select, (.) or cx{motion} to swap, cxc to clear
@@ -195,6 +86,7 @@ return {
                 },
             })
         end,
+        vim.keymap.set("n", "<leader>n", "<cmd>NoNeckPain<CR>", { silent = true, desc = "neck pain" })
     },
 
     { -- tmux nvim navigate R between panes
@@ -234,7 +126,7 @@ return {
         cmd = { "ConformInfo" },
         keys = {
             {
-                "<leader>f",
+                "<leader>lf",
                 function()
                     require("conform").format({ async = true, lsp_fallback = true })
                 end,
@@ -251,10 +143,59 @@ return {
     { --  Check out: https://github.com/echasnovski/mini.nvim
         "echasnovski/mini.nvim",
         config = function()
+            require("mini.icons").setup()
+            require("mini.ai").setup()
+
+            local hipat = require("mini.hipatterns")
+            hipat.setup({
+                highlighters = {
+                    hex_color = hipat.gen_highlighter.hex_color(),
+                }
+            })
+
+            require("mini.base16").setup({
+                palette = {
+                    base00 = '#000000',
+                    base01 = '#000000',
+                    base02 = "#421c00",
+                    base03 = "#7b3c08",
+                    base04 = "#a95d1f",
+                    base05 = "#ce8244",
+                    base06 = "#e8a975",
+                    base07 = "#f9d3b3",
+                    base08 = "#ffffff",
+                    base09 = "#d4894c",
+                    base0A = "#95ad39",
+                    base0B = "#58c55e",
+                    base0C = "#42c3a6",
+                    base0D = "#5ea9e6",
+                    base0E = "#9d85f9",
+                    base0F = "#da6dd4",
+                },
+            })
+
+            local indent = require('mini.indentscope')
+            indent.setup({
+                draw = {
+                    delay = 0,
+                    animation = indent.gen_animation.none()
+                },
+                symbol = "|"
+            })
+
+            require('mini.completion').setup({
+                delay = { completion = 500, info = 500, signature = 800 },
+                lsp_completion = { source_func = 'completefunc' }
+            })
+            vim.keymap.set('i', "<C-e>", [[pumvisible() ? "\<C-p>" : "\<C-e>"]], { expr = true })
+            vim.keymap.set('i', "<C-p>", [[pumvisible() ? "\<C-e>" : "\<C-p>"]], { expr = true })
+
+            require("mini.diff").setup()
+
             local starter = require('mini.starter')
             starter.setup({
                 silent = true,
-                header = "[Space Space] files\n[Space e] explorer\n[Space o] recent",
+                header = "[Space f] find files\n[Space e] open explorer",
                 items = { name = '', action = '', section = '' },
                 content_hooks = {
                     starter.gen_hook.padding(10, 20),
@@ -262,9 +203,13 @@ return {
                 footer = ""
             })
 
-            require("mini.diff").setup()
-
             require("mini.files").setup({
+                windows = {
+                    preview = true,
+                    width_focus = 25,   -- Width of focused window
+                    width_nofocus = 15, -- Width of non-focused window
+                    width_preview = 50, -- Width of preview window
+                },
                 mappings = {
                     go_in_plus  = "<Right>",
                     go_in       = "<S-Right>",
@@ -313,74 +258,55 @@ return {
                     },
                 },
             })
-        end,
-    },
 
-    { -- Fuzzy Finder (files, lsp, etc)
-        "nvim-telescope/telescope.nvim",
-        event = "VimEnter",
-        branch = "0.1.x",
-        dependencies = {
-            "nvim-lua/plenary.nvim",
-            {
-                "nvim-tree/nvim-web-devicons",
-                enabled = vim.g.have_nerd_font
-            },
-            { "nvim-telescope/telescope-ui-select.nvim" },
-            {
-                "nvim-telescope/telescope-fzf-native.nvim",
-                build = "make",
-                cond = function()
-                    return vim.fn.executable("make") == 1
-                end,
-            },
-        },
-
-        config = function()
-            require("telescope").setup({
-                pickers = { colorscheme = { enable_preview = true } },
-                defaults = {
-                    layout_strategy = "flex",
-                    path_display = { truncate = 3 },
-                    layout_config = {
-                        horizontal = { height = 0.9 },
-                        vertical = { height = 0.9 },
-                    },
+            local pick = require("mini.pick")
+            pick.setup({
+                mappings = {
+                    choose_in_vsplit  = '<C-s>',
+                    refine            = '<C-Space>',
+                    scroll_down       = '<C-d>',
+                    scroll_up         = '<C-u>',
+                    choose_in_split   = '',
+                    choose_in_tabpage = '',
+                    choose_marked     = '<C-CR>',
+                    delete_left       = '',
+                    mark              = '<C-t>',
+                    mark_all          = '<C-a>',
+                    refine_marked     = '',
                 },
-                extensions = {
-                    ["ui-select"] = {
-                        require("telescope.themes").get_dropdown(),
-                    },
+                options = { content_from_bottom = true },
+                window = {
+                    config = function()
+                        local h = math.floor(0.6 * vim.o.lines)
+                        local w = math.floor(0.6 * vim.o.columns)
+                        local row = math.floor(0.3 * h)
+                        local col = math.floor(0.3 * w)
+                        return {
+                            anchor = 'NW',
+                            border = 'single',
+                            height = h,
+                            width = w,
+                            row = row,
+                            col = col
+                        }
+                    end,
+                    prompt_cursor = '_',
                 },
             })
-            pcall(require("telescope").load_extension, "fzf")
-            pcall(require("telescope").load_extension, "ui-select")
-            local builtin = require("telescope.builtin")
+            vim.keymap.set("n", "<leader><leader>", "<cmd>Pick resume<cr>", { desc = "resume" })
+            vim.keymap.set("n", "<leader>f", "<cmd>Pick files<cr>", { desc = "files" })
+            vim.keymap.set("n", "<leader>o", "<cmd>Pick oldfiles<cr>", { desc = "recent" })
+            vim.keymap.set("n", "<leader>/", "<cmd>Pick grep_live<cr>", { desc = "live grep" })
+            vim.keymap.set("n", "<leader>'", "<cmd>Pick grep pattern='<cword>'<cr>", { desc = "grep word" })
+            vim.keymap.set("n", "<leader>gf", "<cmd>Pick files tool='git'<cr>", { desc = "git files" })
+            vim.keymap.set("n", "<leader>?", "<cmd>Pick help<cr>", { desc = "help" })
 
-            -- find files like vs code ctrl-p
-            vim.keymap.set("n", "<leader><leader>", function()
-                builtin.find_files({ hidden = true })
-            end, { desc = "files" })
-            -- grep all, search fuzzy any word
-            vim.keymap.set("n", "<leader>/", function()
-                builtin.live_grep({ max_results = 50 })
-            end, { desc = "grep all" })
-            -- word search current word under cursor
-            vim.keymap.set("n", "<leader>'", function()
-                builtin.grep_string()
-            end, { desc = "word" })
-            -- old files recently opened
-            vim.keymap.set("n", "<leader>o", function()
-                builtin.oldfiles({ hidden = true, prompt_title = "recent files" })
-            end, { desc = "recent" })
-            -- config files
-            vim.keymap.set("n", "<leader>,", function()
-                builtin.find_files(require("telescope.themes").get_dropdown({
-                    cwd = vim.fn.stdpath("config"),
-                    previewer = false,
-                    layout_config = { height = 10 },
-                }))
-            end, { desc = "config" })
+            require("mini.extra").setup()
+            vim.keymap.set("n", "gr", "<cmd>Pick lsp scope='references'<cr>", { desc = "refs" })
+            vim.keymap.set("n", "<leader>ls", "<cmd>Pick lsp scope='document_symbol'<cr>", { desc = "doc symbol" })
+            vim.keymap.set("n", "<leader>lp", "<cmd>Pick lsp scope='workspace_symbol'<cr>", { desc = "proj symbol" })
+            vim.keymap.set("n", "<leader>lt", "<cmd>Pick lsp scope='type_definition'<cr>", { desc = "type def" })
+            vim.keymap.set("n", [[<leader>"]], "<cmd>Pick registers<cr>", { desc = "registers" })
         end,
     },
 
@@ -400,16 +326,9 @@ return {
                     end
 
                     map("K", vim.lsp.buf.hover, "hover documentation")
-                    map("gd", require("telescope.builtin").lsp_definitions, "definition")
-                    map("gr", require("telescope.builtin").lsp_references, "references")
+                    map("gd", vim.lsp.buf.definition, "definition")
                     --  Useful when your language has ways of declaring types without an actual implementation.
-                    map("<leader>li", require("telescope.builtin").lsp_implementations, "implementation")
-                    --  the definition of its *type*, not where it was *defined*.
-                    map("<leader>lt", require("telescope.builtin").lsp_type_definitions, "type def")
-                    --  Symbols are things like variables, functions, types, etc.
-                    map("<leader>ls", require("telescope.builtin").lsp_document_symbols, "buff symbols")
-                    --  Similar to document symbols, except searches over your entire project.
-                    map("<leader>lp", require("telescope.builtin").lsp_dynamic_workspace_symbols, "proj symbols")
+                    map("<leader>li", vim.lsp.buf.implementation, "implementation")
                     --  Most Language Servers support renaming across files, etc.
                     map("<leader>lr", vim.lsp.buf.rename, "rename vars")
                     -- Execute a code action, usually your cursor needs to be on top of an error
@@ -419,7 +338,7 @@ return {
             })
 
             local capabilities = vim.lsp.protocol.make_client_capabilities()
-            capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
+            capabilities = vim.tbl_extend("force", capabilities, require("mini.completion").completefunc_lsp())
 
             local servers = {
                 lua_ls = {
@@ -454,110 +373,6 @@ return {
                         require("lspconfig")[server_name].setup(server)
                     end,
                 },
-            })
-        end,
-    },
-
-    { -- Autocompletion, when typing, helps with words, code completion
-        "hrsh7th/nvim-cmp",
-        event = "InsertEnter",
-        dependencies = { -- Snippet Engine & its associated nvim-cmp source
-            {
-                "L3MON4D3/LuaSnip",
-                build = (function()
-                    if vim.fn.has("win32") == 1 or vim.fn.executable("make") == 0 then
-                        return
-                    end
-                    return "make install_jsregexp"
-                end)(),
-                dependencies = { -- https://github.com/rafamadriz/friendly-snippets
-                    {
-                        "rafamadriz/friendly-snippets",
-                        config = function()
-                            require("luasnip.loaders.from_vscode").lazy_load()
-                        end,
-                    },
-                },
-            },
-            "saadparwaiz1/cmp_luasnip",
-            "hrsh7th/cmp-nvim-lsp",
-            "hrsh7th/cmp-path",
-            "hrsh7th/cmp-cmdline",
-            "hrsh7th/cmp-buffer",
-        },
-
-        config = function()
-            local cmp = require("cmp")
-            local luasnip = require("luasnip")
-            luasnip.config.setup({})
-            cmp.setup({
-                snippet = {
-                    expand = function(args)
-                        luasnip.lsp_expand(args.body)
-                    end,
-                },
-                completion = { completeopt = "menu,menuone,noinsert" },
-                ---@diagnostic disable-next-line: missing-fields
-                performance = {
-                    throttle = 300,
-                },
-                mapping = cmp.mapping.preset.insert({
-                    -- Select the [n]ext item
-                    ["<C-n>"] = cmp.mapping.select_next_item(),
-                    -- Select the [p]revious item
-                    ["<C-e>"] = cmp.mapping.select_prev_item(),
-                    -- Scroll the documentation window [b]ack / [f]orward
-                    ["<C-d>"] = cmp.mapping.scroll_docs(-4),
-                    ["<C-u>"] = cmp.mapping.scroll_docs(4),
-                    -- Accept ([y]es) the completion.
-                    ["<C-y>"] = cmp.mapping.confirm({ select = true }),
-                    -- Manually trigger a completion from nvim-cmp.
-                    ["<C-t>"] = cmp.mapping.complete({}),
-                    ["<C-h>"] = cmp.mapping(function()
-                        if luasnip.expand_or_locally_jumpable() then
-                            luasnip.expand_or_jump()
-                        end
-                    end, { "i", "s" }),
-                    ["<C-k>"] = cmp.mapping(function()
-                        if luasnip.locally_jumpable(-1) then
-                            luasnip.jump(-1)
-                        end
-                    end, { "i", "s" }),
-                }),
-                sources = {
-                    { name = "nvim_lsp" },
-                    { name = "luasnip" },
-                    { name = "path" },
-                    { name = "buffer" },
-                },
-            })
-            -- disable completion in comments
-            cmp.setup({
-                enabled = function()
-                    local context = require 'cmp.config.context'
-                    if vim.api.nvim_get_mode().mode == 'c' then
-                        return true
-                    else
-                        return not context.in_treesitter_capture("comment")
-                            and not context.in_syntax_group("Comment")
-                    end
-                end
-            })
-            -- Use buffer source for `/` and `?`
-            cmp.setup.cmdline({ '/', '?' }, {
-                mapping = cmp.mapping.preset.cmdline(),
-                sources = {
-                    { name = 'buffer' }
-                },
-            })
-            -- Use cmdline & path source for ':'
-            cmp.setup.cmdline(':', {
-                mapping = cmp.mapping.preset.cmdline(),
-                sources = cmp.config.sources({
-                    { name = 'path' }
-                }, {
-                    { name = 'cmdline' }
-                }),
             })
         end,
     },

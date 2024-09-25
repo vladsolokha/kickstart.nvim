@@ -29,7 +29,7 @@ local function statusline()
     local file_type = "%y"
     local file_encoding = "%{strlen(&fenc)?&fenc:'none'}"
     local line = "%l / %L"
-    local col = "c:%c"
+    local col = "c%c"
     local percentage = "%p%%"
     return string.format(
         "  (%s)  %s  %s  %s%s  %s  %s  %s  %s  ",
@@ -103,6 +103,8 @@ vim.opt.scrolloff = 10
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
+vim.keymap.set("n", "<leader>,", "<cmd>edit ~/.config/nvim/init.lua<cr>", { desc = "edit config" })
+
 
 -- better move around wrapped lines
 vim.keymap.set({ "n", "v" }, "<Up>", [[v:count == 0 ? 'gk' : 'k']], { expr = true, silent = true })
@@ -225,12 +227,3 @@ vim.api.nvim_create_autocmd('filetype', {
         bind('.', 'gh')
     end
 })
-
--- start vim with open mini files explorer
--- vim.api.nvim_create_autocmd("VimEnter", {
---     callback = function()
---         if vim.fn.argv(0) == "" then
---             MiniFiles.open()
---         end
---     end,
--- })
