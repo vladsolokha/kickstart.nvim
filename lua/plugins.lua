@@ -1,4 +1,5 @@
 -- [[ plugins ]]
+--      rose-pine
 --      treesitter
 --      context
 --      undotree (undo like git)
@@ -13,6 +14,16 @@
 --      (icons, ai, hipatterns, base16, indentscope, completion, starter, diff, files, clue, pick)
 --      lspconfig: mason, tool-installer, fidget, neodev
 return {
+    {
+        "rose-pine/neovim",
+        name = "rose-pine",
+        config = function()
+            require("rose-pine").setup({
+                styles = { italic = false },
+            })
+            vim.cmd("colorscheme rose-pine")
+        end
+    },
 
     { -- Highlight, edit, and navigate code
         "nvim-treesitter/nvim-treesitter",
@@ -153,27 +164,6 @@ return {
                 }
             })
 
-            require("mini.base16").setup({
-                palette = {
-                    base00 = '#000000',
-                    base01 = '#000000',
-                    base02 = "#421c00",
-                    base03 = "#7b3c08",
-                    base04 = "#a95d1f",
-                    base05 = "#ce8244",
-                    base06 = "#e8a975",
-                    base07 = "#f9d3b3",
-                    base08 = "#ffffff",
-                    base09 = "#d4894c",
-                    base0A = "#95ad39",
-                    base0B = "#58c55e",
-                    base0C = "#42c3a6",
-                    base0D = "#5ea9e6",
-                    base0E = "#9d85f9",
-                    base0F = "#da6dd4",
-                },
-            })
-
             local indent = require('mini.indentscope')
             indent.setup({
                 draw = {
@@ -218,6 +208,7 @@ return {
                     close       = "<ESC>",
                 },
             })
+
             function Minifile_toggle()
                 if not MiniFiles.close() then
                     MiniFiles.open()
@@ -262,16 +253,17 @@ return {
             local pick = require("mini.pick")
             pick.setup({
                 mappings = {
-                    choose_in_vsplit  = '<C-s>',
-                    refine            = '<C-Space>',
+                    paste             = '<C-v>',
+                    choose_in_vsplit  = '<C-CR>',
                     scroll_down       = '<C-d>',
                     scroll_up         = '<C-u>',
+                    refine            = '',
                     choose_in_split   = '',
                     choose_in_tabpage = '',
-                    choose_marked     = '<C-CR>',
+                    choose_marked     = '',
                     delete_left       = '',
-                    mark              = '<C-t>',
-                    mark_all          = '<C-a>',
+                    mark              = '',
+                    mark_all          = '',
                     refine_marked     = '',
                 },
                 options = { content_from_bottom = true },

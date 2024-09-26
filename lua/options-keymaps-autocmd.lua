@@ -149,8 +149,6 @@ vim.keymap.set("v", "<S-Tab>", "<gv")
 vim.keymap.set("n", "<c-i>", "<c-i>")
 
 -- center cursor when jump scrolling
-vim.keymap.set("n", "n", "nzz")
-vim.keymap.set("n", "N", "Nzz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
 
