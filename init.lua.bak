@@ -1,15 +1,48 @@
 -- [[ options ]]
+-- [[ keymaps ]]
+-- [[ auto commands ]]
+-- [[ plugin manager ]]
+-- [[ now plugins ]]
+-- icons
+-- ai
+-- diff
+-- hipatterns
+-- base16
+-- indentscope
+-- completion
+-- starter
+-- files
+-- clue
+-- pick
+-- extra
+-- neck-pain
+-- [[ later plugins ]]
+-- treesitter
+-- context
+-- undotree (undo like git)
+-- fugitive (git wrapper)
+-- surround
+-- exchange
+-- tmux-navigation
+-- harpoon
+-- conform (auto format code)
+-- lspconfig: mason, tool-installer, neodev
+
+-- global options
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
-vim.o.termguicolors = true
+vim.g.have_nerd_font = true
+vim.g.netrw_keepdir = 0
+vim.g.netrw_banner = 0 -- use I inside to show banner
+vim.g.netrw_localcopydircmd = 'cp -r'
 
+-- cursor options
 vim.cmd('hi iCursor gui=NONE guibg=Red guifg=NONE')
 vim.cmd('hi defCursor gui=NONE guibg=White guifg=Black')
 vim.cmd('hi visCursor gui=NONE guibg=Green guifg=Yellow')
 vim.opt.guicursor = "a:blinkon0-defCursor,i-r:iCursor,v-ve:visCursor"
-
+vim.opt.termguicolors = true
 vim.opt.showmode = false
-vim.g.have_nerd_font = true
 vim.opt.number = true
 vim.opt.fillchars = { eob = " " }
 
@@ -47,12 +80,7 @@ local function statusline()
   )
 end
 vim.opt.statusline = statusline()
-
 vim.opt.mouse = "a"
-
-vim.g.netrw_keepdir = 0
-vim.g.netrw_banner = 0 -- use I inside to show banner
-vim.g.netrw_localcopydircmd = 'cp -r'
 
 -- sync clipboard between OS and Neovim.
 vim.opt.clipboard:append("unnamedplus")
@@ -104,6 +132,8 @@ vim.opt.hlsearch = true
 
 -- [[ keymaps ]]
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
+
+-- get to config init.lua file
 vim.keymap.set("n", "<leader>,", "<cmd>edit ~/.config/nvim/init.lua<cr>", { desc = "edit config" })
 
 -- better move around wrapped lines
@@ -113,7 +143,7 @@ vim.keymap.set({ "n", "v" }, "<Down>", [[v:count == 0 ? 'gj' : 'j']], { expr = t
 -- save in any mode
 vim.keymap.set({ "n", "i", "v", "x" }, "<C-s>", "<Esc><cmd>w<cr>")
 
--- quit, lazy, and Mason shortcuts
+-- quit
 vim.keymap.set("n", "<leader>qq", "<cmd>quitall!<cr>", { desc = "quit" })
 
 -- diagnostic keymaps
@@ -244,16 +274,12 @@ end
 
 -- set up 'mini.deps'
 require('mini.deps').setup({ path = { package = path_package } })
-
--- use 'mini.deps'. `now()` and `later()` are helpers for a safe two-stage
--- startup and are optional.
 local add, now, later = MiniDeps.add, MiniDeps.now, MiniDeps.later
 
 -- [[ now plugins ]]
---      mini
---      neck-pain
 now(function() require("mini.icons").setup() end)
 now(function() require("mini.ai").setup() end)
+now(function() require("mini.diff").setup() end)
 
 now(function()
   local hipat = require("mini.hipatterns")
@@ -307,7 +333,6 @@ now(function()
   vim.keymap.set('i', "<C-p>", [[pumvisible() ? "\<C-e>" : "\<C-p>"]], { expr = true })
 end)
 
-now(function() require("mini.diff").setup() end)
 now(function()
   local starter = require('mini.starter')
   starter.setup({
@@ -325,9 +350,9 @@ now(function()
   require("mini.files").setup({
     windows = {
       preview = true,
-      width_focus = 25,                 -- Width of focused window
-      width_nofocus = 15,               -- Width of non-focused window
-      width_preview = 50,               -- Width of preview window
+      width_focus = 25,   -- Width of focused window
+      width_nofocus = 15, -- Width of non-focused window
+      width_preview = 50, -- Width of preview window
     },
     mappings = {
       go_in_plus  = "<Right>",
@@ -451,24 +476,12 @@ now(function()
   vim.keymap.set("n", "<leader>n", "<cmd>NoNeckPain<CR>", { silent = true, desc = "neck pain" })
 end)
 
--- [[ later plugins ]]
---      treesitter
---      context
---      undotree (undo like git)
---      fugitive (git wrapper)
---      surround
---      exchange
---      tmux-navigation
---      harpoon
---      conform (auto format code)
---      lspconfig: mason, tool-installer, fidget, neodev
 later(function()
-  add({ -- syntax highlight
+  add({                -- syntax highlight
     source = 'nvim-treesitter/nvim-treesitter',
     -- Perform action after every checkout
     hooks = { post_checkout = function() vim.cmd('TSUpdate') end },
   })
-  -- Possible to immediately execute code which depends on the added plugin
   ---@diagnostic disable-next-line: missing-fields
   require('nvim-treesitter.configs').setup({
     ensure_installed = {},
@@ -478,31 +491,28 @@ later(function()
   })
 end)
 
+-- function, conditional context top of screen
 later(function()
-  add({ -- function, conditional context top of screen
-    source = "nvim-treesitter/nvim-treesitter-context",
-  })
+  add({ source = "nvim-treesitter/nvim-treesitter-context" })
   require 'treesitter-context'.setup {
     max_lines = 8,           -- How many lines the window should span. Values <= 0 mean no limit.
     multiline_threshold = 8, -- Maximum number of lines to show for a single context
   }
+  vim.keymap.set("n", "<leader>c", "<cmd>TSContextToggle<CR>", { desc = "context" })
   vim.keymap.set("n", "[c", function()
     require("treesitter-context").go_to_context(vim.v.count1)
   end, { desc = "context", silent = true })
-  vim.keymap.set("n", "<leader>c", "<cmd>TSContextToggle<CR>", { desc = "context" })
 end)
 
+-- undo and redo visually
 later(function()
-  add({ -- undo and redo visually
-    source = "mbbill/undotree",
-  })
+  add({ source = "mbbill/undotree" })
   vim.keymap.set("n", "<leader>u", "<cmd>UndotreeToggle<cr><cmd>UndotreeFocus<cr>", { desc = "undotree" })
 end)
 
+-- git wrapper for git stuff
 later(function()
-  add({ -- git wrapper for git stuff
-    source = "tpope/vim-fugitive",
-  })
+  add({ source = "tpope/vim-fugitive" })
   vim.keymap.set("n", "<leader>gg", "<cmd>G<Cr>", { desc = "status" })
   vim.keymap.set("n", "<leader>gd", "<cmd>Gvdiffsplit<Cr>", { desc = "diff" })
   vim.keymap.set("n", "<leader>gb", "<cmd>G blame<Cr>", { desc = "blame" })
@@ -516,7 +526,7 @@ later(function() add({ source = "tommcdo/vim-exchange" }) end)
 
 -- tmux nvim navigate R between panes
 later(function()
-  add({ source = "alexghergh/nvim-tmux-navigation", })
+  add({ source = "alexghergh/nvim-tmux-navigation" })
   local ntn = require('nvim-tmux-navigation')
   ntn.setup {}
   vim.keymap.set('n', "<C-l>", ntn.NvimTmuxNavigateRight)
@@ -602,17 +612,17 @@ later(function()
     },
     ruff = {
       init_options = {
-        settings = {                 -- Ruff language server settings go here
+        settings = { -- Ruff language server settings go here
           ignore = { "E501", "E402" },
         },
       },
     },
   }
 
-  require("mason").setup()           -- :Mason
+  require("mason").setup() -- :Mason
   local ensure_installed = vim.tbl_keys(servers or {})
   vim.list_extend(ensure_installed, {
-    "stylua",             -- Used to format Lua code
+    "stylua", -- Used to format Lua code
   })
   require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
   require("mason-lspconfig").setup({
