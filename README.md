@@ -5,4 +5,7 @@ Forked from: [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim)
 requires these installations:
 - read the exquisite kickstart page: [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim)
 
+### Made everything one file init.lua
+Mostly using mini plugins and
+
 That's it.

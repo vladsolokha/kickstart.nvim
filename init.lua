@@ -490,6 +490,8 @@ end)
 -- undo and redo visually
 later(function()
   add({ source = "mbbill/undotree" })
+  require("undotree").setup({
+  })
   vim.keymap.set("n", "<leader>u", "<cmd>UndotreeToggle<cr><cmd>UndotreeFocus<cr>", { desc = "undotree" })
 end)
 
@@ -520,7 +522,7 @@ now(function()
     source = "ThePrimeagen/harpoon",
     name = "harpoon",
     checkout = "harpoon2",
-    monitor =  "harpoon2",
+    monitor = "harpoon2",
     depends = { "nvim-lua/plenary.nvim" },
   })
   local harpoon = require("harpoon")
@@ -590,9 +592,8 @@ later(function()
     lua_ls = {
       settings = {
         Lua = {
-          completion = {
-            callSnippet = "Replace",
-          },
+          diagnostics = { globals = { 'vim' } },
+          completion = { callSnippet = "Replace" },
         },
       },
     },
