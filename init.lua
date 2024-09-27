@@ -1,31 +1,31 @@
--- [[ options ]]
+-- [[ options ]
 -- [[ keymaps ]]
 -- [[ auto commands ]]
 -- [[ plugin manager ]]
+--
 -- [[ now plugins ]]
--- icons
--- ai
--- diff
--- hipatterns
--- base16
--- indentscope
--- completion
--- starter
--- files
--- clue
--- pick
--- extra
--- neck-pain
+-- rose pine colorscheme (for looks)
+-- icons mini (for looks)
+-- ai mini (pre motion a' it ip caw
+-- diff mini ([h, ]h, gh (apply), gH (Reset))
+-- extra mini (used in pick mini)
+-- indentscope mini (for looks)
+-- completion mini
+-- starter mini (for looks)
+-- files mini (_e)
+-- pick mini (__, _f, _o, gr, ?, /, ', ", ld, lp, lt)
+-- neck-pain (_n)
+--
 -- [[ later plugins ]]
--- treesitter
--- context
--- undotree (undo like git)
--- fugitive (git wrapper)
--- surround
--- exchange
--- tmux-navigation
--- harpoon
--- conform (auto format code)
+-- treesitter (for looks)
+-- context (for looks)
+-- undotree (_u)
+-- fugitive (gg, gd, gf, gb)
+-- surround (cs, ds, ys)
+-- exchange (cx, cxx, cxc)
+-- tmux-navigation (tmux split, ^l)
+-- harpoon: plenary (ha, he, ^n, ^e, ^y, ^t)
+-- conform format code (lf)
 -- lspconfig: mason, tool-installer, neodev
 
 -- global options
@@ -181,7 +181,7 @@ vim.keymap.set("n", "<c-i>", "<c-i>")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
 
--- other shortcuts and peves
+-- other shortcuts and pet peves
 vim.keymap.set("v", "y", "ygv<esc>")        -- keep cursor when yanking
 vim.keymap.set("n", "<cr>", "i<cr><esc>l")  -- enter new line in n mode
 vim.keymap.set("n", "<leader>p", 'diw"0P', { desc = "stamp" })
@@ -203,10 +203,6 @@ vim.keymap.set("n", "<leader>E", "<cmd>Ex<Cr>", { desc = "netrw" })
 
 -- select all using typecal ctrl-a keymap keys press
 vim.keymap.set("n", "<leader>a", "ggVG", { desc = "sel all" })
-
--- in highlight, add ' or " around highlight
-vim.keymap.set("v", [["]], [[:s/\%V\%V\(\w\+\)/"\1"/g<CR>gv]])
-vim.keymap.set("v", [[']], [[:s/\%V\%V\(\w\+\)/'\1'/g<CR>gv]])
 
 -- [[ auto commands ]] - event functions - autocommands
 -- functions that run on some event
@@ -269,8 +265,9 @@ if not vim.loop.fs_stat(mini_path) then
 end
 
 -- set up 'mini.deps'
-require('mini.deps').setup({ path = { package = path_package } })
-local add, now, later = MiniDeps.add, MiniDeps.now, MiniDeps.later
+local deps = require('mini.deps')
+deps.setup({ path = { package = path_package } })
+local add, now, later = deps.add, deps.now, deps.later
 
 -- [[ now plugins ]]
 now(function()
@@ -288,15 +285,6 @@ now(function() require("mini.icons").setup() end)
 now(function() require("mini.ai").setup() end)
 now(function() require("mini.diff").setup() end)
 now(function() require("mini.extra").setup() end)
-
-now(function()
-  local hipat = require("mini.hipatterns")
-  hipat.setup({
-    highlighters = {
-      hex_color = hipat.gen_highlighter.hex_color(),
-    }
-  })
-end)
 
 now(function()
   local indent = require('mini.indentscope')
@@ -322,7 +310,7 @@ now(function()
   local starter = require('mini.starter')
   starter.setup({
     silent = true,
-    header = "[Space f] find files\n[Space e] open explorer",
+    header = "[Space f] find files\n[Space e] open explorer\n[Space /] grep\n[Space gf] git files",
     items = { name = '', action = '', section = '' },
     content_hooks = {
       starter.gen_hook.padding(10, 20),
@@ -332,7 +320,8 @@ now(function()
 end)
 
 now(function()
-  require("mini.files").setup({
+  local files = require("mini.files")
+  files.setup({
     windows = {
       preview = true,
       width_focus = 25,   -- Width of focused window
@@ -348,8 +337,8 @@ now(function()
     },
   })
   function Minifile_toggle()
-    if not MiniFiles.close() then
-      MiniFiles.open()
+    if not files.close() then
+      files.open()
     end
   end
 
@@ -358,53 +347,22 @@ now(function()
 end)
 
 now(function()
-  local miniclue = require("mini.clue")
-  miniclue.setup({
-    triggers = {
-      -- Leader triggers
-      { mode = 'n', keys = '<Leader>' },
-      { mode = 'x', keys = '<Leader>' },
-      { mode = 'n', keys = '<C-w>' },
-      { mode = 'n', keys = ']' },
-      { mode = 'n', keys = '[' },
-    },
-    clues = {
-      { mode = 'n', keys = '<Leader>h', desc = '+Harpoon' },
-      { mode = 'n', keys = '<Leader>l', desc = '+LSP' },
-      { mode = 'n', keys = '<Leader>q', desc = '+Quit' },
-      { mode = 'n', keys = '<Leader>g', desc = '+Git' },
-      { mode = 'n', keys = ']d',        postkeys = ']' },
-      { mode = 'n', keys = '[d',        postkeys = '[' },
-      miniclue.gen_clues.windows({
-        submode_move = true,
-        submode_navigate = true,
-        submode_resize = true,
-      }),
-    },
-    window = {
-      delay = 300,
-      config = {
-        width = 'auto',
-        border = 'single',
-      },
-    },
-  })
-end)
-
-now(function()
   local pick = require("mini.pick")
   pick.setup({
     mappings = {
       choose_in_vsplit  = '<C-s>',
-      refine            = '<C-Space>',
       scroll_down       = '<C-d>',
       scroll_up         = '<C-u>',
+      move_up           = '<C-e>',
+      scroll_left       = '<C-k>',
+      scroll_right      = '<C-h>',
       choose_in_split   = '',
       choose_in_tabpage = '',
-      choose_marked     = '<C-CR>',
+      choose_marked     = '',
       delete_left       = '',
-      mark              = '<C-t>',
-      mark_all          = '<C-a>',
+      mark              = '',
+      mark_all          = '',
+      refine            = '',
       refine_marked     = '',
     },
     options = { content_from_bottom = true },
@@ -436,7 +394,7 @@ now(function()
 
   -- from mini extra
   vim.keymap.set("n", "gr", "<cmd>Pick lsp scope='references'<cr>", { desc = "refs" })
-  vim.keymap.set("n", "<leader>ls", "<cmd>Pick lsp scope='document_symbol'<cr>", { desc = "doc symbol" })
+  vim.keymap.set("n", "<leader>ld", "<cmd>Pick lsp scope='document_symbol'<cr>", { desc = "doc symbol" })
   vim.keymap.set("n", "<leader>lp", "<cmd>Pick lsp scope='workspace_symbol'<cr>", { desc = "proj symbol" })
   vim.keymap.set("n", "<leader>lt", "<cmd>Pick lsp scope='type_definition'<cr>", { desc = "type def" })
   vim.keymap.set("n", [[<leader>"]], "<cmd>Pick registers<cr>", { desc = "registers" })
@@ -445,6 +403,7 @@ end)
 now(function()
   add({ source = "shortcuts/no-neck-pain.nvim" })
   require("no-neck-pain").setup({
+    minSideBufferWidth = math.floor(0.2 * vim.o.columns),
     disableOnLastBuffer = false,
     autocmds = { enableOnVimEnter = true, },
     buffers = {
@@ -490,9 +449,8 @@ end)
 -- undo and redo visually
 later(function()
   add({ source = "mbbill/undotree" })
-  require("undotree").setup({
-  })
-  vim.keymap.set("n", "<leader>u", "<cmd>UndotreeToggle<cr><cmd>UndotreeFocus<cr>", { desc = "undotree" })
+  vim.g.undotree_SetFocusWhenToggle = 1
+  vim.keymap.set("n", "<leader>u", "<cmd>UndotreeToggle<cr>", { desc = "undotree" })
 end)
 
 -- git wrapper for git stuff
