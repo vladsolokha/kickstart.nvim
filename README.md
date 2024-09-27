@@ -9,3 +9,34 @@ requires these installations:
 Mostly using mini plugins and
 
 That's it.
+
+####Organization
+[[ options ]]
+[[ keymaps ]]
+[[ auto commands ]]
+[[ plugin manager ]]
+
+[[ now plugins ]]
+rose pine colorscheme (for looks)
+icons mini (for looks)
+ai mini (pre motion a' it ip caw
+diff mini ([h, ]h, gh (apply), gH (Reset))
+extra mini (used in pick mini)
+indentscope mini (for looks)
+completion mini
+starter mini (for looks)
+files mini (_e)
+pick mini (__, _f, _o, gr, ?, /, ', ", ld, lp, lt)
+neck-pain (_n)
+harpoon: plenary (ha, he, ^n, ^e, ^y, ^t)
+
+[[ later plugins ]]
+treesitter (for looks)
+context (for looks)
+undotree (_u)
+fugitive (gg, gd, gf, gb)
+surround (cs, ds, ys)
+exchange (cx, cxx, cxc)
+tmux-navigation (tmux split, ^l)
+conform format code (lf)
+lspconfig: mason, tool-installer, neodev

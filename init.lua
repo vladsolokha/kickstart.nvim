@@ -1,41 +1,9 @@
--- [[ options ]]
--- [[ keymaps ]]
--- [[ auto commands ]]
--- [[ plugin manager ]]
---
--- [[ now plugins ]]
--- rose pine colorscheme (for looks)
--- icons mini (for looks)
--- ai mini (pre motion a' it ip caw
--- diff mini ([h, ]h, gh (apply), gH (Reset))
--- extra mini (used in pick mini)
--- indentscope mini (for looks)
--- completion mini
--- starter mini (for looks)
--- files mini (_e)
--- pick mini (__, _f, _o, gr, ?, /, ', ", ld, lp, lt)
--- neck-pain (_n)
--- harpoon: plenary (ha, he, ^n, ^e, ^y, ^t)
---
--- [[ later plugins ]]
--- treesitter (for looks)
--- context (for looks)
--- undotree (_u)
--- fugitive (gg, gd, gf, gb)
--- surround (cs, ds, ys)
--- exchange (cx, cxx, cxc)
--- tmux-navigation (tmux split, ^l)
--- conform format code (lf)
--- lspconfig: mason, tool-installer, neodev
-
--- global options
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 vim.g.have_nerd_font = true
 vim.g.netrw_keepdir = 0
 vim.g.netrw_banner = 0 -- use I inside to show banner
 vim.g.netrw_localcopydircmd = 'cp -r'
-
 -- cursor options
 vim.cmd('hi iCursor gui=NONE guibg=Red guifg=NONE')
 vim.cmd('hi defCursor gui=NONE guibg=White guifg=Black')
@@ -44,8 +12,6 @@ vim.opt.guicursor = "a:blinkon0-defCursor,i-r:iCursor,v-ve:visCursor"
 vim.opt.termguicolors = true
 vim.opt.showmode = false
 vim.opt.fillchars = { eob = " " }
-
--- status line options
 vim.opt.laststatus = 3      -- always show status at bottom
 local function git_branch() -- show git branch in status
   local branch = vim.fn.system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
@@ -116,7 +82,7 @@ vim.keymap.set({ "n", "v" }, "<Up>", [[v:count == 0 ? 'gk' : 'k']], { expr = tru
 vim.keymap.set({ "n", "v" }, "<Down>", [[v:count == 0 ? 'gj' : 'j']], { expr = true, silent = true })
 -- save in any mode
 vim.keymap.set({ "n", "i", "v", "x" }, "<C-s>", "<Esc><cmd>w<cr>")
-vim.keymap.set("n", "<leader>qq", "<cmd>quitall!<cr>", { desc = "quit" })
+vim.keymap.set("n", "<leader>q", "<cmd>quitall!<cr>", { desc = "quit" })
 vim.keymap.set("n", "<leader>x", "<C-w>q", { desc = "win close" })
 -- diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "prev diag" })
@@ -160,8 +126,6 @@ vim.keymap.set(
   [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
   { desc = "word rename" }
 )
--- go into Explore files mode netrw
-vim.keymap.set("n", "<leader>E", "<cmd>Ex<Cr>", { desc = "netrw" })
 -- select all using typecal ctrl-a keymap keys press
 vim.keymap.set("n", "<leader>a", "ggVG", { desc = "sel all" })
 
@@ -188,26 +152,6 @@ vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost", "InsertEnter", "CmdlineEn
       vim.cmd("redraw")
     end
   end,
-})
-
-vim.api.nvim_create_autocmd('filetype', {
-  pattern = 'netrw',
-  desc = 'Better mappings for netrw',
-  callback = function()
-    local bind = function(lhs, rhs)
-      vim.keymap.set('n', lhs, rhs, { remap = true, buffer = true })
-    end
-    -- edit new file
-    bind('n', '%')
-    -- rename file
-    bind('r', 'R')
-    -- move up directory
-    bind('<Left>', '-^')
-    -- open file | dir
-    bind('<Right>', '<CR>')
-    -- show hide dotfiles
-    bind('.', 'gh')
-  end
 })
 
 -- [[ plugin manager ]]
@@ -269,7 +213,7 @@ now(function()
   local starter = require('mini.starter')
   starter.setup({
     silent = true,
-    header = "[Space f] find files\n[Space e] open explorer\n[Space /] grep\n[Space gf] git files",
+    header = "[Space Space] find files\n[Space e] open explorer\n[Space /] grep",
     items = { name = '', action = '', section = '' },
     content_hooks = {
       starter.gen_hook.padding(10, 20),
@@ -315,14 +259,6 @@ now(function()
       move_up           = '<C-e>',
       scroll_left       = '<C-k>',
       scroll_right      = '<C-h>',
-      choose_in_split   = '',
-      choose_in_tabpage = '',
-      choose_marked     = '',
-      delete_left       = '',
-      mark              = '',
-      mark_all          = '',
-      refine            = '',
-      refine_marked     = '',
     },
     options = { content_from_bottom = true },
     window = {
@@ -343,18 +279,12 @@ now(function()
       prompt_cursor = '_',
     },
   })
-  vim.keymap.set("n", "<leader><leader>", "<cmd>Pick resume<cr>", { desc = "resume" })
-  vim.keymap.set("n", "<leader>f", "<cmd>Pick files<cr>", { desc = "files" })
-  vim.keymap.set("n", "<leader>o", "<cmd>Pick oldfiles<cr>", { desc = "recent" })
+  vim.keymap.set("n", "<leader><leader>", "<cmd>Pick files<cr>", { desc = "files" })
   vim.keymap.set("n", "<leader>/", "<cmd>Pick grep_live<cr>", { desc = "live grep" })
   vim.keymap.set("n", "<leader>'", "<cmd>Pick grep pattern='<cword>'<cr>", { desc = "grep word" })
-  vim.keymap.set("n", "<leader>gf", "<cmd>Pick files tool='git'<cr>", { desc = "git files" })
   vim.keymap.set("n", "<leader>?", "<cmd>Pick help<cr>", { desc = "help" })
-
   -- from mini extra
   vim.keymap.set("n", "gr", "<cmd>Pick lsp scope='references'<cr>", { desc = "refs" })
-  vim.keymap.set("n", "<leader>ld", "<cmd>Pick lsp scope='document_symbol'<cr>", { desc = "doc symbol" })
-  vim.keymap.set("n", "<leader>lp", "<cmd>Pick lsp scope='workspace_symbol'<cr>", { desc = "proj symbol" })
   vim.keymap.set("n", "<leader>lt", "<cmd>Pick lsp scope='type_definition'<cr>", { desc = "type def" })
   vim.keymap.set("n", [[<leader>"]], "<cmd>Pick registers<cr>", { desc = "registers" })
 end)
