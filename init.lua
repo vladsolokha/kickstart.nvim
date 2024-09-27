@@ -1,4 +1,4 @@
--- [[ options ]
+-- [[ options ]]
 -- [[ keymaps ]]
 -- [[ auto commands ]]
 -- [[ plugin manager ]]
@@ -15,6 +15,7 @@
 -- files mini (_e)
 -- pick mini (__, _f, _o, gr, ?, /, ', ", ld, lp, lt)
 -- neck-pain (_n)
+-- harpoon: plenary (ha, he, ^n, ^e, ^y, ^t)
 --
 -- [[ later plugins ]]
 -- treesitter (for looks)
@@ -24,7 +25,6 @@
 -- surround (cs, ds, ys)
 -- exchange (cx, cxx, cxc)
 -- tmux-navigation (tmux split, ^l)
--- harpoon: plenary (ha, he, ^n, ^e, ^y, ^t)
 -- conform format code (lf)
 -- lspconfig: mason, tool-installer, neodev
 
@@ -43,12 +43,11 @@ vim.cmd('hi visCursor gui=NONE guibg=Green guifg=Yellow')
 vim.opt.guicursor = "a:blinkon0-defCursor,i-r:iCursor,v-ve:visCursor"
 vim.opt.termguicolors = true
 vim.opt.showmode = false
-vim.opt.number = true
 vim.opt.fillchars = { eob = " " }
 
 -- status line options
-vim.opt.laststatus = 3
-local function git_branch()
+vim.opt.laststatus = 3      -- always show status at bottom
+local function git_branch() -- show git branch in status
   local branch = vim.fn.system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
   if string.len(branch) > 0 then
     return branch
@@ -58,7 +57,7 @@ local function git_branch()
 end
 local function statusline()
   local branch = git_branch()
-  local file_name = "%F"
+  local file_name = "%F"    -- full filename
   local modified = "%m%h%r" -- modified [+], help [Help], readonly [RO]
   local align_right = "%="
   local file_type = "%y"
@@ -79,89 +78,57 @@ local function statusline()
     percentage
   )
 end
+
+vim.opt.number = true
+vim.opt.termguicolors = true
+vim.opt.showmode = false          -- no INSERT, VISUAL, ..
+vim.opt.fillchars = { eob = " " } -- no ~ in line numbers
 vim.opt.statusline = statusline()
-vim.opt.mouse = "a"
-
--- sync clipboard between OS and Neovim.
+vim.opt.mouse = "a"               -- enable mouse always
 vim.opt.clipboard:append("unnamedplus")
-
--- enable break indent
 vim.opt.breakindent = true
 vim.opt.smartindent = true
-
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.expandtab = true
 vim.opt.shiftwidth = 4
-
--- save undo history
 vim.opt.undofile = true
-
--- case-insensitive searching UNLESS \C or one or more capital letters in the search term
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
-
 vim.opt.swapfile = false
 vim.opt.backup = false
 vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
-vim.opt.undofile = true
-
 vim.opt.incsearch = true
-
--- keep signcolumn on by default
-vim.opt.signcolumn = "no"
-
--- decrease update time
+vim.opt.signcolumn = "no" -- just number line, no extra signs (noise)
 vim.opt.updatetime = 250
-
--- configure how new splits should be opened
 vim.opt.splitright = true
 vim.opt.splitbelow = true
-
--- preview substitutions live, as you type!
-vim.opt.inccommand = "split"
-
--- show which line your cursor is on
-vim.opt.cursorline = false
-
--- minimal number of screen lines to keep above and below the cursor.
-vim.opt.scrolloff = 10
-
--- set highlight on search, but clear on pressing <Esc> in normal mode
-vim.opt.hlsearch = true
+vim.opt.inccommand = "split" -- prev live substitutions
+-- vim.opt.cursorline = false -- highlight line cursor is on
+vim.opt.scrolloff = 6        -- no scroll past num lines
+vim.opt.hlsearch = true      -- ESC to clear
 
 -- [[ keymaps ]]
-vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
-
--- get to config init.lua file
-vim.keymap.set("n", "<leader>,", "<cmd>edit ~/.config/nvim/init.lua<cr>", { desc = "edit config" })
-
+vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>") -- clear search highlight
+vim.keymap.set("n", "<leader>,", "<cmd>edit ~/.config/nvim/init.lua<cr>", { desc = "edit nvim" })
 -- better move around wrapped lines
 vim.keymap.set({ "n", "v" }, "<Up>", [[v:count == 0 ? 'gk' : 'k']], { expr = true, silent = true })
 vim.keymap.set({ "n", "v" }, "<Down>", [[v:count == 0 ? 'gj' : 'j']], { expr = true, silent = true })
-
 -- save in any mode
 vim.keymap.set({ "n", "i", "v", "x" }, "<C-s>", "<Esc><cmd>w<cr>")
-
--- quit
 vim.keymap.set("n", "<leader>qq", "<cmd>quitall!<cr>", { desc = "quit" })
-
+vim.keymap.set("n", "<leader>x", "<C-w>q", { desc = "win close" })
 -- diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "prev diag" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next diag" })
-
 vim.keymap.set('n', '<leader>d', function()
   vim.diagnostic.enable(not vim.diagnostic.is_enabled())
 end, { desc = "diag toggle", silent = false })
-
+-- window movements
 vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "left win" })
 vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "right win" })
 vim.keymap.set("n", "<C-k>", "<C-w><C-j>", { desc = "lower win" })
 vim.keymap.set("n", "<C-j>", "<C-w><C-k>", { desc = "upper win" })
-
--- Easy window close matches tmux x to close win/pane
-vim.keymap.set("n", "<leader>x", "<C-w>q", { desc = "win close" })
-
 -- move lines up or down, Alt-Up/Down
 vim.keymap.set("n", "<A-Down>", "<cmd>m .+1<cr>==")
 vim.keymap.set("n", "<A-Up>", "<cmd>m .-2<cr>==")
@@ -169,18 +136,14 @@ vim.keymap.set("i", "<A-Down>", "<Esc><cmd>m .+1<cr>==gi")
 vim.keymap.set("i", "<A-Up>", "<Esc><cmd>m .-2<cr>==gi")
 vim.keymap.set("v", "<A-Down>", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "<A-Up>", ":m '<-2<CR>gv=gv")
-
 -- indent/dedent with Tab in visual mode
 vim.keymap.set("v", "<Tab>", ">gv")
 vim.keymap.set("v", "<S-Tab>", "<gv")
-
 -- keep c-i separate from tab keys
 vim.keymap.set("n", "<c-i>", "<c-i>")
-
 -- center cursor when jump scrolling
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
-
 -- other shortcuts and pet peves
 vim.keymap.set("v", "y", "ygv<esc>")        -- keep cursor when yanking
 vim.keymap.set("n", "<cr>", "i<cr><esc>l")  -- enter new line in n mode
@@ -197,10 +160,8 @@ vim.keymap.set(
   [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
   { desc = "word rename" }
 )
-
--- go into Ex mode
+-- go into Explore files mode netrw
 vim.keymap.set("n", "<leader>E", "<cmd>Ex<Cr>", { desc = "netrw" })
-
 -- select all using typecal ctrl-a keymap keys press
 vim.keymap.set("n", "<leader>a", "ggVG", { desc = "sel all" })
 
@@ -250,7 +211,7 @@ vim.api.nvim_create_autocmd('filetype', {
 })
 
 -- [[ plugin manager ]]
--- installing mini.deps
+-- installing mini.deps and setup
 local path_package = vim.fn.stdpath('data') .. '/site/'
 local mini_path = path_package .. 'pack/deps/start/mini.nvim'
 if not vim.loop.fs_stat(mini_path) then
@@ -263,8 +224,6 @@ if not vim.loop.fs_stat(mini_path) then
   vim.cmd('packadd mini.nvim | helptags ALL')
   vim.cmd('echo "Installed `mini.nvim`" | redraw')
 end
-
--- set up 'mini.deps'
 local deps = require('mini.deps')
 deps.setup({ path = { package = path_package } })
 local add, now, later = deps.add, deps.now, deps.later
@@ -343,7 +302,7 @@ now(function()
   end
 
   vim.keymap.set("n", "<leader>e", ":lua Minifile_toggle()<cr>", { silent = true, desc = "explore" })
-  -- <leader>E is :Ex now
+  -- <leader>E is :Ex 
 end)
 
 now(function()
@@ -418,6 +377,32 @@ now(function()
   vim.keymap.set("n", "<leader>n", "<cmd>NoNeckPain<CR>", { silent = true, desc = "neck pain" })
 end)
 
+now(function()
+  add({
+    source = "ThePrimeagen/harpoon",
+    name = "harpoon",
+    checkout = "harpoon2",
+    monitor = "harpoon2",
+    depends = { "nvim-lua/plenary.nvim" },
+  })
+  local harpoon = require("harpoon")
+  harpoon.setup({
+    settings = {
+      save_on_toggle = true,
+      sync_on_ui_close = true,
+    }
+  })
+
+  vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end, { desc = "add" })
+  vim.keymap.set("n", "<leader>he", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
+    { desc = "edit" })
+  vim.keymap.set("n", "<C-n>", function() harpoon:list():select(1) end)
+  vim.keymap.set("n", "<C-e>", function() harpoon:list():select(2) end)
+  vim.keymap.set("n", "<C-y>", function() harpoon:list():select(3) end)
+  vim.keymap.set("n", "<c-t>", function() harpoon:list():select(4) end)
+end)
+
+-- [[ later plugins ]]
 later(function()
   add({ -- syntax highlight
     source = 'nvim-treesitter/nvim-treesitter',
@@ -473,31 +458,6 @@ later(function()
   local ntn = require('nvim-tmux-navigation')
   ntn.setup {}
   vim.keymap.set('n', "<C-l>", ntn.NvimTmuxNavigateRight)
-end)
-
-now(function()
-  add({
-    source = "ThePrimeagen/harpoon",
-    name = "harpoon",
-    checkout = "harpoon2",
-    monitor = "harpoon2",
-    depends = { "nvim-lua/plenary.nvim" },
-  })
-  local harpoon = require("harpoon")
-  harpoon.setup({
-    settings = {
-      save_on_toggle = true,
-      sync_on_ui_close = true,
-    }
-  })
-
-  vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end, { desc = "add" })
-  vim.keymap.set("n", "<leader>he", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
-    { desc = "edit" })
-  vim.keymap.set("n", "<C-n>", function() harpoon:list():select(1) end)
-  vim.keymap.set("n", "<C-e>", function() harpoon:list():select(2) end)
-  vim.keymap.set("n", "<C-y>", function() harpoon:list():select(3) end)
-  vim.keymap.set("n", "<c-t>", function() harpoon:list():select(4) end)
 end)
 
 -- autoformat, make doc look like standard code, removing white spaces and extra stuff
