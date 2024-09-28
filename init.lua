@@ -190,6 +190,22 @@ now(function() require("mini.diff").setup() end)
 now(function() require("mini.extra").setup() end)
 
 now(function()
+  require("mini.surround").setup({
+    mappings = {
+      add = 'ys',
+      delete = 'ds',
+      find = '',
+      find_left = '',
+      highlight = '',
+      replace = 'cs',
+      update_n_lines = '',
+      suffix_last = 'l',
+      suffix_next = 'n',
+    },
+  })
+end)
+
+now(function()
   local indent = require('mini.indentscope')
   indent.setup({
     draw = {
@@ -246,19 +262,18 @@ now(function()
   end
 
   vim.keymap.set("n", "<leader>e", ":lua Minifile_toggle()<cr>", { silent = true, desc = "explore" })
-  -- <leader>E is :Ex 
 end)
 
 now(function()
   local pick = require("mini.pick")
   pick.setup({
     mappings = {
-      choose_in_vsplit  = '<C-s>',
-      scroll_down       = '<C-d>',
-      scroll_up         = '<C-u>',
-      move_up           = '<C-e>',
-      scroll_left       = '<C-k>',
-      scroll_right      = '<C-h>',
+      choose_in_vsplit = '<C-s>',
+      scroll_down      = '<C-d>',
+      scroll_up        = '<C-u>',
+      move_up          = '<C-e>',
+      scroll_left      = '<C-k>',
+      scroll_right     = '<C-h>',
     },
     options = { content_from_bottom = true },
     window = {
@@ -280,12 +295,11 @@ now(function()
     },
   })
   vim.keymap.set("n", "<leader><leader>", "<cmd>Pick files<cr>", { desc = "files" })
-  vim.keymap.set("n", "<leader>/", "<cmd>Pick grep_live<cr>", { desc = "live grep" })
+  vim.keymap.set("n", "<leader>/", "<cmd>Pick grep_live<cr>", { desc = "grep live" })
   vim.keymap.set("n", "<leader>'", "<cmd>Pick grep pattern='<cword>'<cr>", { desc = "grep word" })
   vim.keymap.set("n", "<leader>?", "<cmd>Pick help<cr>", { desc = "help" })
   -- from mini extra
   vim.keymap.set("n", "gr", "<cmd>Pick lsp scope='references'<cr>", { desc = "refs" })
-  vim.keymap.set("n", "<leader>lt", "<cmd>Pick lsp scope='type_definition'<cr>", { desc = "type def" })
   vim.keymap.set("n", [[<leader>"]], "<cmd>Pick registers<cr>", { desc = "registers" })
 end)
 
@@ -376,9 +390,6 @@ later(function()
   vim.keymap.set("n", "<leader>gb", "<cmd>G blame<Cr>", { desc = "blame" })
 end)
 
--- surround cs{motion} to change, ds{motion} to delete, ys{motion} add
-later(function() add({ source = "tpope/vim-surround" }) end)
-
 -- vim exchange, cx{motion} to select, (.) or cx{motion} to swap, cxc to clear
 later(function() add({ source = "tommcdo/vim-exchange" }) end)
 
@@ -423,12 +434,9 @@ later(function()
 
       map("K", vim.lsp.buf.hover, "hover documentation")
       map("gd", vim.lsp.buf.definition, "definition")
-      --  Useful when your language has ways of declaring types without an actual implementation.
       map("<leader>li", vim.lsp.buf.implementation, "implementation")
-      --  Most Language Servers support renaming across files, etc.
       map("<leader>lr", vim.lsp.buf.rename, "rename vars")
-      -- Execute a code action, usually your cursor needs to be on top of an error
-      -- or a suggestion from your LSP for this to activate.
+      map("<leader>lt", vim.lsp.buf.type_definition, "type def")
       map("<leader>la", vim.lsp.buf.code_action, "code action")
     end,
   })
