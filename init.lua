@@ -164,16 +164,11 @@ vim.api.nvim_create_autocmd('filetype', {
     local bind = function(lhs, rhs)
       vim.keymap.set('n', lhs, rhs, { remap = true, buffer = true })
     end
-    -- edit new file
-    bind('n', '%')
-    -- rename file
-    bind('r', 'R')
-    -- move up directory
-    bind('<Left>', '-^')
-    -- open file | dir
-    bind('<Right>', '<CR>')
-    -- show hide dotfiles
-    bind('.', 'gh')
+    bind('n', '%') -- edit new file
+    bind('r', 'R') -- rename file
+    bind('.', 'gh') -- show hide dotfiles
+    bind('<Left>', '-^') -- move up directory
+    bind('<Right>', '<CR>')-- open file | dir
   end
 })
 
@@ -229,7 +224,8 @@ now(function()
       files.open()
     end
   end
-  vim.keymap.set("n", "<leader>e", ":lua Minifile_toggle()<cr>", { silent = true, desc = "explore" })
+
+  -- vim.keymap.set("n", "<leader>e", ":lua Minifile_toggle()<cr>", { silent = true, desc = "explore" })
 end)
 
 now(function()
