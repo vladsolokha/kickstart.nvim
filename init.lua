@@ -132,6 +132,9 @@ vim.keymap.set("n", "<leader>E", "<cmd>Ex<Cr>", { desc = "ex pwd" })
 vim.keymap.set("n", "<leader>a", "ggVG", { desc = "sel all" })
 vim.keymap.set("n", [[<leader>"]], "<cmd>reg<cr>", { desc = "registers" })
 
+vim.keymap.set("n", "]<Down>", "<cmd>cn<cr>", { desc = "c next qfix" })
+vim.keymap.set("n", "[<Down>", "<cmd>cp<cr>", { desc = "c prev qfix" })
+
 -- [[ auto commands ]] - event functions - autocommands
 -- functions that run on some event
 vim.api.nvim_create_autocmd("TextYankPost", {
@@ -295,6 +298,8 @@ end)
 -- [[ later plugins ]]
 -- undo and redo visually
 later(function() require("mini.ai").setup() end)
+later(function() require('mini.diff').setup() end)
+later(function() require('mini.extra').setup() end)
 
 later(function()
   require('mini.completion').setup({
@@ -333,8 +338,8 @@ later(function()
     max_lines = 8,           -- How many lines the window should span. Values <= 0 mean no limit.
     multiline_threshold = 8, -- Maximum number of lines to show for a single context
   }
-  vim.keymap.set("n", "<leader>c", "<cmd>TSContextToggle<CR>", { desc = "context" })
-  vim.keymap.set("n", "[c", function()
+  vim.keymap.set("n", "<leader>C", "<cmd>TSContextToggle<CR>", { desc = "context" })
+  vim.keymap.set("n", "<leader>c", function()
     require("treesitter-context").go_to_context(vim.v.count1)
   end, { desc = "context", silent = true })
 end)
