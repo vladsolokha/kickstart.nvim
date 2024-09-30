@@ -127,7 +127,8 @@ vim.keymap.set(
   { desc = "word rename" }
 )
 -- go into Explore files mode netrw
-vim.keymap.set("n", "<leader>E", "<cmd>Ex<Cr>", { desc = "netrw" })
+vim.keymap.set("n", "<leader>e", "<cmd>Ex %:p:h<Cr>", { desc = "ex this file dir" })
+vim.keymap.set("n", "<leader>E", "<cmd>Ex<Cr>", { desc = "ex pwd" })
 -- select all using typecal ctrl-a keymap keys press
 vim.keymap.set("n", "<leader>a", "ggVG", { desc = "sel all" })
 vim.keymap.set("n", [[<leader>"]], "<cmd>reg<cr>", { desc = "registers" })
@@ -164,11 +165,12 @@ vim.api.nvim_create_autocmd('filetype', {
     local bind = function(lhs, rhs)
       vim.keymap.set('n', lhs, rhs, { remap = true, buffer = true })
     end
-    bind('n', '%') -- edit new file
-    bind('r', 'R') -- rename file
-    bind('.', 'gh') -- show hide dotfiles
-    bind('<Left>', '-^') -- move up directory
-    bind('<Right>', '<CR>')-- open file | dir
+    bind('n', '%')          -- edit new file
+    bind('r', 'R')          -- rename file
+    bind('P', '<C-w>z')     -- no preview
+    bind('.', 'gh')         -- show hide dotfiles
+    bind('<Left>', '-^')    -- move up directory
+    bind('<Right>', '<CR>') -- open file | dir
   end
 })
 
@@ -203,32 +205,6 @@ now(function()
 end)
 
 now(function()
-  local files = require("mini.files")
-  files.setup({
-    windows = {
-      preview = true,
-      width_focus = 25,   -- Width of focused window
-      width_nofocus = 15, -- Width of non-focused window
-      width_preview = 50, -- Width of preview window
-    },
-    mappings = {
-      go_in_plus  = "<Right>",
-      go_in       = "<S-Right>",
-      go_out      = "<Left>",
-      go_out_plus = "<S-Left>",
-      close       = "<ESC>",
-    },
-  })
-  function Minifile_toggle()
-    if not files.close() then
-      files.open()
-    end
-  end
-
-  -- vim.keymap.set("n", "<leader>e", ":lua Minifile_toggle()<cr>", { silent = true, desc = "explore" })
-end)
-
-now(function()
   local pick = require("mini.pick")
   pick.setup({
     mappings = {
@@ -259,6 +235,7 @@ now(function()
     },
   })
   vim.keymap.set("n", "<leader><leader>", "<cmd>Pick files<cr>", { desc = "files" })
+  vim.keymap.set("n", "<leader>f", "<cmd>Pick resume<cr>", { desc = "resume" })
   vim.keymap.set("n", "<leader>/", "<cmd>Pick grep_live<cr>", { desc = "grep live" })
   vim.keymap.set("n", "<leader>'", "<cmd>Pick grep pattern='<cword>'<cr>", { desc = "grep word" })
   vim.keymap.set("n", "<leader>?", "<cmd>Pick help<cr>", { desc = "help" })
