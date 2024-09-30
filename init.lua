@@ -65,7 +65,7 @@ vim.opt.swapfile = false
 vim.opt.backup = false
 vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 vim.opt.incsearch = true
-vim.opt.signcolumn = "no" -- just number line, no extra signs (noise)
+vim.opt.signcolumn = "no" -- just number line, no signs (noise)
 vim.opt.updatetime = 250
 vim.opt.splitright = true
 vim.opt.splitbelow = true
@@ -130,6 +130,7 @@ vim.keymap.set(
 vim.keymap.set("n", "<leader>E", "<cmd>Ex<Cr>", { desc = "netrw" })
 -- select all using typecal ctrl-a keymap keys press
 vim.keymap.set("n", "<leader>a", "ggVG", { desc = "sel all" })
+vim.keymap.set("n", [[<leader>"]], "<cmd>reg<cr>", { desc = "registers" })
 
 -- [[ auto commands ]] - event functions - autocommands
 -- functions that run on some event
@@ -206,60 +207,6 @@ now(function()
   vim.cmd("colorscheme rose-pine")
 end)
 
-now(function() require("mini.icons").setup() end)
-now(function() require("mini.ai").setup() end)
-now(function() require("mini.diff").setup() end)
-now(function() require("mini.extra").setup() end)
-
-now(function()
-  require("mini.surround").setup({
-    mappings = {
-      add = 'ys',
-      delete = 'ds',
-      find = '',
-      find_left = '',
-      highlight = '',
-      replace = 'cs',
-      update_n_lines = '',
-      suffix_last = 'l',
-      suffix_next = 'n',
-    },
-  })
-end)
-
-now(function()
-  local indent = require('mini.indentscope')
-  indent.setup({
-    draw = {
-      delay = 0,
-      animation = indent.gen_animation.none()
-    },
-    symbol = "|"
-  })
-end)
-
-now(function()
-  require('mini.completion').setup({
-    delay = { completion = 500, info = 500, signature = 800 },
-    lsp_completion = { source_func = 'completefunc' }
-  })
-  vim.keymap.set('i', "<C-e>", [[pumvisible() ? "\<C-p>" : "\<C-e>"]], { expr = true })
-  vim.keymap.set('i', "<C-p>", [[pumvisible() ? "\<C-e>" : "\<C-p>"]], { expr = true })
-end)
-
-now(function()
-  local starter = require('mini.starter')
-  starter.setup({
-    silent = true,
-    header = "[Space Space] find files\n[Space e] open explorer\n[Space /] grep",
-    items = { name = '', action = '', section = '' },
-    content_hooks = {
-      starter.gen_hook.padding(10, 20),
-    },
-    footer = ""
-  })
-end)
-
 now(function()
   local files = require("mini.files")
   files.setup({
@@ -282,7 +229,6 @@ now(function()
       files.open()
     end
   end
-
   vim.keymap.set("n", "<leader>e", ":lua Minifile_toggle()<cr>", { silent = true, desc = "explore" })
 end)
 
@@ -320,9 +266,6 @@ now(function()
   vim.keymap.set("n", "<leader>/", "<cmd>Pick grep_live<cr>", { desc = "grep live" })
   vim.keymap.set("n", "<leader>'", "<cmd>Pick grep pattern='<cword>'<cr>", { desc = "grep word" })
   vim.keymap.set("n", "<leader>?", "<cmd>Pick help<cr>", { desc = "help" })
-  -- from mini extra
-  vim.keymap.set("n", "gr", "<cmd>Pick lsp scope='references'<cr>", { desc = "refs" })
-  vim.keymap.set("n", [[<leader>"]], "<cmd>Pick registers<cr>", { desc = "registers" })
 end)
 
 now(function()
@@ -369,6 +312,24 @@ now(function()
 end)
 
 -- [[ later plugins ]]
+-- undo and redo visually
+later(function() require("mini.ai").setup() end)
+
+later(function()
+  require('mini.completion').setup({
+    delay = { completion = 500, info = 500, signature = 800 },
+    lsp_completion = { source_func = 'completefunc' }
+  })
+  vim.keymap.set('i', "<C-e>", [[pumvisible() ? "\<C-p>" : "\<C-e>"]], { expr = true })
+  vim.keymap.set('i', "<C-p>", [[pumvisible() ? "\<C-e>" : "\<C-p>"]], { expr = true })
+end)
+
+later(function()
+  add({ source = "mbbill/undotree" })
+  vim.g.undotree_SetFocusWhenToggle = 1
+  vim.keymap.set("n", "<leader>u", "<cmd>UndotreeToggle<cr>", { desc = "undotree" })
+end)
+
 later(function()
   add({ -- syntax highlight
     source = 'nvim-treesitter/nvim-treesitter',
@@ -397,45 +358,6 @@ later(function()
   end, { desc = "context", silent = true })
 end)
 
--- undo and redo visually
-later(function()
-  add({ source = "mbbill/undotree" })
-  vim.g.undotree_SetFocusWhenToggle = 1
-  vim.keymap.set("n", "<leader>u", "<cmd>UndotreeToggle<cr>", { desc = "undotree" })
-end)
-
--- git wrapper for git stuff
-later(function()
-  add({ source = "tpope/vim-fugitive" })
-  vim.keymap.set("n", "<leader>gg", "<cmd>G<Cr>", { desc = "status" })
-  vim.keymap.set("n", "<leader>gd", "<cmd>Gvdiffsplit<Cr>", { desc = "diff" })
-  vim.keymap.set("n", "<leader>gb", "<cmd>G blame<Cr>", { desc = "blame" })
-end)
-
--- vim exchange, cx{motion} to select, (.) or cx{motion} to swap, cxc to clear
-later(function() add({ source = "tommcdo/vim-exchange" }) end)
-
--- tmux nvim navigate R between panes
-later(function()
-  add({ source = "alexghergh/nvim-tmux-navigation" })
-  local ntn = require('nvim-tmux-navigation')
-  ntn.setup {}
-  vim.keymap.set('n', "<C-l>", ntn.NvimTmuxNavigateRight)
-end)
-
--- autoformat, make doc look like standard code, removing white spaces and extra stuff
-later(function()
-  add({ source = "stevearc/conform.nvim" })
-  local conform = require("conform")
-  conform.setup({
-    default_format_opts = { lsp_format = "fallback" },
-    format_on_save = nil,
-  })
-  vim.keymap.set("n", "<leader>lf", function()
-    conform.format({ async = true })
-  end, { desc = "format" })
-end)
-
 -- LSP Configuration & Plugins
 later(function()
   add({
@@ -456,6 +378,8 @@ later(function()
 
       map("K", vim.lsp.buf.hover, "hover documentation")
       map("gd", vim.lsp.buf.definition, "definition")
+      map("gr", vim.lsp.buf.references, "refs")
+      map("<leader>lf", vim.ldp.buf.format, "format")
       map("<leader>li", vim.lsp.buf.implementation, "implementation")
       map("<leader>lr", vim.lsp.buf.rename, "rename vars")
       map("<leader>lt", vim.lsp.buf.type_definition, "type def")
