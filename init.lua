@@ -126,6 +126,8 @@ vim.keymap.set(
   [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
   { desc = "word rename" }
 )
+-- go into Explore files mode netrw
+vim.keymap.set("n", "<leader>E", "<cmd>Ex<Cr>", { desc = "netrw" })
 -- select all using typecal ctrl-a keymap keys press
 vim.keymap.set("n", "<leader>a", "ggVG", { desc = "sel all" })
 
@@ -152,6 +154,26 @@ vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost", "InsertEnter", "CmdlineEn
       vim.cmd("redraw")
     end
   end,
+})
+
+vim.api.nvim_create_autocmd('filetype', {
+  pattern = 'netrw',
+  desc = 'Better mappings for netrw',
+  callback = function()
+    local bind = function(lhs, rhs)
+      vim.keymap.set('n', lhs, rhs, { remap = true, buffer = true })
+    end
+    -- edit new file
+    bind('n', '%')
+    -- rename file
+    bind('r', 'R')
+    -- move up directory
+    bind('<Left>', '-^')
+    -- open file | dir
+    bind('<Right>', '<CR>')
+    -- show hide dotfiles
+    bind('.', 'gh')
+  end
 })
 
 -- [[ plugin manager ]]
