@@ -70,7 +70,7 @@ vim.opt.updatetime = 250
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 vim.opt.inccommand = "split" -- prev live substitutions
--- vim.opt.cursorline = false -- highlight line cursor is on
+vim.opt.cursorline = true -- highlight line cursor is on
 vim.opt.scrolloff = 6        -- no scroll past num lines
 vim.opt.hlsearch = true      -- ESC to clear
 
@@ -111,12 +111,11 @@ vim.keymap.set("n", "<c-i>", "<c-i>")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
 -- other shortcuts and pet peves
-vim.keymap.set("v", "y", "ygv<esc>")        -- keep cursor when yanking
-vim.keymap.set("n", "<cr>", "i<cr><esc>l")  -- enter new line in n mode
+-- vim.keymap.set("v", "y", "ygv<esc>")        -- keep cursor when yanking
 vim.keymap.set("n", "<leader>p", 'diw"0P', { desc = "stamp" })
 vim.keymap.set("n", "J", "mzJ`z")           -- keep cursor when joining lines
 vim.keymap.set({ "x", "v" }, "p", [["_dP]]) -- put word without yanking replaced
-vim.keymap.set("n", "Y", "Yg$")             -- go to end when yank whole line
+-- vim.keymap.set("n", "Y", "Yg$")             -- go to end when yank whole line
 vim.keymap.set("n", "<leader>y", "<cmd>let @+=expand('%')<cr>", { desc = "copy path" })
 vim.keymap.set("n", "<leader>Y", "<cmd>let @+=expand('%:p')<cr>", { desc = "full path" })
 -- replace word under cursor interactively
@@ -208,12 +207,22 @@ now(function()
   local pick = require("mini.pick")
   pick.setup({
     mappings = {
-      choose_in_vsplit = '<C-s>',
-      scroll_down      = '<C-d>',
-      scroll_up        = '<C-u>',
-      move_up          = '<C-e>',
-      scroll_left      = '<C-k>',
-      scroll_right     = '<C-h>',
+      choose_in_vsplit  = '<C-s>',
+      scroll_down       = '<C-d>',
+      scroll_up         = '<C-u>',
+      move_up           = '<C-e>',
+      scroll_left       = '<C-k>',
+      scroll_right      = '<C-h>',
+      choose_marked     = '<C-x>', -- choose into qfix list
+      mark              = '<C-t>', -- tag file
+      mark_all          = '<C-a>',
+      -- filter matched into new query
+      -- i.e. foo <C-f> bar matches all foo, then all bar in no particular order
+      refine            = '<C-f>',
+      refine_marked     = '<C-p>', -- filter marked items in new query
+      delete_left       = '',
+      choose_in_split   = '',
+      choose_in_tabpage = '',
     },
     options = { content_from_bottom = true },
     window = {
@@ -231,7 +240,6 @@ now(function()
           col = col
         }
       end,
-      prompt_cursor = '_',
     },
   })
   vim.keymap.set("n", "<leader><leader>", "<cmd>Pick files<cr>", { desc = "files" })
@@ -352,7 +360,7 @@ later(function()
       map("K", vim.lsp.buf.hover, "hover documentation")
       map("gd", vim.lsp.buf.definition, "definition")
       map("gr", vim.lsp.buf.references, "refs")
-      map("<leader>lf", vim.ldp.buf.format, "format")
+      map("<leader>lf", vim.lsp.buf.format, "format")
       map("<leader>li", vim.lsp.buf.implementation, "implementation")
       map("<leader>lr", vim.lsp.buf.rename, "rename vars")
       map("<leader>lt", vim.lsp.buf.type_definition, "type def")
