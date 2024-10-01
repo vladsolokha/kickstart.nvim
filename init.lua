@@ -70,7 +70,7 @@ vim.opt.updatetime = 250
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 vim.opt.inccommand = "split" -- prev live substitutions
-vim.opt.cursorline = true -- highlight line cursor is on
+vim.opt.cursorline = true    -- highlight line cursor is on
 vim.opt.scrolloff = 6        -- no scroll past num lines
 vim.opt.hlsearch = true      -- ESC to clear
 
@@ -245,8 +245,8 @@ now(function()
       end,
     },
   })
-  vim.keymap.set("n", "<leader><leader>", "<cmd>Pick files<cr>", { desc = "files" })
-  vim.keymap.set("n", "<leader>f", "<cmd>Pick resume<cr>", { desc = "resume" })
+  vim.keymap.set("n", "<leader>f", "<cmd>Pick files<cr>", { desc = "files" })
+  vim.keymap.set("n", "<leader>o", "<cmd>Pick resume<cr>", { desc = "resume" })
   vim.keymap.set("n", "<leader>/", "<cmd>Pick grep_live<cr>", { desc = "grep live" })
   vim.keymap.set("n", "<leader>'", "<cmd>Pick grep pattern='<cword>'<cr>", { desc = "grep word" })
   vim.keymap.set("n", "<leader>?", "<cmd>Pick help<cr>", { desc = "help" })
@@ -302,15 +302,6 @@ later(function() require('mini.diff').setup() end)
 later(function() require('mini.extra').setup() end)
 
 later(function()
-  require('mini.completion').setup({
-    delay = { completion = 500, info = 500, signature = 800 },
-    lsp_completion = { source_func = 'completefunc' }
-  })
-  vim.keymap.set('i', "<C-e>", [[pumvisible() ? "\<C-p>" : "\<C-e>"]], { expr = true })
-  vim.keymap.set('i', "<C-p>", [[pumvisible() ? "\<C-e>" : "\<C-p>"]], { expr = true })
-end)
-
-later(function()
   add({ source = "mbbill/undotree" })
   vim.g.undotree_SetFocusWhenToggle = 1
   vim.keymap.set("n", "<leader>u", "<cmd>UndotreeToggle<cr>", { desc = "undotree" })
@@ -353,7 +344,7 @@ later(function()
       "williamboman/mason.nvim",
       "williamboman/mason-lspconfig.nvim",
       "WhoIsSethDaniel/mason-tool-installer.nvim",
-      "folke/neodev.nvim",
+      "hrsh7th/cmp-nvim-lsp",
     },
   })
   vim.api.nvim_create_autocmd("LspAttach", {
@@ -374,7 +365,7 @@ later(function()
   })
 
   local capabilities = vim.lsp.protocol.make_client_capabilities()
-  capabilities = vim.tbl_extend("force", capabilities, require("mini.completion").completefunc_lsp())
+  capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
   local servers = {
     lua_ls = {
@@ -408,6 +399,79 @@ later(function()
         require("lspconfig")[server_name].setup(server)
       end,
     },
+  })
+end)
+
+later(function()
+  add({
+    source = "hrsh7th/nvim-cmp",
+    depends = {
+      "hrsh7th/cmp-path",
+      "hrsh7th/cmp-cmdline",
+      "hrsh7th/cmp-buffer",
+    }
+  })
+  local cmp = require("cmp")
+  cmp.setup({
+    snippet = {},
+    completion = { completeopt = "menu,menuone,noinsert" },
+    performance = { debounce = 500, throttle = 300 },
+    mapping = cmp.mapping.preset.insert({
+      ["<C-n>"] = cmp.mapping.select_next_item(),
+      ["<C-e>"] = cmp.mapping.select_prev_item(),
+      ["<C-d>"] = cmp.mapping.scroll_docs(-4),
+      ["<C-u>"] = cmp.mapping.scroll_docs(4),
+      ["<C-y>"] = cmp.mapping.confirm({ select = true }),
+      ["<C-t>"] = cmp.mapping.complete({}),
+    }),
+    sources = cmp.config.sources({
+      { name = "nvim_lsp" },
+    }, {
+      { name = "buffer" },
+      { name = "path" },
+    })
+  })
+  -- disable completion in comments
+  cmp.setup({
+    enabled = function()
+      local context = require 'cmp.config.context'
+      if vim.api.nvim_get_mode().mode == 'c' then
+        return true
+      else
+        return not context.in_treesitter_capture("comment")
+            and not context.in_syntax_group("Comment")
+      end
+    end
+  })
+  local cmdlineMap = {
+      ['<C-n>'] = {
+        c = function(_)
+          if cmp.visible() then
+            cmp.select_next_item()
+          end
+        end,
+      },
+      ["<C-e>"] = {
+        c = function(_)
+          if cmp.visible() then
+            cmp.select_prev_item()
+          end
+        end,
+      },
+    }
+  cmp.setup.cmdline({ '/', '?' }, {
+    mapping = cmdlineMap,
+    sources = {
+      { name = 'buffer' }
+    },
+  })
+  cmp.setup.cmdline(':', {
+    mapping = cmdlineMap,
+    sources = cmp.config.sources({
+      { name = 'path' }
+    }, {
+      { name = 'cmdline' }
+    }),
   })
 end)
 
