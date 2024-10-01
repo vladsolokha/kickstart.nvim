@@ -1,4 +1,4 @@
-br><br>Added and removed plugins, files, and directories to make it my own configuration 
+<br>Added and removed plugins, files, and directories to make it my own configuration 
 <br>so I can use as my daily driver. 
 <br><br>
 requires these installations:
