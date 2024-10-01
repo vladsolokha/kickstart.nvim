@@ -303,7 +303,7 @@ later(function() require('mini.extra').setup() end)
 later(function()
   local mg = require('mini.git')
   mg.setup({ command = { split = 'vertical' } })
-  local gs = '<Cmd>vert lua MiniGit.show_at_cursor()<CR>'
+  local gs = '<Cmd>lua  MiniGit.show_at_cursor({split = "vertical"})<CR>'
   vim.keymap.set({ 'n', 'x' }, '<Leader>gs', gs, { desc = 'Show at cursor' })
   vim.keymap.set({ 'n', 'x' }, '<Leader>gd', '<cmd>vert Git diff<cr>', { desc = 'Gvdiff' })
   vim.keymap.set({ 'n', 'x' }, '<Leader>gg', '<cmd>sp Git status<cr>', { desc = 'status' })
