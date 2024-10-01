@@ -301,35 +301,12 @@ later(function() require('mini.diff').setup() end)
 later(function() require('mini.extra').setup() end)
 
 later(function()
-  local mg = require('mini.git')
-  mg.setup({ command = { split = 'vertical' } })
-  local gs = '<Cmd>lua  MiniGit.show_at_cursor({split = "vertical"})<CR>'
-  vim.keymap.set({ 'n', 'x' }, '<Leader>gs', gs, { desc = 'Show at cursor' })
-  vim.keymap.set({ 'n', 'x' }, '<Leader>gd', '<cmd>vert Git diff<cr>', { desc = 'Gvdiff' })
-  vim.keymap.set({ 'n', 'x' }, '<Leader>gg', '<cmd>sp Git status<cr>', { desc = 'status' })
-  vim.keymap.set({ 'n', 'x' }, '<Leader>g.', '<cmd>Git add .<cr>', { desc = 'add .' })
-  vim.keymap.set({ 'n', 'x' }, '<Leader>ga', '<cmd>Git add %<cr>', { desc = 'add %' })
-  vim.keymap.set({ 'n', 'x' }, '<Leader>gc', '<cmd>Git commit<cr>', { desc = 'commit' })
-  vim.keymap.set({ 'n', 'x' }, '<Leader>gm', '<cmd>Git commit --amend<cr>', { desc = 'amend' })
-  vim.keymap.set({ 'n', 'x' }, '<Leader>gr', '<cmd>Git review<cr>', { desc = 'review' })
-  vim.keymap.set({ 'n', 'x' }, '<Leader>gp', '<cmd>Git pull<cr>', { desc = 'pull' })
-  -- align blame
-  local align_blame = function(au_data)
-    if au_data.data.git_subcommand ~= 'blame' then return end
-
-    -- Align blame output with source
-    local win_src = au_data.data.win_source
-    vim.wo.wrap = false
-    vim.fn.winrestview({ topline = vim.fn.line('w0', win_src) })
-    vim.api.nvim_win_set_cursor(0, { vim.fn.line('.', win_src), 0 })
-
-    -- Bind both windows so that they scroll together
-    vim.wo[win_src].scrollbind, vim.wo.scrollbind = true, true
-  end
-
-  local au_opts = { pattern = 'MiniGitCommandSplit', callback = align_blame }
-  vim.api.nvim_create_autocmd('User', au_opts)
-  vim.keymap.set({ 'n', 'x' }, '<Leader>gb', '<cmd>vert Git blame -- %<cr>', { desc = 'blame' })
+  add({ source = 'tpope/vim-fugitive' })
+  vim.keymap.set('n', '<Leader>gg', '<cmd>vert G<cr>', { desc = 'fugitive' })
+  vim.keymap.set('n', '<Leader>gb', '<cmd>Git blame<cr>', { desc = 'blame' })
+  vim.keymap.set('n', '<Leader>gv', '<cmd>Gvdiffsplit<cr>', { desc = 'v diff' })
+  vim.keymap.set('n', '<Leader>gl', '<cmd>vert G log<cr>', { desc = 'log' })
+  vim.keymap.set('n', '<Leader>gs', '<cmd>Gclog<cr>', { desc = 'c log' })
 end)
 
 later(function()
@@ -397,6 +374,7 @@ later(function()
 
   local capabilities = vim.lsp.protocol.make_client_capabilities()
   capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
+  capabilities.textDocument.completion.completionItem.snippetSupport = false
 
   local servers = {
     lua_ls = {
@@ -444,7 +422,6 @@ later(function()
   })
   local cmp = require("cmp")
   cmp.setup({
-    snippet = {},
     completion = { completeopt = "menu,menuone,noinsert" },
     performance = { debounce = 500, throttle = 300 },
     mapping = cmp.mapping.preset.insert({
@@ -486,6 +463,13 @@ later(function()
       c = function(_)
         if cmp.visible() then
           cmp.select_prev_item()
+        end
+      end,
+    },
+    ["<C-y>"] = {
+      c = function(_)
+        if cmp.visible() then
+          cmp.confirm({select = true })
         end
       end,
     },
