@@ -94,8 +94,8 @@ end, { desc = "diag toggle", silent = false })
 -- window movements
 vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "left win" })
 vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "right win" })
-vim.keymap.set("n", "<C-n>", "<C-w><C-j>", { desc = "lower win" })
-vim.keymap.set("n", "<C-e>", "<C-w><C-k>", { desc = "upper win" })
+vim.keymap.set("n", "<leader>wn", "<C-w><C-j>", { desc = "win down" })
+vim.keymap.set("n", "<leader>we", "<C-w><C-k>", { desc = "win up" })
 -- window resizing
 vim.keymap.set("n", "<A-t>", "<cmd>horizontal resize +8<cr>") -- win taller
 vim.keymap.set("n", "<A-s>", "<cmd>horizontal resize -8<cr>") -- win shorter
@@ -113,9 +113,9 @@ vim.keymap.set({"x","v"}, ">", ">gv")
 vim.keymap.set({"x","v"}, "<", "<gv")
 -- keep c-i separate from tab keys
 vim.keymap.set("n", "<c-i>", "<c-i>")
--- center cursor when jump scrolling
--- vim.keymap.set("n", "<C-u>", "<C-u>zz")
--- vim.keymap.set("n", "<C-d>", "<C-d>zz")
+-- half page scroll with c-n and c-e
+vim.keymap.set("n", "<C-n>", "<C-d>")
+vim.keymap.set("n", "<C-e>", "<C-u>")
 -- other shortcuts and pet peves
 vim.keymap.set("v", "y", "ygv<esc>")        -- keep cursor when yanking
 vim.keymap.set("n", "<leader>p", 'diw"0P', { desc = "stamp" })
@@ -132,8 +132,8 @@ vim.keymap.set(
   { desc = "word rename" }
 )
 -- go into Explore files mode netrw
-vim.keymap.set("n", "<leader>e", "<cmd>Ex %:p:h<Cr>", { desc = "ex this file dir" })
-vim.keymap.set("n", "<leader>E", "<cmd>Ex<Cr>", { desc = "ex pwd" })
+vim.keymap.set("n", "-", "<cmd>Ex %:p:h<Cr>", { desc = "ex this file dir" })
+vim.keymap.set("n", "_", "<cmd>Ex<Cr>", { desc = "ex pwd" })
 -- select all using typecal ctrl-a keymap keys press
 vim.keymap.set("n", "<leader>a", "ggVG", { desc = "sel all" })
 
@@ -172,11 +172,10 @@ vim.api.nvim_create_autocmd('filetype', {
     local bind = function(lhs, rhs)
       vim.keymap.set('n', lhs, rhs, { remap = true, buffer = true })
     end
-    bind('n', '%')          -- edit new file
     bind('r', 'R')          -- rename file
     bind('P', '<C-w>z')     -- no preview
     bind('.', 'gh')         -- show hide dotfiles
-    bind('<Left>', '-^')    -- move up directory
+    bind('<Left>', '-')    -- move up directory
     bind('<Right>', '<CR>') -- open file | dir
   end
 })
@@ -272,7 +271,7 @@ now(function()
       right = { enabled = false },
     },
   })
-  vim.keymap.set("n", "<leader>n", "<cmd>NoNeckPain<CR>", { silent = true, desc = "neck pain" })
+  vim.keymap.set("n", "<leader>k", "<cmd>NoNeckPain<CR>", { silent = true, desc = "neck pain" })
 end)
 
 now(function()
@@ -293,10 +292,9 @@ now(function()
   vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end, { desc = "add" })
   vim.keymap.set("n", "<leader>he", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
     { desc = "edit" })
-  vim.keymap.set("n", "<C-3>", function() harpoon:list():select(1) end)
-  vim.keymap.set("n", "<C-4>", function() harpoon:list():select(2) end)
-  vim.keymap.set("n", "<C-5>", function() harpoon:list():select(3) end)
-  vim.keymap.set("n", "<c-0>", function() harpoon:list():select(4) end)
+  vim.keymap.set("n", "<leader>n", function() harpoon:list():select(1) end)
+  vim.keymap.set("n", "<leader>e", function() harpoon:list():select(2) end)
+  vim.keymap.set("n", "<leaedr>i", function() harpoon:list():select(3) end)
 end)
 
 -- [[ later plugins ]]
