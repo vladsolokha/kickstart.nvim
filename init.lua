@@ -3,7 +3,7 @@ vim.g.maplocalleader = " "
 vim.g.have_nerd_font = true
 vim.g.netrw_keepdir = 0
 vim.g.netrw_banner = 0 -- use I inside to show banner
-vim.g.netrw_localcopydircmd = 'cp -r'
+
 -- cursor options
 vim.cmd('hi iCursor gui=NONE guibg=Red guifg=NONE')
 vim.cmd('hi defCursor gui=NONE guibg=White guifg=Black')
@@ -111,11 +111,11 @@ vim.keymap.set("n", "<c-i>", "<c-i>")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
 -- other shortcuts and pet peves
--- vim.keymap.set("v", "y", "ygv<esc>")        -- keep cursor when yanking
+vim.keymap.set("v", "y", "ygv<esc>")        -- keep cursor when yanking
 vim.keymap.set("n", "<leader>p", 'diw"0P', { desc = "stamp" })
 vim.keymap.set("n", "J", "mzJ`z")           -- keep cursor when joining lines
 vim.keymap.set({ "x", "v" }, "p", [["_dP]]) -- put word without yanking replaced
--- vim.keymap.set("n", "Y", "Yg$")             -- go to end when yank whole line
+vim.keymap.set("n", "Y", "Yg$")             -- go to end when yank whole line
 vim.keymap.set("n", "<leader>y", "<cmd>let @+=expand('%')<cr>", { desc = "copy path" })
 vim.keymap.set("n", "<leader>Y", "<cmd>let @+=expand('%:p')<cr>", { desc = "full path" })
 -- replace word under cursor interactively
@@ -288,10 +288,10 @@ now(function()
   vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end, { desc = "add" })
   vim.keymap.set("n", "<leader>he", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
     { desc = "edit" })
-  vim.keymap.set("n", "<C-n>", function() harpoon:list():select(1) end)
-  vim.keymap.set("n", "<C-e>", function() harpoon:list():select(2) end)
-  vim.keymap.set("n", "<C-y>", function() harpoon:list():select(3) end)
-  vim.keymap.set("n", "<c-t>", function() harpoon:list():select(4) end)
+  vim.keymap.set("n", "<C-3>", function() harpoon:list():select(1) end)
+  vim.keymap.set("n", "<C-4>", function() harpoon:list():select(2) end)
+  vim.keymap.set("n", "<C-5>", function() harpoon:list():select(3) end)
+  vim.keymap.set("n", "<c-0>", function() harpoon:list():select(4) end)
 end)
 
 -- [[ later plugins ]]
