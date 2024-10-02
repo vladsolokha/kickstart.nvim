@@ -9,10 +9,7 @@ vim.cmd('hi iCursor gui=NONE guibg=Red guifg=NONE')
 vim.cmd('hi defCursor gui=NONE guibg=White guifg=Black')
 vim.cmd('hi visCursor gui=NONE guibg=Green guifg=Yellow')
 vim.opt.guicursor = "a:blinkon0-defCursor,i-r:iCursor,v-ve:visCursor"
-vim.opt.termguicolors = true
-vim.opt.showmode = false
-vim.opt.fillchars = { eob = " " }
-vim.opt.laststatus = 3      -- always show status at bottom
+
 local function git_branch() -- show git branch in status
   local branch = vim.fn.system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
   if string.len(branch) > 0 then
@@ -45,6 +42,10 @@ local function statusline()
   )
 end
 
+vim.opt.termguicolors = true
+vim.opt.showmode = false
+vim.opt.fillchars = { eob = " " }
+vim.opt.laststatus = 3      -- always show status at bottom
 vim.opt.number = true
 vim.opt.termguicolors = true
 vim.opt.showmode = false          -- no INSERT, VISUAL, ..
@@ -85,31 +86,36 @@ vim.keymap.set({ "n", "i", "v", "x" }, "<C-s>", "<Esc><cmd>w<cr>")
 vim.keymap.set("n", "<leader>q", "<cmd>quitall!<cr>", { desc = "quit" })
 vim.keymap.set("n", "<leader>x", "<C-w>q", { desc = "win close" })
 -- diagnostic keymaps
-vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "prev diag" })
-vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next diag" })
+vim.keymap.set("n", "[<Up>", vim.diagnostic.goto_prev, { desc = "prev diag" })
+vim.keymap.set("n", "]<Up>", vim.diagnostic.goto_next, { desc = "next diag" })
 vim.keymap.set('n', '<leader>d', function()
   vim.diagnostic.enable(not vim.diagnostic.is_enabled())
 end, { desc = "diag toggle", silent = false })
 -- window movements
 vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "left win" })
 vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "right win" })
-vim.keymap.set("n", "<C-k>", "<C-w><C-j>", { desc = "lower win" })
-vim.keymap.set("n", "<C-j>", "<C-w><C-k>", { desc = "upper win" })
+vim.keymap.set("n", "<C-n>", "<C-w><C-j>", { desc = "lower win" })
+vim.keymap.set("n", "<C-e>", "<C-w><C-k>", { desc = "upper win" })
+-- window resizing
+vim.keymap.set("n", "<A-t>", "<cmd>horizontal resize +8<cr>") -- win taller
+vim.keymap.set("n", "<A-s>", "<cmd>horizontal resize -8<cr>") -- win shorter
+vim.keymap.set("n", "<A-.>", "<cmd>vert resize +8<cr>") -- win wider 
+vim.keymap.set("n", "<A-,>", "<cmd>vert resize -8<cr>") -- win narrower
 -- move lines up or down, Alt-Up/Down
-vim.keymap.set("n", "<A-Down>", "<cmd>m .+1<cr>==")
-vim.keymap.set("n", "<A-Up>", "<cmd>m .-2<cr>==")
-vim.keymap.set("i", "<A-Down>", "<Esc><cmd>m .+1<cr>==gi")
-vim.keymap.set("i", "<A-Up>", "<Esc><cmd>m .-2<cr>==gi")
-vim.keymap.set("v", "<A-Down>", ":m '>+1<CR>gv=gv")
-vim.keymap.set("v", "<A-Up>", ":m '<-2<CR>gv=gv")
--- indent/dedent with Tab in visual mode
-vim.keymap.set("v", "<Tab>", ">gv")
-vim.keymap.set("v", "<S-Tab>", "<gv")
+vim.keymap.set("n", "<A-n>", "<cmd>m .+1<cr>==")
+vim.keymap.set("n", "<A-e>", "<cmd>m .-2<cr>==")
+vim.keymap.set("i", "<A-n>", "<Esc><cmd>m .+1<cr>==gi")
+vim.keymap.set("i", "<A-e>", "<Esc><cmd>m .-2<cr>==gi")
+vim.keymap.set("v", "<A-n>", ":m '>+1<CR>gv=gv")
+vim.keymap.set("v", "<A-e>", ":m '<-2<CR>gv=gv")
+-- indent/dedent
+vim.keymap.set({"x","v"}, ">", ">gv")
+vim.keymap.set({"x","v"}, "<", "<gv")
 -- keep c-i separate from tab keys
 vim.keymap.set("n", "<c-i>", "<c-i>")
 -- center cursor when jump scrolling
-vim.keymap.set("n", "<C-u>", "<C-u>zz")
-vim.keymap.set("n", "<C-d>", "<C-d>zz")
+-- vim.keymap.set("n", "<C-u>", "<C-u>zz")
+-- vim.keymap.set("n", "<C-d>", "<C-d>zz")
 -- other shortcuts and pet peves
 vim.keymap.set("v", "y", "ygv<esc>")        -- keep cursor when yanking
 vim.keymap.set("n", "<leader>p", 'diw"0P', { desc = "stamp" })
@@ -284,7 +290,6 @@ now(function()
       sync_on_ui_close = true,
     }
   })
-
   vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end, { desc = "add" })
   vim.keymap.set("n", "<leader>he", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
     { desc = "edit" })
