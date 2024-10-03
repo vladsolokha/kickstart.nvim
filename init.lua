@@ -20,13 +20,13 @@ local function git_branch() -- show git branch in status
 end
 local function statusline()
   local branch = git_branch()
-	local astring = "%F  %m%h%r %y %=%l/%L  c%c  %p%%"
+  local astring = "%F  %m%h%r %y %=%l/%L  c%c  %p%%"
   return string.format(
     "  (%s)  %s  ", branch, astring)
 end
 
 vim.opt.statusline = statusline()
-vim.opt.laststatus = 3      -- always show status at bottom
+vim.opt.laststatus = 3 -- always show status at bottom
 vim.opt.number = true
 vim.opt.termguicolors = true
 vim.opt.showmode = false          -- no INSERT, VISUAL, ..
@@ -56,12 +56,15 @@ vim.opt.scrolloff = 6        -- no scroll past num lines
 vim.opt.hlsearch = true      -- ESC to clear
 
 -- [[ keymaps ]]
-vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "rm search hi" }) -- clear search highlight
-vim.keymap.set("n", "<leader>,", "<cmd>edit ~/.config/nvim/init.lua<cr>", { desc = "edit nvim" })
+vim.keymap.set( -- replace word under cursor interactively
+  "n",
+  "<leader>r",
+  [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
+  { desc = "word rename" }
+)
 -- better move around wrapped lines
 vim.keymap.set({ "n", "v" }, "<Up>", [[v:count == 0 ? 'gk' : 'k']], { expr = true, silent = true })
 vim.keymap.set({ "n", "v" }, "<Down>", [[v:count == 0 ? 'gj' : 'j']], { expr = true, silent = true })
--- save in any mode
 vim.keymap.set({ "n", "i", "v", "x" }, "<C-s>", "<Esc><cmd>w<cr>", { desc = "save" })
 vim.keymap.set("n", "<leader>q", "<cmd>quitall!<cr>", { desc = "quit" })
 vim.keymap.set("n", "<leader>x", "<C-w>q", { desc = "win close" })
@@ -88,36 +91,28 @@ vim.keymap.set("i", "<A-n>", "<Esc><cmd>m .+1<cr>==gi", { desc = "move code down
 vim.keymap.set("i", "<A-e>", "<Esc><cmd>m .-2<cr>==gi", { desc = "move code up" })
 vim.keymap.set("v", "<A-n>", ":m '>+1<CR>gv=gv", { desc = "move code down" })
 vim.keymap.set("v", "<A-e>", ":m '<-2<CR>gv=gv", { desc = "move code up" })
--- indent/dedent
-vim.keymap.set({"x","v"}, ">", ">gv", { desc = "indent and hi" })
-vim.keymap.set({"x","v"}, "<", "<gv", { desc = "dedent and hi" })
--- keep c-i separate from tab keys
-vim.keymap.set("n", "<c-i>", "<c-i>", { desc = "keep ctrl i" })
--- half page scroll with c-n and c-e
-vim.keymap.set("n", "<C-n>", "<C-d>", { desc = "ctrl-n is also scroll half down" })
--- other shortcuts and pet peves
-vim.keymap.set("v", "y", "ygv<esc>", { desc = "yank and hi" })
-vim.keymap.set("n", "<leader>p", 'diw"0P', { desc = "stamp" })
-vim.keymap.set("n", "J", "mzJ`z", { desc = "join but no move cursor" })
-vim.keymap.set({ "x", "v" }, "p", [["_dP]], { desc = "visual mode no yank after put" })
-vim.keymap.set("n", "Y", "Yg$", { desc = "Y yanks to eol" })
-vim.keymap.set("n", "<leader>y", "<cmd>let @+=expand('%')<cr>", { desc = "copy file path" })
-vim.keymap.set("n", "<leader>Y", "<cmd>let @+=expand('%:p')<cr>", { desc = "copy full file path" })
--- replace word under cursor interactively
-vim.keymap.set(
-  "n",
-  "<leader>r",
-  [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
-  { desc = "word rename" }
-)
+-- better indent/dedent
+vim.keymap.set({ "x", "v" }, ">", ">gv", { desc = "indent and hi" })
+vim.keymap.set({ "x", "v" }, "<", "<gv", { desc = "dedent and hi" })
 -- go into Explore files mode netrw
 vim.keymap.set("n", "-", "<cmd>Ex %:p:h<Cr>", { desc = "ex this file dir" })
 vim.keymap.set("n", "_", "<cmd>Ex<Cr>", { desc = "ex pwd" })
--- select all using typecal ctrl-a keymap keys press
 vim.keymap.set("n", "<leader>a", "ggVG", { desc = "sel all" })
-
+-- better c qfix list keys
 vim.keymap.set("n", "]<Down>", "<cmd>cn<cr>", { desc = "c next qfix" })
 vim.keymap.set("n", "[<Down>", "<cmd>cp<cr>", { desc = "c prev qfix" })
+-- other shortcuts and pet peves
+vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "rm search hi" })
+vim.keymap.set("n", "<c-i>", "<c-i>", { desc = "keep ctrl i" })
+vim.keymap.set("n", "<C-n>", "<C-d>", { desc = "ctrl-n is also scroll half down" })
+vim.keymap.set("v", "y", "ygv<esc>", { desc = "yank and hi" })
+vim.keymap.set("n", "Y", "Yg$", { desc = "Y yanks to eol" })
+vim.keymap.set({ "x", "v" }, "p", [["_dP]], { desc = "visual mode no yank after put" })
+vim.keymap.set("n", "J", "mzJ`z", { desc = "join but no move cursor" })
+vim.keymap.set("n", "<leader>p", 'diw"0P', { desc = "stamp" })
+vim.keymap.set("n", "<leader>y", "<cmd>let @+=expand('%')<cr>", { desc = "copy file path" })
+vim.keymap.set("n", "<leader>Y", "<cmd>let @+=expand('%:p')<cr>", { desc = "copy full file path" })
+vim.keymap.set("n", "<leader>,", "<cmd>edit ~/.config/nvim/init.lua<cr>", { desc = "edit nvim" })
 
 -- [[ auto commands ]] - event functions - autocommands
 -- functions that run on some event
@@ -154,7 +149,7 @@ vim.api.nvim_create_autocmd('filetype', {
     bind('r', 'R')          -- rename file
     bind('P', '<C-w>z')     -- no preview
     bind('.', 'gh')         -- show hide dotfiles
-    bind('<Left>', '-')    -- move up directory
+    bind('<Left>', '-')     -- move up directory
     bind('<Right>', '<CR>') -- open file | dir
   end
 })
@@ -178,7 +173,7 @@ deps.setup({ path = { package = path_package } })
 local add, now, later = deps.add, deps.now, deps.later
 
 -- [[ now plugins ]]
-now(function()
+now(function() -- colorscheme
   add({
     source = "rose-pine/neovim",
     name = "rose-pine",
@@ -189,11 +184,10 @@ now(function()
   vim.cmd("colorscheme rose-pine")
 end)
 
-now(function()
+now(function() -- mini version of Telescope.nvim
   local pick = require("mini.pick")
   pick.setup({
     mappings = {
-      paste             = '<C-r>"',
       scroll_down       = '<C-d>',
       scroll_up         = '<C-u>',
       move_up           = '<C-e>',
@@ -236,7 +230,7 @@ now(function()
   vim.keymap.set("n", [[<leader>"]], "<cmd>Pick registers<cr>", { desc = "registers" })
 end)
 
-now(function()
+now(function() -- extra buff on left for padding code to middle of screen
   add({ source = "shortcuts/no-neck-pain.nvim" })
   require("no-neck-pain").setup({
     minSideBufferWidth = math.floor(0.2 * vim.o.columns),
@@ -254,7 +248,7 @@ now(function()
   vim.keymap.set("n", "<leader>k", "<cmd>NoNeckPain<CR>", { silent = true, desc = "neck pain" })
 end)
 
-now(function()
+now(function() -- jump to buffers fast
   add({
     source = "ThePrimeagen/harpoon",
     name = "harpoon",
@@ -278,12 +272,11 @@ now(function()
 end)
 
 -- [[ later plugins ]]
--- undo and redo visually
-later(function() require("mini.ai").setup() end)
-later(function() require('mini.diff').setup() end)
-later(function() require('mini.extra').setup() end)
+later(function() require("mini.ai").setup() end)    -- extra text objects for around/in
+later(function() require('mini.diff').setup() end)  -- jump to hunks and see code changes on numbers
+later(function() require('mini.extra').setup() end) -- extra Pickers for Pick; explore, registers, buf_lines
 
-later(function()
+later(function()                                    -- git client, great features, blame, diff, log
   add({ source = 'tpope/vim-fugitive' })
   vim.keymap.set('n', '<Leader>gg', '<cmd>vert G<cr>', { desc = 'fugitive' })
   vim.keymap.set('n', '<Leader>gb', '<cmd>Git blame<cr>', { desc = 'blame' })
@@ -292,16 +285,15 @@ later(function()
   vim.keymap.set('n', '<Leader>gs', '<cmd>Gclog<cr>', { desc = 'c log' })
 end)
 
-later(function()
+later(function() -- visualize undo in tree
   add({ source = "mbbill/undotree" })
   vim.g.undotree_SetFocusWhenToggle = 1
   vim.keymap.set("n", "<leader>u", "<cmd>UndotreeToggle<cr>", { desc = "undotree" })
 end)
 
-later(function()
-  add({ -- syntax highlight
+later(function() -- syntax highlight
+  add({
     source = 'nvim-treesitter/nvim-treesitter',
-    -- Perform action after every checkout
     hooks = { post_checkout = function() vim.cmd('TSUpdate') end },
   })
   ---@diagnostic disable-next-line: missing-fields
@@ -313,12 +305,10 @@ later(function()
   })
 end)
 
--- function, conditional context top of screen
-later(function()
+later(function() -- function, conditional context top of screen
   add({ source = "nvim-treesitter/nvim-treesitter-context" })
   require 'treesitter-context'.setup {
-    max_lines = 8,           -- How many lines the window should span. Values <= 0 mean no limit.
-    multiline_threshold = 8, -- Maximum number of lines to show for a single context
+    max_lines = 8, multiline_threshold = 8,
   }
   vim.keymap.set("n", "<leader>C", "<cmd>TSContextToggle<CR>", { desc = "tog context" })
   vim.keymap.set("n", "<leader>c", function()
@@ -326,8 +316,7 @@ later(function()
   end, { desc = "go to context", silent = true })
 end)
 
--- LSP Configuration & Plugins
-later(function()
+later(function() -- LSP Configuration & Plugins
   add({
     source = "neovim/nvim-lspconfig",
     name = "lspconfig",
@@ -377,11 +366,9 @@ later(function()
     },
   }
 
-  require("mason").setup() -- :Mason
+  require("mason").setup()
   local ensure_installed = vim.tbl_keys(servers or {})
-  vim.list_extend(ensure_installed, {
-    "stylua", -- Used to format Lua code
-  })
+  vim.list_extend(ensure_installed, { "stylua", })
   require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
   require("mason-lspconfig").setup({
     handlers = {
@@ -394,7 +381,7 @@ later(function()
   })
 end)
 
-later(function()
+later(function() -- autocomplete in code, cmd, and search
   add({
     source = "hrsh7th/nvim-cmp",
     depends = {
@@ -452,7 +439,7 @@ later(function()
     ["<C-y>"] = {
       c = function(_)
         if cmp.visible() then
-          cmp.confirm({select = true })
+          cmp.confirm({ select = true })
         end
       end,
     },
