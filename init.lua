@@ -20,9 +20,9 @@ local function git_branch() -- show git branch in status
 end
 local function statusline()
   local branch = git_branch()
+	local astring = "%F  %m%h%r %y %=%l/%L  c%c  %p%%"
   return string.format(
-    "  (%s)  %F  %m%h%r %y %=%l/%L  c%c  %p%%  ", branch
-  )
+    "  (%s)  %s  ", branch, astring)
 end
 
 vim.opt.statusline = statusline()
@@ -193,6 +193,7 @@ now(function()
   local pick = require("mini.pick")
   pick.setup({
     mappings = {
+      paste             = '<C-r>"',
       scroll_down       = '<C-d>',
       scroll_up         = '<C-u>',
       move_up           = '<C-e>',
