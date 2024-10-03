@@ -76,13 +76,13 @@ vim.opt.scrolloff = 6        -- no scroll past num lines
 vim.opt.hlsearch = true      -- ESC to clear
 
 -- [[ keymaps ]]
-vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>") -- clear search highlight
+vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "rm search hi" }) -- clear search highlight
 vim.keymap.set("n", "<leader>,", "<cmd>edit ~/.config/nvim/init.lua<cr>", { desc = "edit nvim" })
 -- better move around wrapped lines
 vim.keymap.set({ "n", "v" }, "<Up>", [[v:count == 0 ? 'gk' : 'k']], { expr = true, silent = true })
 vim.keymap.set({ "n", "v" }, "<Down>", [[v:count == 0 ? 'gj' : 'j']], { expr = true, silent = true })
 -- save in any mode
-vim.keymap.set({ "n", "i", "v", "x" }, "<C-s>", "<Esc><cmd>w<cr>")
+vim.keymap.set({ "n", "i", "v", "x" }, "<C-s>", "<Esc><cmd>w<cr>", { desc = "save" })
 vim.keymap.set("n", "<leader>q", "<cmd>quitall!<cr>", { desc = "quit" })
 vim.keymap.set("n", "<leader>x", "<C-w>q", { desc = "win close" })
 -- diagnostic keymaps
@@ -94,36 +94,36 @@ end, { desc = "diag toggle", silent = false })
 -- window movements
 vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "left win" })
 vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "right win" })
-vim.keymap.set("n", "<leader>wn", "<C-w><C-j>", { desc = "win down" })
-vim.keymap.set("n", "<leader>we", "<C-w><C-k>", { desc = "win up" })
+vim.keymap.set("n", "<leader>wn", "<C-w><C-j>", { desc = "bot win" })
+vim.keymap.set("n", "<leader>we", "<C-w><C-k>", { desc = "top win" })
 -- window resizing
-vim.keymap.set("n", "<A-t>", "<cmd>horizontal resize +8<cr>") -- win taller
-vim.keymap.set("n", "<A-s>", "<cmd>horizontal resize -8<cr>") -- win shorter
-vim.keymap.set("n", "<A-.>", "<cmd>vert resize +8<cr>") -- win wider 
-vim.keymap.set("n", "<A-,>", "<cmd>vert resize -8<cr>") -- win narrower
+vim.keymap.set("n", "<A-t>", "<cmd>horizontal resize +8<cr>", { desc = "win taller" })
+vim.keymap.set("n", "<A-s>", "<cmd>horizontal resize -8<cr>", { desc = "win shorter" })
+vim.keymap.set("n", "<A-.>", "<cmd>vert resize +8<cr>", { desc = "win wider" })
+vim.keymap.set("n", "<A-,>", "<cmd>vert resize -8<cr>", { desc = "win narrower" })
 -- move lines up or down, Alt-Up/Down
-vim.keymap.set("n", "<A-n>", "<cmd>m .+1<cr>==")
-vim.keymap.set("n", "<A-e>", "<cmd>m .-2<cr>==")
-vim.keymap.set("i", "<A-n>", "<Esc><cmd>m .+1<cr>==gi")
-vim.keymap.set("i", "<A-e>", "<Esc><cmd>m .-2<cr>==gi")
-vim.keymap.set("v", "<A-n>", ":m '>+1<CR>gv=gv")
-vim.keymap.set("v", "<A-e>", ":m '<-2<CR>gv=gv")
+vim.keymap.set("n", "<A-n>", "<cmd>m .+1<cr>==", { desc = "move code down" })
+vim.keymap.set("n", "<A-e>", "<cmd>m .-2<cr>==", { desc = "move code up" })
+vim.keymap.set("i", "<A-n>", "<Esc><cmd>m .+1<cr>==gi", { desc = "move code down" })
+vim.keymap.set("i", "<A-e>", "<Esc><cmd>m .-2<cr>==gi", { desc = "move code up" })
+vim.keymap.set("v", "<A-n>", ":m '>+1<CR>gv=gv", { desc = "move code down" })
+vim.keymap.set("v", "<A-e>", ":m '<-2<CR>gv=gv", { desc = "move code up" })
 -- indent/dedent
-vim.keymap.set({"x","v"}, ">", ">gv")
-vim.keymap.set({"x","v"}, "<", "<gv")
+vim.keymap.set({"x","v"}, ">", ">gv", { desc = "indent and hi" })
+vim.keymap.set({"x","v"}, "<", "<gv", { desc = "dedent and hi" })
 -- keep c-i separate from tab keys
-vim.keymap.set("n", "<c-i>", "<c-i>")
+vim.keymap.set("n", "<c-i>", "<c-i>", { desc = "keep ctrl i" })
 -- half page scroll with c-n and c-e
-vim.keymap.set("n", "<C-n>", "<C-d>")
-vim.keymap.set("n", "<C-e>", "<C-u>")
+vim.keymap.set("n", "<C-n>", "<C-d>", { desc = "ctrl-n is also scroll half down" })
+vim.keymap.set("n", "<C-e>", "<C-u>", { desc = "ctrl-e is also scroll half up" })
 -- other shortcuts and pet peves
-vim.keymap.set("v", "y", "ygv<esc>")        -- keep cursor when yanking
+vim.keymap.set("v", "y", "ygv<esc>", { desc = "yank and hi" })
 vim.keymap.set("n", "<leader>p", 'diw"0P', { desc = "stamp" })
-vim.keymap.set("n", "J", "mzJ`z")           -- keep cursor when joining lines
-vim.keymap.set({ "x", "v" }, "p", [["_dP]]) -- put word without yanking replaced
-vim.keymap.set("n", "Y", "Yg$")             -- go to end when yank whole line
-vim.keymap.set("n", "<leader>y", "<cmd>let @+=expand('%')<cr>", { desc = "copy path" })
-vim.keymap.set("n", "<leader>Y", "<cmd>let @+=expand('%:p')<cr>", { desc = "full path" })
+vim.keymap.set("n", "J", "mzJ`z", { desc = "join but no move cursor" })
+vim.keymap.set({ "x", "v" }, "p", [["_dP]], { desc = "visual mode no yank after put" })
+vim.keymap.set("n", "Y", "Yg$", { desc = "Y yanks to eol" })
+vim.keymap.set("n", "<leader>y", "<cmd>let @+=expand('%')<cr>", { desc = "copy file path" })
+vim.keymap.set("n", "<leader>Y", "<cmd>let @+=expand('%:p')<cr>", { desc = "copy full file path" })
 -- replace word under cursor interactively
 vim.keymap.set(
   "n",
@@ -292,9 +292,9 @@ now(function()
   vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end, { desc = "add" })
   vim.keymap.set("n", "<leader>he", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
     { desc = "edit" })
-  vim.keymap.set("n", "<leader>n", function() harpoon:list():select(1) end)
-  vim.keymap.set("n", "<leader>e", function() harpoon:list():select(2) end)
-  vim.keymap.set("n", "<leaedr>i", function() harpoon:list():select(3) end)
+  vim.keymap.set("n", "<leader>n", function() harpoon:list():select(1) end, { desc = "harpoon 1" })
+  vim.keymap.set("n", "<leader>e", function() harpoon:list():select(2) end, { desc = "harpoon 2" })
+  vim.keymap.set("n", "<leader>i", function() harpoon:list():select(3) end, { desc = "harpoon 3" })
 end)
 
 -- [[ later plugins ]]
@@ -340,10 +340,10 @@ later(function()
     max_lines = 8,           -- How many lines the window should span. Values <= 0 mean no limit.
     multiline_threshold = 8, -- Maximum number of lines to show for a single context
   }
-  vim.keymap.set("n", "<leader>C", "<cmd>TSContextToggle<CR>", { desc = "context" })
+  vim.keymap.set("n", "<leader>C", "<cmd>TSContextToggle<CR>", { desc = "tog context" })
   vim.keymap.set("n", "<leader>c", function()
     require("treesitter-context").go_to_context(vim.v.count1)
-  end, { desc = "context", silent = true })
+  end, { desc = "go to context", silent = true })
 end)
 
 -- LSP Configuration & Plugins
