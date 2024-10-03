@@ -15,42 +15,22 @@ local function git_branch() -- show git branch in status
   if string.len(branch) > 0 then
     return branch
   else
-    return ":"
+    return "no git"
   end
 end
 local function statusline()
   local branch = git_branch()
-  local file_name = "%F"    -- full filename
-  local modified = "%m%h%r" -- modified [+], help [Help], readonly [RO]
-  local align_right = "%="
-  local file_type = "%y"
-  local file_encoding = "%{strlen(&fenc)?&fenc:'none'}"
-  local line = "%l / %L"
-  local col = "c%c"
-  local percentage = "%p%%"
   return string.format(
-    "  (%s)  %s  %s  %s%s  %s  %s  %s  %s  ",
-    branch,
-    file_name,
-    modified,
-    align_right,
-    file_type,
-    file_encoding,
-    line,
-    col,
-    percentage
+    "  (%s)  %F  %m%h%r %y %=%l/%L  c%c  %p%%  ", branch
   )
 end
 
-vim.opt.termguicolors = true
-vim.opt.showmode = false
-vim.opt.fillchars = { eob = " " }
+vim.opt.statusline = statusline()
 vim.opt.laststatus = 3      -- always show status at bottom
 vim.opt.number = true
 vim.opt.termguicolors = true
 vim.opt.showmode = false          -- no INSERT, VISUAL, ..
 vim.opt.fillchars = { eob = " " } -- no ~ in line numbers
-vim.opt.statusline = statusline()
 vim.opt.mouse = "a"               -- enable mouse always
 vim.opt.clipboard:append("unnamedplus")
 vim.opt.breakindent = true
@@ -115,7 +95,6 @@ vim.keymap.set({"x","v"}, "<", "<gv", { desc = "dedent and hi" })
 vim.keymap.set("n", "<c-i>", "<c-i>", { desc = "keep ctrl i" })
 -- half page scroll with c-n and c-e
 vim.keymap.set("n", "<C-n>", "<C-d>", { desc = "ctrl-n is also scroll half down" })
-vim.keymap.set("n", "<C-e>", "<C-u>", { desc = "ctrl-e is also scroll half up" })
 -- other shortcuts and pet peves
 vim.keymap.set("v", "y", "ygv<esc>", { desc = "yank and hi" })
 vim.keymap.set("n", "<leader>p", 'diw"0P', { desc = "stamp" })
