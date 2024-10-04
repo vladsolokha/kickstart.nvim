@@ -12,21 +12,15 @@ vim.opt.guicursor = "a:blinkon0-defCursor,i-r:iCursor,v-ve:visCursor"
 
 local function git_branch() -- show git branch in status
   local branch = vim.fn.system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
-  if string.len(branch) > 0 then
-    return branch
-  else
-    return "no git"
-  end
+  if string.len(branch) > 0 then return branch else return "no git" end
 end
 local function statusline()
   local branch = git_branch()
   local astring = "%F  %m%h%r %y %=%l/%L  c%c  %p%%"
-  return string.format(
-    "  (%s)  %s  ", branch, astring)
+  return string.format("  (%s)  %s  ", branch, astring)
 end
-
 vim.opt.statusline = statusline()
-vim.opt.laststatus = 3 -- always show status at bottom
+vim.opt.laststatus = 3 -- always show global status
 vim.opt.number = true
 vim.opt.termguicolors = true
 vim.opt.showmode = false          -- no INSERT, VISUAL, ..
@@ -35,9 +29,9 @@ vim.opt.mouse = "a"               -- enable mouse always
 vim.opt.clipboard:append("unnamedplus")
 vim.opt.breakindent = true
 vim.opt.smartindent = true
+vim.opt.expandtab = true
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
-vim.opt.expandtab = true
 vim.opt.shiftwidth = 4
 vim.opt.undofile = true
 vim.opt.ignorecase = true
@@ -77,8 +71,8 @@ end, { desc = "diag toggle", silent = false })
 -- window movements
 vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "left win" })
 vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "right win" })
-vim.keymap.set("n", "<leader>wn", "<C-w><C-j>", { desc = "bot win" })
-vim.keymap.set("n", "<leader>we", "<C-w><C-k>", { desc = "top win" })
+vim.keymap.set("n", "<C-w>n", "<C-w><C-j>", { desc = "bot win" })
+vim.keymap.set("n", "<C-w>e", "<C-w><C-k>", { desc = "top win" })
 -- window resizing
 vim.keymap.set("n", "<A-t>", "<cmd>horizontal resize +8<cr>", { desc = "win taller" })
 vim.keymap.set("n", "<A-s>", "<cmd>horizontal resize -8<cr>", { desc = "win shorter" })
@@ -146,7 +140,6 @@ vim.api.nvim_create_autocmd('filetype', {
     local bind = function(lhs, rhs)
       vim.keymap.set('n', lhs, rhs, { remap = true, buffer = true })
     end
-    bind('r', 'R')          -- rename file
     bind('P', '<C-w>z')     -- no preview
     bind('.', 'gh')         -- show hide dotfiles
     bind('<Left>', '-')     -- move up directory
@@ -239,9 +232,10 @@ now(function() -- extra buff on left for padding code to middle of screen
     buffers = {
       scratchPad = {
         enabled = true,
-        location = '~/.notes/scratchpad'
+        fileName = "quicknote",
+        location = '~/.notes',
       },
-      bo = { filetype = 'md' },
+      bo = { filetype = 'txt' },
       right = { enabled = false },
     },
   })
