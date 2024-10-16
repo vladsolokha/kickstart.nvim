@@ -63,8 +63,8 @@ end, { desc = "diag toggle", silent = false })
 -- window movements
 vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "left win" })
 vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "right win" })
-vim.keymap.set("n", "<C-w>n", "<C-w><C-j>", { desc = "bot win" })
-vim.keymap.set("n", "<C-w>e", "<C-w><C-k>", { desc = "top win" })
+vim.keymap.set("n", "<C-w><C-n>", "<C-w><C-j>", { desc = "bot win" })
+vim.keymap.set("n", "<C-w><C-e>", "<C-w><C-k>", { desc = "top win" })
 -- window resizing
 vim.keymap.set("n", "<A-t>", "<cmd>horizontal resize +8<cr>", { desc = "win taller" })
 vim.keymap.set("n", "<A-s>", "<cmd>horizontal resize -8<cr>", { desc = "win shorter" })
@@ -98,6 +98,7 @@ vim.keymap.set("n", "<leader>p", 'diw"0P', { desc = "stamp" })
 vim.keymap.set("n", "<leader>y", "<cmd>let @+=expand('%')<cr>", { desc = "copy file path" })
 vim.keymap.set("n", "<leader>Y", "<cmd>let @+=expand('%:p')<cr>", { desc = "copy full file path" })
 vim.keymap.set("n", "<leader>,", "<cmd>edit ~/.config/nvim/init.lua<cr>", { desc = "edit nvim" })
+vim.keymap.set("n", "<leader><cr>", "a<cr><esc>", { desc = "new line in norm" })
 
 -- [[ auto commands ]] - event functions - autocommands
 -- functions that run on some event
@@ -107,9 +108,9 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 
 -- netrw options and mappings
 vim.g.netrw_keepdir = 0
-vim.g.netrw_banner = 0 -- use I inside to show banner
-vim.g.netrw_sort_by = "time"
-vim.g.netrw_sort_direction = "reverse"
+vim.g.netrw_banner = 0                 -- use I inside to show banner
+vim.g.netrw_sort_by = "time"           -- use s to sort differently
+vim.g.netrw_sort_direction = "reverse" -- use r to not reverse
 vim.g.netrw_liststyle = 1
 vim.api.nvim_create_autocmd('filetype', {
     pattern = 'netrw',
@@ -178,10 +179,10 @@ now(function() -- mini version of Telescope.nvim
         options = { content_from_bottom = true },
         window = {
             config = function()
-                local h = math.floor(0.6 * vim.o.lines)
-                local w = math.floor(0.6 * vim.o.columns)
-                local row = math.floor(0.3 * h)
-                local col = math.floor(0.3 * w)
+                local h = math.floor(0.8 * vim.o.lines)
+                local w = math.floor(0.8 * vim.o.columns)
+                local row = math.floor(0.1 * h)
+                local col = math.floor(0.1 * w)
                 return {
                     anchor = 'NW',
                     border = 'single',
@@ -235,7 +236,7 @@ now(function() -- jump to buffers fast
             sync_on_ui_close = true,
         }
     })
-    vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end, { desc = "add" })
+    vim.keymap.set("n", "<leader>hi", function() harpoon:list():add() end, { desc = "add" })
     vim.keymap.set("n", "<leader>he", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
         { desc = "edit" })
     vim.keymap.set("n", "<leader>n", function() harpoon:list():select(1) end, { desc = "harpoon 1" })
@@ -256,7 +257,16 @@ later(function()
 end)
 later(function() require('mini.extra').setup() end) -- extra Pickers for Pick; explore, registers, buf_lines
 
-later(function()                                    -- git client, great features, blame, diff, log
+later(function()
+    require('mini.completion').setup({
+        delay = { completion = 500, info = 500, signature = 50 },
+        lsp_completion = { source_func = 'completefunc' },
+    })
+    vim.keymap.set('i', "<C-e>", [[pumvisible() ? "\<C-p>" : "\<C-e>"]], { expr = true })
+    vim.keymap.set('i', "<C-p>", [[pumvisible() ? "\<C-e>" : "\<C-p>"]], { expr = true })
+end)
+
+later(function() -- git client, great features, blame, diff, log
     add({ source = 'tpope/vim-fugitive' })
     vim.keymap.set('n', '<Leader>gg', '<cmd>vert G<cr>', { desc = 'fugitive' })
     vim.keymap.set('n', '<Leader>gb', '<cmd>Git blame<cr>', { desc = 'blame' })
@@ -304,7 +314,6 @@ later(function() -- LSP Configuration & Plugins
             "williamboman/mason.nvim",
             "williamboman/mason-lspconfig.nvim",
             "WhoIsSethDaniel/mason-tool-installer.nvim",
-            "hrsh7th/cmp-nvim-lsp",
         },
     })
     vim.api.nvim_create_autocmd("LspAttach", {
@@ -325,7 +334,7 @@ later(function() -- LSP Configuration & Plugins
     })
 
     local capabilities = vim.lsp.protocol.make_client_capabilities()
-    capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
+    capabilities = vim.tbl_extend("force", capabilities, require("mini.completion").completefunc_lsp())
     capabilities.textDocument.completion.completionItem.snippetSupport = false
 
     local servers = {
@@ -348,7 +357,7 @@ later(function() -- LSP Configuration & Plugins
 
     require("mason").setup()
     local ensure_installed = vim.tbl_keys(servers or {})
-    vim.list_extend(ensure_installed, { "stylua", })
+    vim.list_extend(ensure_installed, { "stylua", "lua_ls", "ruff" })
     require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
     require("mason-lspconfig").setup({
         handlers = {
@@ -361,81 +370,12 @@ later(function() -- LSP Configuration & Plugins
     })
 end)
 
-later(function() -- autocomplete in code, cmd, and search
+later(function()
     add({
-        source = "hrsh7th/nvim-cmp",
-        depends = {
-            "hrsh7th/cmp-path",
-            "hrsh7th/cmp-cmdline",
-            "hrsh7th/cmp-buffer",
-        }
+        source = 'kristijanhusak/vim-dadbod-ui',
+        depends = { 'tpope/vim-dadbod', }
     })
-    local cmp = require("cmp")
-    cmp.setup({
-        completion = { completeopt = "menu,menuone,noinsert" },
-        performance = { debounce = 500, throttle = 300 },
-        mapping = cmp.mapping.preset.insert({
-            ["<C-n>"] = cmp.mapping.select_next_item(),
-            ["<C-e>"] = cmp.mapping.select_prev_item(),
-            ["<C-d>"] = cmp.mapping.scroll_docs(-4),
-            ["<C-u>"] = cmp.mapping.scroll_docs(4),
-            ["<C-y>"] = cmp.mapping.confirm({ select = true }),
-            ["<C-t>"] = cmp.mapping.complete({}),
-        }),
-        sources = cmp.config.sources({
-            { name = "nvim_lsp" },
-        }, {
-            { name = "buffer" },
-            { name = "path" },
-        })
-    })
-    -- disable completion in comments
-    cmp.setup({
-        enabled = function()
-            local context = require 'cmp.config.context'
-            if vim.api.nvim_get_mode().mode == 'c' then
-                return true
-            else
-                return not context.in_treesitter_capture("comment")
-                    and not context.in_syntax_group("Comment")
-            end
-        end
-    })
-    local cmdlineMap = {
-        ['<C-n>'] = {
-            c = function(_)
-                if cmp.visible() then
-                    cmp.select_next_item()
-                end
-            end,
-        },
-        ["<C-e>"] = {
-            c = function(_)
-                if cmp.visible() then
-                    cmp.select_prev_item()
-                end
-            end,
-        },
-        ["<C-y>"] = {
-            c = function(_)
-                if cmp.visible() then
-                    cmp.confirm({ select = true })
-                end
-            end,
-        },
-    }
-    cmp.setup.cmdline({ '/', '?' }, {
-        mapping = cmdlineMap,
-        sources = {
-            { name = 'buffer' }
-        },
-    })
-    cmp.setup.cmdline(':', {
-        mapping = cmdlineMap,
-        sources = cmp.config.sources({
-            { name = 'path' }
-        }, {
-            { name = 'cmdline' }
-        }),
-    })
+    local dburl = ""
+    vim.g.dbs = { { name = 'db00', url = dburl }, }
+    vim.keymap.set("n", "<leader>b", "<cmd>DBUIToggle<cr>", { desc = "db ui tog" })
 end)

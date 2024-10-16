@@ -1,0 +1,12 @@
+import= [ "alacritty-theme/themes/rose-pine.toml" ]
+[window]
+decorations= "None"
+startup_mode= "Maximized"
+[font]
+normal= {family="Hack Nerd Font", style="Regular"}
+size= 13.0
+[colors.primary]
+background='#000000'
+foreground='#ffffff'
+[terminal]
+osc52="CopyPaste"
