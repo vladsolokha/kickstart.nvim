@@ -80,9 +80,6 @@ vim.keymap.set("v", "<A-e>", ":m '<-2<CR>gv=gv", { desc = "move code up" })
 -- better indent/dedent
 vim.keymap.set({ "x", "v" }, ">", ">gv", { desc = "indent and hi" })
 vim.keymap.set({ "x", "v" }, "<", "<gv", { desc = "dedent and hi" })
--- go into Explore files mode netrw
-vim.keymap.set("n", "-", "<cmd>Ex %:p:h<Cr>", { desc = "ex this file dir" })
-vim.keymap.set("n", "<leader>a", "ggVG", { desc = "sel all" })
 -- better c qfix list keys
 vim.keymap.set("n", "]<Down>", "<cmd>cn<cr>", { desc = "c next qfix" })
 vim.keymap.set("n", "[<Down>", "<cmd>cp<cr>", { desc = "c prev qfix" })
@@ -99,31 +96,12 @@ vim.keymap.set("n", "<leader>y", "<cmd>let @+=expand('%')<cr>", { desc = "copy f
 vim.keymap.set("n", "<leader>Y", "<cmd>let @+=expand('%:p')<cr>", { desc = "copy full file path" })
 vim.keymap.set("n", "<leader>,", "<cmd>edit ~/.config/nvim/init.lua<cr>", { desc = "edit nvim" })
 vim.keymap.set("n", "<leader><cr>", "a<cr><esc>", { desc = "new line in norm" })
+vim.keymap.set("n", "<leader>a", "ggVG", { desc = "sel all" })
 
 -- [[ auto commands ]] - event functions - autocommands
 -- functions that run on some event
 vim.api.nvim_create_autocmd("TextYankPost", {
     callback = function() vim.highlight.on_yank() end,
-})
-
--- netrw options and mappings
-vim.g.netrw_keepdir = 0
-vim.g.netrw_banner = 0                 -- use I inside to show banner
-vim.g.netrw_sort_by = "time"           -- use s to sort differently
-vim.g.netrw_sort_direction = "reverse" -- use r to not reverse
-vim.g.netrw_liststyle = 1
-vim.api.nvim_create_autocmd('filetype', {
-    pattern = 'netrw',
-    desc = 'Better mappings for netrw',
-    callback = function()
-        local bind = function(lhs, rhs)
-            vim.keymap.set('n', lhs, rhs, { remap = true, buffer = true })
-        end
-        bind('P', '<C-w>z')     -- no preview
-        bind('.', 'gh')         -- show hide dotfiles
-        bind('<Left>', '-')     -- move up directory
-        bind('<Right>', '<CR>') -- open file | dir
-    end
 })
 
 -- [[ plugin manager ]]
@@ -151,7 +129,7 @@ now(function() -- colorscheme
         name = "rose-pine",
     })
     require("rose-pine").setup({
-        styles = { italic = false },
+        styles = { italic = false, bold = false },
     })
     vim.cmd("colorscheme rose-pine")
 end)
@@ -200,6 +178,30 @@ now(function() -- mini version of Telescope.nvim
     vim.keymap.set("n", "<leader>'", "<cmd>Pick grep pattern='<cword>'<cr>", { desc = "grep word" })
     vim.keymap.set("n", "<leader>?", "<cmd>Pick help<cr>", { desc = "help" })
     vim.keymap.set("n", [[<leader>"]], "<cmd>Pick registers<cr>", { desc = "registers" })
+end)
+
+now(function() 
+    require("mini.files").setup({
+        windows = {
+            preview = true,
+            width_focus = 25,   -- Width of focused window
+            width_nofocus = 15, -- Width of non-focused window
+            width_preview = 50, -- Width of preview window
+        },
+        mappings = {
+            go_in_plus  = "<Right>",
+            go_in       = "<S-Right>",
+            go_out      = "<Left>",
+            go_out_plus = "<S-Left>",
+            close       = "<ESC>",
+        },
+    })
+    function Minifile_toggle()
+        if not MiniFiles.close() then
+            MiniFiles.open()
+        end
+    end
+    vim.keymap.set("n", "-", ":lua Minifile_toggle()<cr>", { silent = true, desc = "mini files toggle" })
 end)
 
 now(function() -- extra buff on left for padding code to middle of screen
