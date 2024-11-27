@@ -2,10 +2,10 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 -- cursor options
-vim.cmd('hi iCursor gui=NONE guibg=Red guifg=NONE')
-vim.cmd('hi defCursor gui=NONE guibg=White guifg=Black')
-vim.cmd('hi visCursor gui=NONE guibg=Green guifg=Yellow')
-vim.opt.guicursor = "a:blinkon0-defCursor,i-r:iCursor,v-ve:visCursor"
+vim.cmd('hi dCursor guibg=black')
+vim.cmd('hi iCursor guibg=red')
+vim.cmd('hi vCursor guibg=green')
+vim.opt.guicursor = "a:blinkon0-dCursor,i-r:iCursor,v-ve:vCursor"
 
 local function git_branch() -- show git branch in status
     local branch = vim.fn.system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
@@ -17,6 +17,9 @@ local function statusline()
     return string.format("  (%s)  %s  ", branch, astring)
 end
 vim.opt.statusline = statusline()
+vim.opt.termguicolors = true
+vim.opt.background = "light"
+vim.opt.sessionoptions = "blank,buffers,curdir,help,winsize"
 vim.opt.laststatus = 3            -- always show global status
 vim.opt.showmode = false          -- no INSERT, VISUAL, ..
 vim.opt.fillchars = { eob = " " } -- no ~ in line numbers
@@ -97,6 +100,8 @@ vim.keymap.set("n", "<leader>Y", "<cmd>let @+=expand('%:p')<cr>", { desc = "copy
 vim.keymap.set("n", "<leader>,", "<cmd>edit ~/.config/nvim/init.lua<cr>", { desc = "edit nvim" })
 vim.keymap.set("n", "<leader><cr>", "a<cr><esc>", { desc = "new line in norm" })
 vim.keymap.set("n", "<leader>a", "ggVG", { desc = "sel all" })
+vim.keymap.set("n", ";", ",")
+vim.keymap.set("n", ",", ";")
 
 -- [[ auto commands ]] - event functions - autocommands
 -- functions that run on some event
@@ -123,18 +128,16 @@ deps.setup({ path = { package = path_package } })
 local add, now, later = deps.add, deps.now, deps.later
 
 -- [[ now plugins ]]
-now(function() -- colorscheme
-    add({
-        source = "rose-pine/neovim",
-        name = "rose-pine",
-    })
-    require("rose-pine").setup({
-        styles = { italic = false, bold = false },
-    })
-    vim.cmd("colorscheme rose-pine")
-end)
+-- now(function() -- colorscheme
+--     add({ source = "e-q/okcolors.nvim",
+--         name = "okcolors",
+--     })
+--     require("okcolors").setup()
+--     vim.cmd("colorscheme okcolors")
+-- end)
 
 now(function() -- mini version of Telescope.nvim
+    require("mini.extra")
     local pick = require("mini.pick")
     pick.setup({
         mappings = {
@@ -180,7 +183,7 @@ now(function() -- mini version of Telescope.nvim
     vim.keymap.set("n", [[<leader>"]], "<cmd>Pick registers<cr>", { desc = "registers" })
 end)
 
-now(function() 
+now(function()
     require("mini.files").setup({
         windows = {
             preview = true,
