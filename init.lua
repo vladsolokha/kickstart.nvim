@@ -66,8 +66,8 @@ end, { desc = "diag toggle", silent = false })
 -- window movements
 vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "left win" })
 vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "right win" })
-vim.keymap.set("n", "<C-w><C-n>", "<C-w><C-j>", { desc = "bot win" })
-vim.keymap.set("n", "<C-w><C-e>", "<C-w><C-k>", { desc = "top win" })
+vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "bot win" })
+vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "top win" })
 -- window resizing
 vim.keymap.set("n", "<A-t>", "<cmd>horizontal resize +8<cr>", { desc = "win taller" })
 vim.keymap.set("n", "<A-s>", "<cmd>horizontal resize -8<cr>", { desc = "win shorter" })
@@ -109,6 +109,12 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     callback = function() vim.highlight.on_yank() end,
 })
 
+-- trim trailing ending whitespace before writing to buffer
+vim.api.nvim_create_autocmd("BufWritePre", {
+    pattern = "*",
+    command = ":%s/\\s\\+$//e",
+})
+
 -- [[ plugin manager ]]
 -- installing mini.deps and setup
 local path_package = vim.fn.stdpath('data') .. '/site/'
@@ -137,7 +143,6 @@ local add, now, later = deps.add, deps.now, deps.later
 -- end)
 
 now(function() -- mini version of Telescope.nvim
-    require("mini.extra")
     local pick = require("mini.pick")
     pick.setup({
         mappings = {
@@ -157,16 +162,15 @@ now(function() -- mini version of Telescope.nvim
             choose_in_split   = '',
             choose_in_tabpage = '',
         },
-        options = { content_from_bottom = true },
         window = {
             config = function()
-                local h = math.floor(0.8 * vim.o.lines)
-                local w = math.floor(0.8 * vim.o.columns)
-                local row = math.floor(0.1 * h)
-                local col = math.floor(0.1 * w)
+                local h = math.floor(0.6 * vim.o.lines)
+                local w = math.floor(0.6 * vim.o.columns)
+                local row = math.floor(0.35 * h)
+                local col = math.floor(0.45 * w)
                 return {
                     anchor = 'NW',
-                    border = 'single',
+                    border = 'none',
                     height = h,
                     width = w,
                     row = row,
@@ -175,9 +179,9 @@ now(function() -- mini version of Telescope.nvim
             end,
         },
     })
-    vim.keymap.set("n", "<leader>f", "<cmd>Pick files<cr>", { desc = "files" })
+    vim.keymap.set("n", "<leader>f", "<cmd>lua MiniPick.builtin.files()<cr>", { desc = "files" })
     vim.keymap.set("n", "<leader>o", "<cmd>Pick resume<cr>", { desc = "resume" })
-    vim.keymap.set("n", "<leader>/", "<cmd>Pick grep_live<cr>", { desc = "grep live" })
+    vim.keymap.set("n", "<leader>/", "<cmd>lua MiniPick.builtin.grep_live()<cr>", { desc = "grep live" })
     vim.keymap.set("n", "<leader>'", "<cmd>Pick grep pattern='<cword>'<cr>", { desc = "grep word" })
     vim.keymap.set("n", "<leader>?", "<cmd>Pick help<cr>", { desc = "help" })
     vim.keymap.set("n", [[<leader>"]], "<cmd>Pick registers<cr>", { desc = "registers" })
@@ -217,7 +221,7 @@ now(function() -- extra buff on left for padding code to middle of screen
             scratchPad = {
                 enabled = true,
                 fileName = "quicknote",
-                location = '~/.notes',
+                location = '~/notes',
             },
             bo = { filetype = 'txt' },
             right = { enabled = false },
@@ -251,8 +255,9 @@ end)
 
 -- [[ later plugins ]]
 later(function() require("mini.ai").setup() end) -- extra text objects for around/in
--- jump to hunks and see code changes on numbers
-later(function()
+later(function() require('mini.extra').setup() end) -- extra Pickers for Pick; explore, registers, buf_lines
+
+later(function() -- jump to hunks and see code changes on numbers
     require('mini.diff').setup({
         view = {
             style = 'sign',
@@ -260,7 +265,6 @@ later(function()
         }
     })
 end)
-later(function() require('mini.extra').setup() end) -- extra Pickers for Pick; explore, registers, buf_lines
 
 later(function()
     require('mini.completion').setup({
@@ -269,6 +273,10 @@ later(function()
     })
     vim.keymap.set('i', "<C-e>", [[pumvisible() ? "\<C-p>" : "\<C-e>"]], { expr = true })
     vim.keymap.set('i', "<C-p>", [[pumvisible() ? "\<C-e>" : "\<C-p>"]], { expr = true })
+end)
+
+later(function() -- surround motions to (y)add, (d)delete/remove, or (c)change surrounding text objects
+    add({ source = 'tpope/vim-surround' })
 end)
 
 later(function() -- git client, great features, blame, diff, log
@@ -295,7 +303,7 @@ later(function() -- syntax highlight
     require('nvim-treesitter.configs').setup({
         ensure_installed = {},
         auto_install = true,
-        highlight = { enable = true },
+      highlight = { enable = true },
         indent = { enable = true, },
     })
 end)
