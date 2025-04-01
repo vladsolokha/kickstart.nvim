@@ -55,11 +55,11 @@ vim.keymap.set( -- replace word under cursor interactively
 vim.keymap.set({ "n", "v" }, "<Up>", [[v:count == 0 ? 'gk' : 'k']], { expr = true, silent = true })
 vim.keymap.set({ "n", "v" }, "<Down>", [[v:count == 0 ? 'gj' : 'j']], { expr = true, silent = true })
 vim.keymap.set({ "n", "i", "v", "x" }, "<C-s>", "<Esc><cmd>w<cr>", { desc = "save" })
-vim.keymap.set("n", "<leader>q", "<cmd>quitall!<cr>", { desc = "quit" })
+vim.keymap.set("n", "<leader>w", "<cmd>quitall!<cr>", { desc = "quit" })
 vim.keymap.set("n", "<leader>x", "<C-w>q", { desc = "win close" })
 -- diagnostic keymaps
-vim.keymap.set("n", "[<Up>", vim.diagnostic.goto_prev, { desc = "prev diag" })
-vim.keymap.set("n", "]<Up>", vim.diagnostic.goto_next, { desc = "next diag" })
+vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "prev diag" })
+vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next diag" })
 vim.keymap.set('n', '<leader>d', function()
     vim.diagnostic.enable(not vim.diagnostic.is_enabled())
 end, { desc = "diag toggle", silent = false })
@@ -84,12 +84,11 @@ vim.keymap.set("v", "<A-e>", ":m '<-2<CR>gv=gv", { desc = "move code up" })
 vim.keymap.set({ "x", "v" }, ">", ">gv", { desc = "indent and hi" })
 vim.keymap.set({ "x", "v" }, "<", "<gv", { desc = "dedent and hi" })
 -- better c qfix list keys
-vim.keymap.set("n", "]<Down>", "<cmd>cn<cr>", { desc = "c next qfix" })
-vim.keymap.set("n", "[<Down>", "<cmd>cp<cr>", { desc = "c prev qfix" })
+vim.keymap.set("n", "]*", "<cmd>cn<cr>", { desc = "c next qfix" })
+vim.keymap.set("n", "[*", "<cmd>cp<cr>", { desc = "c prev qfix" })
 -- other shortcuts and pet peves
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "rm search hi" })
 vim.keymap.set("n", "<c-i>", "<c-i>", { desc = "keep ctrl i" })
-vim.keymap.set("n", "<C-n>", "<C-d>", { desc = "ctrl-n is also scroll half down" })
 vim.keymap.set("v", "y", "ygv<esc>", { desc = "yank and hi" })
 vim.keymap.set("n", "Y", "Yg$", { desc = "Y yanks to eol" })
 vim.keymap.set({ "x", "v" }, "p", [["_dP]], { desc = "visual mode no yank after put" })
@@ -273,6 +272,10 @@ later(function()
     })
     vim.keymap.set('i', "<C-e>", [[pumvisible() ? "\<C-p>" : "\<C-e>"]], { expr = true })
     vim.keymap.set('i', "<C-p>", [[pumvisible() ? "\<C-e>" : "\<C-p>"]], { expr = true })
+end)
+
+later(function() -- exchange motions to cx(motion) highlight, cxc(lear), X in visual mode stuff
+    add({ source = 'tommcdo/vim-exchange' }) -- try cxiw, motion to other word and . repeat
 end)
 
 later(function() -- surround motions to (y)add, (d)delete/remove, or (c)change surrounding text objects
