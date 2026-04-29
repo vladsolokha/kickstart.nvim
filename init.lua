@@ -11,12 +11,25 @@ local function git_branch() -- show git branch in status
     local branch = vim.fn.system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
     if string.len(branch) > 0 then return branch else return "no git" end
 end
-local function statusline()
-    local branch = git_branch()
-    local astring = "%F  %m%h%r %y %=%l/%L  c%c  %p%%"
-    return string.format("  (%s)  %s  ", branch, astring)
+local function search_count()
+    if vim.v.hlsearch == 1 then
+        local sinfo = vim.fn.searchcount { maxcount = 0 }
+        local search_stat = sinfo.incomplete > 0 and '[?/?]'
+        or sinfo.total > 0 and ('[%s/%s]'):format(sinfo.current, sinfo.total)
+        or ""
+        return search_stat or ""
+    end
+    return ""
 end
-vim.opt.statusline = statusline()
+function Statusline()
+    local branch = git_branch()
+    local search_stat = search_count()
+    local astring = "%F  %m%h%r %y %=%l/%L  c%c  %p%%"
+    -- return string.format("  (%s)  %s  ", branch, astring)
+    return string.format("  (%s)  %s  %s  ", branch, astring, search_stat)
+end
+vim.opt.statusline = "%!v:lua.Statusline()"
+vim.opt.shortmess="ltToOCFS"
 vim.opt.termguicolors = true
 vim.opt.background = "light"
 vim.opt.sessionoptions = "blank,buffers,curdir,help,winsize"
@@ -26,6 +39,7 @@ vim.opt.fillchars = { eob = " " } -- no ~ in line numbers
 vim.opt.mouse = "a"               -- enable mouse always
 vim.opt.clipboard:append("unnamedplus")
 vim.opt.breakindent = true
+vim.opt.wrap = true
 vim.opt.smartindent = true
 vim.opt.expandtab = true
 vim.opt.tabstop = 4
@@ -48,14 +62,14 @@ vim.opt.hlsearch = true      -- ESC to clear search
 
 -- [[ keymaps ]]
 vim.keymap.set( -- replace word under cursor interactively
-    "n", "<leader>r", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
+    { "n", "v" }, "<leader>r", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
     { desc = "word rename" }
 )
 -- better move around wrapped lines
 vim.keymap.set({ "n", "v" }, "<Up>", [[v:count == 0 ? 'gk' : 'k']], { expr = true, silent = true })
 vim.keymap.set({ "n", "v" }, "<Down>", [[v:count == 0 ? 'gj' : 'j']], { expr = true, silent = true })
 vim.keymap.set({ "n", "i", "v", "x" }, "<C-s>", "<Esc><cmd>w<cr>", { desc = "save" })
-vim.keymap.set("n", "<leader>w", "<cmd>quitall!<cr>", { desc = "quit" })
+vim.keymap.set("n", "<leader>q", "<cmd>quitall!<cr>", { desc = "quit" })
 vim.keymap.set("n", "<leader>x", "<C-w>q", { desc = "win close" })
 -- diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "prev diag" })
@@ -99,6 +113,9 @@ vim.keymap.set("n", "<leader>Y", "<cmd>let @+=expand('%:p')<cr>", { desc = "copy
 vim.keymap.set("n", "<leader>,", "<cmd>edit ~/.config/nvim/init.lua<cr>", { desc = "edit nvim" })
 vim.keymap.set("n", "<leader><cr>", "a<cr><esc>", { desc = "new line in norm" })
 vim.keymap.set("n", "<leader>a", "ggVG", { desc = "sel all" })
+vim.keymap.set("n", "<leader>ms", "<cmd>set number<cr>", { desc = "set line numbers absolute" })
+vim.keymap.set("n", "<leader>mt", "<cmd>set nonumber<cr>", { desc = "unset line numbers" })
+vim.keymap.set("n", "<leader>gR", "<cmd>!git review<cr>", { desc = "git review" })
 vim.keymap.set("n", ";", ",")
 vim.keymap.set("n", ",", ";")
 
@@ -112,6 +129,31 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 vim.api.nvim_create_autocmd("BufWritePre", {
     pattern = "*",
     command = ":%s/\\s\\+$//e",
+})
+
+-- Set textwidth=71 for Git commit messages
+vim.api.nvim_create_autocmd("BufRead", {
+  pattern = "COMMIT_EDITMSG",
+  callback = function()
+    vim.opt_local.textwidth = 71
+    vim.opt_local.colorcolumn = "72"
+    vim.opt_local.wrap = true
+    vim.opt_local.linebreak = true
+  end,
+})
+
+local searchcount_timer = nil
+vim.api.nvim_create_autocmd({"CursorMoved", "CursorMovedI"}, {
+    pattern = "*",
+    callback = function()
+        if searchcount_timer then
+            vim.fn.timer_stop(searchcount_timer)
+        end
+        searchcount_timer = vim.fn.timer_start(200, function()
+            vim.fn.searchcount({recompute = 1, maxcount = 0, timeout = 100})
+            vim.cmd("redrawstatus")
+        end)
+    end,
 })
 
 -- [[ plugin manager ]]
@@ -190,9 +232,9 @@ now(function()
     require("mini.files").setup({
         windows = {
             preview = true,
-            width_focus = 25,   -- Width of focused window
-            width_nofocus = 15, -- Width of non-focused window
-            width_preview = 50, -- Width of preview window
+            width_focus = 50,   -- Width of focused window
+            width_nofocus = 30, -- Width of non-focused window
+            width_preview = 100, -- Width of preview window
         },
         mappings = {
             go_in_plus  = "<Right>",
@@ -267,7 +309,7 @@ end)
 
 later(function()
     require('mini.completion').setup({
-        delay = { completion = 500, info = 500, signature = 50 },
+        delay = { completion = 100, info = 100, signature = 100 },
         lsp_completion = { source_func = 'completefunc' },
     })
     vim.keymap.set('i', "<C-e>", [[pumvisible() ? "\<C-p>" : "\<C-e>"]], { expr = true })
@@ -322,6 +364,14 @@ later(function() -- function, conditional context top of screen
     end, { desc = "go to context", silent = true })
 end)
 
+later(function()
+    add({
+        source = "williambowman/mason-lspconfig.nvim",
+        name = "mason-lspconfig.nvim",
+        checkout = "v1.32.0"
+    })
+end)
+
 later(function() -- LSP Configuration & Plugins
     add({
         source = "neovim/nvim-lspconfig",
@@ -332,6 +382,41 @@ later(function() -- LSP Configuration & Plugins
             "WhoIsSethDaniel/mason-tool-installer.nvim",
         },
     })
+
+    require("mason").setup()
+
+    local capabilities = vim.lsp.protocol.make_client_capabilities()
+    capabilities = vim.tbl_extend("force", capabilities, require("mini.completion").completefunc_lsp())
+    capabilities.textDocument.completion.completionItem.snippetSupport = false
+
+    local servers = {
+        lua_ls = {
+            settings = {
+                Lua = {
+                    diagnostics = { globals = { 'vim' } },
+                    completion = { callSnippet = "Replace" },
+                },
+            },
+        },
+        ruff = {},
+    }
+
+    require("mason-tool-installer").setup({
+        ensure_installed = vim.tbl_keys(servers or {})
+    })
+
+     require('mason-lspconfig').setup {
+        ensure_installed = {},
+        automatic_installation = true,
+        handlers = {
+          function(server_name)
+            local server = servers[server_name] or {}
+            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+            vim.lsp.config[server_name] = server
+          end,
+        },
+      }
+
     vim.api.nvim_create_autocmd("LspAttach", {
         callback = function(event)
             local map = function(keys, func, desc)
@@ -349,41 +434,14 @@ later(function() -- LSP Configuration & Plugins
         end,
     })
 
-    local capabilities = vim.lsp.protocol.make_client_capabilities()
-    capabilities = vim.tbl_extend("force", capabilities, require("mini.completion").completefunc_lsp())
-    capabilities.textDocument.completion.completionItem.snippetSupport = false
+    -- require("mason-lspconfig").setup_handlers({
+    --     function(server_name)
+    --         local server = servers[server_name] or {}
+    --         server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
+    --         require("lspconfig")[server_name].setup(server)
+    --     end,
+    -- })
 
-    local servers = {
-        lua_ls = {
-            settings = {
-                Lua = {
-                    diagnostics = { globals = { 'vim' } },
-                    completion = { callSnippet = "Replace" },
-                },
-            },
-        },
-        ruff = {
-            init_options = {
-                settings = { -- Ruff language server settings go here
-                    ignore = { "E501", "E402" },
-                },
-            },
-        },
-    }
-
-    require("mason").setup()
-    local ensure_installed = vim.tbl_keys(servers or {})
-    vim.list_extend(ensure_installed, { "stylua", "lua_ls", "ruff" })
-    require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
-    require("mason-lspconfig").setup({
-        handlers = {
-            function(server_name)
-                local server = servers[server_name] or {}
-                server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-                require("lspconfig")[server_name].setup(server)
-            end,
-        },
-    })
 end)
 
 later(function()
@@ -391,7 +449,21 @@ later(function()
         source = 'kristijanhusak/vim-dadbod-ui',
         depends = { 'tpope/vim-dadbod', }
     })
-    local dburl = ""
+    local dburl = "mysql://root:ddnco@10.36.16.25:3306"
     vim.g.dbs = { { name = 'db00', url = dburl }, }
     vim.keymap.set("n", "<leader>b", "<cmd>DBUIToggle<cr>", { desc = "db ui tog" })
+end)
+
+later(function()
+    add({
+        source = 'augmentcode/augment.vim'
+    })
+    vim.g.augment_workspace_folders = {'/home/vsolokha/work/projects/sfaos', '/home/vsolokha/work/projects/'}
+    vim.keymap.set("n", "<leader>zc", ":Augment chat ", { desc = "augment chat" })
+    vim.keymap.set("n", "<leader>zn", "<cmd>Augment chat-new<cr>", { desc = "augment chat-new" })
+    vim.keymap.set("n", "<leader>zt", "<cmd>Augment chat-toggle<cr>", { desc = "augment chat-toggle" })
+    vim.keymap.set("n", "<leader>zl", "<cmd>Augment log<cr>", { desc = "augment log" })
+    vim.keymap.set("n", "<leader>ze", "<cmd>let g:augment_disable_completions = v:false<cr>", { desc = "augment enable completions" })
+    vim.keymap.set("n", "<leader>zd", "<cmd>let g:augment_disable_completions = v:true<cr>", { desc = "augment disable completions" })
+    vim.keymap.set("i", "<c-z>", "<cmd>call augment#Accept()<cr>", {desc = "augment accept suggestion"})
 end)
