@@ -1,6 +1,8 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+vim.cmd('hi difAdded ctermfg=188 ctermbg=64 cterm=bold guifg=#1b8235 guibg=NONE gui=bold')
+vim.cmd('hi difRemoved ctermfg=88 ctermbg=NONE cterm=NONE guifg=#a13338 guibg=NONE gui=NONE')
 -- cursor options
 vim.cmd('hi dCursor guibg=black')
 vim.cmd('hi iCursor guibg=red')
@@ -322,6 +324,11 @@ end)
 
 later(function() -- surround motions to (y)add, (d)delete/remove, or (c)change surrounding text objects
     add({ source = 'tpope/vim-surround' })
+end)
+
+later(function() -- exchange words with cx{motion}, (.)repeat, or cx(c)lear, cxx line based, X in visual mode
+    -- see help exchange
+    add({ source = 'tommcdo/vim-exchange' })
 end)
 
 later(function() -- git client, great features, blame, diff, log
