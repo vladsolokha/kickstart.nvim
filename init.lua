@@ -14,12 +14,15 @@ local function git_branch() -- show git branch in status
     if string.len(branch) > 0 then return branch else return "no git" end
 end
 local function search_count()
-    if vim.v.hlsearch == 1 then
-        local sinfo = vim.fn.searchcount { maxcount = 0 }
-        local search_stat = sinfo.incomplete > 0 and '[?/?]'
-        or sinfo.total > 0 and ('[%s/%s]'):format(sinfo.current, sinfo.total)
-        or ""
-        return search_stat or ""
+    if vim.v.hlsearch ~= 1 then
+        return ""
+    end
+    local sinfo = vim.fn.searchcount({ maxcount = 0 })
+    if (sinfo.incomplete or 0) > 0 then
+        return '[?/?]'
+    end
+    if (sinfo.total or 0) > 0 then
+        return ('[%s/%s]'):format(sinfo.current or 0, sinfo.total)
     end
     return ""
 end
@@ -352,10 +355,10 @@ later(function() -- syntax highlight
         hooks = { post_checkout = function() vim.cmd('TSUpdate') end },
     })
     ---@diagnostic disable-next-line: missing-fields
-    require('nvim-treesitter.configs').setup({
+    require('nvim-treesitter').setup({
         ensure_installed = {},
         auto_install = true,
-      highlight = { enable = true },
+        highlight = { enable = true },
         indent = { enable = true, },
     })
 end)
@@ -459,18 +462,4 @@ later(function()
     local dburl = "mysql://root:ddnco@10.36.16.25:3306"
     vim.g.dbs = { { name = 'db00', url = dburl }, }
     vim.keymap.set("n", "<leader>b", "<cmd>DBUIToggle<cr>", { desc = "db ui tog" })
-end)
-
-later(function()
-    add({
-        source = 'augmentcode/augment.vim'
-    })
-    vim.g.augment_workspace_folders = {'/home/vsolokha/work/projects/sfaos', '/home/vsolokha/work/projects/'}
-    vim.keymap.set("n", "<leader>zc", ":Augment chat ", { desc = "augment chat" })
-    vim.keymap.set("n", "<leader>zn", "<cmd>Augment chat-new<cr>", { desc = "augment chat-new" })
-    vim.keymap.set("n", "<leader>zt", "<cmd>Augment chat-toggle<cr>", { desc = "augment chat-toggle" })
-    vim.keymap.set("n", "<leader>zl", "<cmd>Augment log<cr>", { desc = "augment log" })
-    vim.keymap.set("n", "<leader>ze", "<cmd>let g:augment_disable_completions = v:false<cr>", { desc = "augment enable completions" })
-    vim.keymap.set("n", "<leader>zd", "<cmd>let g:augment_disable_completions = v:true<cr>", { desc = "augment disable completions" })
-    vim.keymap.set("i", "<c-z>", "<cmd>call augment#Accept()<cr>", {desc = "augment accept suggestion"})
 end)
